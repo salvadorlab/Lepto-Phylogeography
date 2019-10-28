@@ -8,4 +8,4 @@ with open(sra_uid) as f:
 Entrez.email = "rx32940@uga.edu"
 handle = Entrez.efetch(db="bioproject",id=ids,rettype = "xml", retmode = "xml")
 
-Entrez.read(handle)
+Entrez.read(handle,validate=False)
