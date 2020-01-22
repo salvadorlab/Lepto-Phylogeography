@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -q highmem_q                                                            
-#PBS -N lepto_fastq                                            
-#PBS -l nodes=1:ppn=4 -l mem=300gb                                        
+#PBS -N assemble_SAMN13046976                                         
+#PBS -l nodes=1:ppn=4 -l mem=100gb                                        
 #PBS -l walltime=100:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
@@ -9,10 +9,10 @@
 #PBS -e /scratch/rx32940                        
 #PBS -j oe     
 
-cd $PBS_O_WORKDIR
+module load spades/3.12.0-k_245 
 
-module load SRA-Toolkit/2.9.1-centos_linux64
+SRA_PATH="/scratch/rx32940/"
+python /usr/local/apps/gb/spades/3.12.0-k_245/bin/spades.py \
+-o $SRA_PATH/assembled_51/SAMN13046976 \
+--s1 $SRA_PATH/LeptoFastqSRA/SRR10301832_1.fastq.gz
 
-#cat /scratch/rx32940/sra_date_wgs.txt | xargs -I{} fastq-dump --gzip --split-files -O /scratch/rx32940/LeptoFastqSRA {}
-
-fastq-dump --gzip --split-files -O /scratch/rx32940/ SRR10301832
