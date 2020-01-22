@@ -12,7 +12,8 @@
 module load spades/3.12.0-k_245 
 
 SRA_PATH="/scratch/rx32940/"
-python /usr/local/apps/gb/spades/3.12.0-k_245/bin/spades.py \
--o $SRA_PATH/assembled_51/SAMN13046976 \
---s1 $SRA_PATH/LeptoFastqSRA/SRR10301832_1.fastq.gz
+cat $SRA_PATH/picardeau/picardeau_313_sra.txt | xargs - I python /usr/local/apps/gb/spades/3.12.0-k_245/bin/spades.py \
+-o $SRA_PATH/picardeau/assemblies/{} \
+--pe1-1 $SRA_PATH/picardeau/SRA_seq/{}_1.fastq.gz
+--pe1-2 $SRA_PATH/picardeau/SRA_seq/{}_2.fastq.gz
 
