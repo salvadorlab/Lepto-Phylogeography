@@ -12,5 +12,5 @@
 module load prokka/1.13-foss-2016b-BioPerl-1.7.1
 
 PROKKAPATH="/scratch/rx32940/"
-cat $PROKKAPATH/assembled.txt | xargs -I{} prokka --kingdom Bacteria --outdir $PROKKAPATH/prokka_output/{} --genus Leptospira --locustag {} /scratch/rx32940/assembled_51/{}/scaffolds.fasta
+cat $PROKKAPATH/PATRIC_isolates.txt | xargs -I{} prokka --kingdom Bacteria --outdir $PROKKAPATH/prokka_output/{} --genus Leptospira --locustag {} /scratch/rx32940/assembled_51/{}/scaffolds.fasta
 
