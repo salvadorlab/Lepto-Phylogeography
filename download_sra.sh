@@ -13,6 +13,6 @@ cd $PBS_O_WORKDIR
 
 module load SRA-Toolkit/2.9.1-centos_linux64
 
-cat /scratch/rx32940/picardeau/download.txt | xargs -I{} fastq-dump --gzip --split-files -O /scratch/rx32940/picardeau/SRA_seq {}
+cat /scratch/rx32940/rest_sra_216/rest_sra_216.txt | xargs -I{} fastq-dump --gzip --split-files -O /scratch/rx32940/rest_sra_216/SRAseq {}
 
 #fastq-dump --gzip --split-files -O /scratch/rx32940/ SRR10301832
