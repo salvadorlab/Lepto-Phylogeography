@@ -12,9 +12,9 @@
 module load QUAST/5.0.2-foss-2018a-Python-2.7.14
 
 QUASTPATH="/scratch/rx32940" 
-cat $QUASTPATH/All_Lepto_Assemblies/PATRIC_assemblies_633/PATRIC_biosample_633.txt | xargs -I{} quast.py \
-$QUASTPATH/All_Lepto_Assemblies/PATRIC_assemblies_633/ncbi-genomes-2020-01-22/{}.fna.gz \
--o $QUASTPATH/All_Lepto_Assemblies/PATRIC_assemblies_633/quast_assemblies/{} \
+cat $QUASTPATH/rest_sra_216/rest_assembly_212+12.txt | xargs -I{} quast.py \
+$QUASTPATH/rest_sra_216/assemblies/{}/scaffolds.fasta \
+-o $QUASTPATH/rest_sra_216/quast_assemblies/{} \
 -r $QUASTPATH/reference/GCF_000092565.1_ASM9256v1_genomic.fna \
 -g $QUASTPATH/reference/GCF_000092565.1_ASM9256v1_genomic.gff
 -t 8 
