@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for i in {1973810..1973857}
+for i in {1985288..1985572}
 do
 qdel $i
 done
