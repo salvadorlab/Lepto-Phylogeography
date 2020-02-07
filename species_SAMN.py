@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 def main():
 
     path = "/Users/rx32940/Downloads/"
-    doc = ET.parse(path + "biosample_result-2.xml") # xml object
+    doc = ET.parse(path + "biosample_result-2.xml") # xml object, biosample result file downloaded directly from ncbi with all_assemblies list
     root = doc.getroot() # get the root element
     
     for des in root.findall("BioSample"):
