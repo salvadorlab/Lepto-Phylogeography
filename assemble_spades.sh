@@ -6,21 +6,21 @@ SRA_PATH="/scratch/rx32940"
 # --pe1-1 $SRA_PATH/picardeau/SRA_seq/{}_1.fastq.gz
 # --pe1-2 $SRA_PATH/picardeau/SRA_seq/{}_2.fastq.gz
 
-paste $SRA_PATH/rest_sra_216/PairEnd_4.txt |\
- while read SRA; 
+cat $SRA_PATH/All_Lepto_Assemblies/dated_assembled_51/dated_assemblies_51.txt |\
+ while read SAMN; 
  do
     echo "Starting command"
     (
-    echo "$SRA"
+    echo "$SAMN"
     sapelo2_header="#!/bin/bash
-    #PBS -q batch                                                            
-    #PBS -N assemble_$SRA                                         
-    #PBS -l nodes=1:ppn=8 -l mem=100gb                                        
+    #PBS -q highmem_q                                                            
+    #PBS -N continue51_$SAMN                                         
+    #PBS -l nodes=1:ppn=8 -l mem=200gb                                        
     #PBS -l walltime=10:00:00                                                
     #PBS -M rx32940@uga.edu                                                  
     #PBS -m abe                                                              
-    #PBS -o /scratch/rx32940/rest_sra_216                        
-    #PBS -e /scratch/rx32940/rest_sra_216                        
+    #PBS -o /scratch/rx32940/                    
+    #PBS -e /scratch/rx32940/                        
     #PBS -j oe
     "
 
@@ -28,13 +28,12 @@ paste $SRA_PATH/rest_sra_216/PairEnd_4.txt |\
     echo "module load spades/3.12.0-k_245" >> ./sub.sh
 
     echo "python /usr/local/apps/gb/spades/3.12.0-k_245/bin/spades.py \
-    -o $SRA_PATH/rest_sra_216/assemblies/$SRA \
-    --pe1-1 $SRA_PATH/rest_sra_216/SRAseq/${SRA}_1.fastq.gz \
-    --pe1-2 $SRA_PATH/rest_sra_216/SRAseq/${SRA}_4.fastq.gz" >> ./sub.sh
+    --restart-from ec --careful --mismatch-correction
+    -o $SRA_PATH/All_Lepto_Assemblies/dated_assembled_51/assemblies/$SAMN" >> ./sub.sh
 
     qsub ./sub.sh
     
-    echo "$SRA submitted"
+    echo "$SAMN restart submitted"
     ) &
 
     echo "Waiting..."
