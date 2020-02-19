@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -q highmem_q                                                            
-#PBS -N trim_double                                        
+#PBS -N assemble_pair                                        
 #PBS -l nodes=1:ppn=12 -l mem=10gb                                        
 #PBS -l walltime=100:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
@@ -47,11 +47,11 @@
 ############################################################################
 
 
-module load Trimmomatic/0.36-Java-1.8.0_144
+# module load Trimmomatic/0.36-Java-1.8.0_144
 
-# trim single end files
-path_seq="/scratch/rx32940/merged_runs"
-output_dir="/scratch/rx32940/Lepto_Work/trim"
+# # trim single end files
+# path_seq="/scratch/rx32940/merged_runs"
+# output_dir="/scratch/rx32940/Lepto_Work/trim"
 
 # for fastq in $path_seq/single/*;
 # do
@@ -61,21 +61,106 @@ output_dir="/scratch/rx32940/Lepto_Work/trim"
 #     ILLUMINACLIP:/usr/local/apps/eb/Trimmomatic/0.36-Java-1.8.0_144/adapters/TruSeq3-SE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
 # done
 
-cat $path_seq/pair.txt | \
-while read biosample;
-do  
-    java -jar /usr/local/apps/eb/Trimmomatic/0.36-Java-1.8.0_144/trimmomatic-0.36.jar \
-    PE -threads 4 $path_seq/pair/${biosample}_1.fastq.gz $path_seq/pair/${biosample}_2.fastq.gz \
-    $output_dir/pair/${biosample}_1_paired_trimmed.fastq.gz $output_dir/pair/${biosample}_1_unpaired_trimmed.fastq.gz \
-    $output_dir/pair/${biosample}_2_paired_trimmed.fastq.gz $output_dir/pair/${biosample}_2_unpaired_trimmed.fastq.gz \
-    ILLUMINACLIP:/usr/local/apps/eb/Trimmomatic/0.36-Java-1.8.0_144/adapters/TruSeq3-PE.fa:2:30:10:2:keepBothReads LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+# cat $path_seq/pair.txt | \
+# while read biosample;
+# do  
+#     java -jar /usr/local/apps/eb/Trimmomatic/0.36-Java-1.8.0_144/trimmomatic-0.36.jar \
+#     PE -threads 4 $path_seq/pair/${biosample}_1.fastq.gz $path_seq/pair/${biosample}_2.fastq.gz \
+#     $output_dir/pair/${biosample}_1_paired_trimmed.fastq.gz $output_dir/pair/${biosample}_1_unpaired_trimmed.fastq.gz \
+#     $output_dir/pair/${biosample}_2_paired_trimmed.fastq.gz $output_dir/pair/${biosample}_2_unpaired_trimmed.fastq.gz \
+#     ILLUMINACLIP:/usr/local/apps/eb/Trimmomatic/0.36-Java-1.8.0_144/adapters/TruSeq3-PE.fa:2:30:10:2:keepBothReads LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+# done
+
+############################################################################
+#
+# SPADES for single end seq
+# Assemble the trimmed seq 
+#
+############################################################################
+
+path_seq="/scratch/rx32940/merged_runs"
+trim_seq="/scratch/rx32940/Lepto_Work/trim"
+
+# assemble single-end read seq
+# cat $path_seq/single.txt |\
+
+#  while read SAMN; 
+#  do
+#     echo "Starting command"
+#     (
+#     echo "$SAMN"
+#     sapelo2_header="#!/bin/bash
+#         #PBS -q highmem_q                                                            
+#         #PBS -N assemble51_single_$SAMN                                        
+#         #PBS -l nodes=1:ppn=12 -l mem=10gb                                        
+#         #PBS -l walltime=100:00:00                                                
+#         #PBS -M rx32940@uga.edu                                                  
+#         #PBS -m abe                                                              
+#         #PBS -o /scratch/rx32940                        
+#         #PBS -e /scratch/rx32940                        
+#         #PBS -j oe
+#     "
+
+#     echo "$sapelo2_header" > ./sub_assemble51_single.sh
+#     echo "module load spades/3.12.0-k_245" >> ./sub_assemble51_single.sh
+
+#     echo "python /usr/local/apps/gb/spades/3.12.0-k_245/bin/spades.py \
+#     --s1 $trim_seq/single/${SAMN}_trimmed.fastq.gz \
+#     --careful --mismatch-correction \
+#     -o /scratch/rx32940/Lepto_Work/assemblies/$SAMN" >> ./sub_assemble51_single.sh
+
+
+#     qsub ./sub_assemble51_single.sh
+    
+#     echo "$SAMN single-end submitted"
+#     ) &
+
+#     echo "Waiting..."
+#     wait
+
+# done
+
+###################################################################
+
+# assemble pair-end read seq
+
+cat $path_seq/pair.txt |\
+
+ while read SAMN; 
+ do
+    echo "Starting command"
+    (
+    echo "$SAMN"
+    sapelo2_header="#!/bin/bash
+        #PBS -q highmem_q                                                            
+        #PBS -N assemble51_pair_$SAMN                                        
+        #PBS -l nodes=1:ppn=12 -l mem=10gb                                        
+        #PBS -l walltime=100:00:00                                                
+        #PBS -M rx32940@uga.edu                                                  
+        #PBS -m abe                                                              
+        #PBS -o /scratch/rx32940                        
+        #PBS -e /scratch/rx32940                        
+        #PBS -j oe
+    "
+
+    echo "$sapelo2_header" > ./sub_assemble51_pair.sh
+    echo "module load spades/3.12.0-k_245" >> ./sub_assemble51_pair.sh
+
+    echo "python /usr/local/apps/gb/spades/3.12.0-k_245/bin/spades.py \
+    --pe1-1 $trim_seq/pair/${SAMN}_1_paired_trimmed.fastq.gz \
+    --pe1-2 $trim_seq/pair/${SAMN}_2_paired_trimmed.fastq.gz \
+    --s1 $trim_seq/pair/${SAMN}_1_unpaired_trimmed.fastq.gz \
+    --s2 $trim_seq/pair/${SAMN}_2_unpaired_trimmed.fastq.gz \
+    --careful --mismatch-correction \
+    -o /scratch/rx32940/Lepto_Work/assemblies/$SAMN" >> ./sub_assemble51_pair.sh
+
+
+    qsub ./sub_assemble51_pair.sh
+    
+    echo "$SAMN pair-end submitted"
+    ) &
+
+    echo "Waiting..."
+    wait
+
 done
-
-############################################################################
-#
-# SPADES
-# Assemble the trimmed seq
-#
-############################################################################
-
-
