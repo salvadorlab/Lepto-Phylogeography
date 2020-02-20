@@ -78,8 +78,8 @@
 #
 ############################################################################
 
-path_seq="/scratch/rx32940/merged_runs"
-trim_seq="/scratch/rx32940/Lepto_Work/trim"
+# path_seq="/scratch/rx32940/merged_runs"
+# trim_seq="/scratch/rx32940/Lepto_Work/trim"
 
 # assemble single-end read seq
 # cat $path_seq/single.txt |\
@@ -122,45 +122,70 @@ trim_seq="/scratch/rx32940/Lepto_Work/trim"
 
 ###################################################################
 
-# assemble pair-end read seq
+# # assemble pair-end read seq
 
-cat $path_seq/pair.txt |\
+# cat $path_seq/pair.txt |\
 
- while read SAMN; 
- do
-    echo "Starting command"
-    (
-    echo "$SAMN"
-    sapelo2_header="#!/bin/bash
-        #PBS -q highmem_q                                                            
-        #PBS -N assemble51_pair_$SAMN                                        
-        #PBS -l nodes=1:ppn=12 -l mem=10gb                                        
-        #PBS -l walltime=100:00:00                                                
-        #PBS -M rx32940@uga.edu                                                  
-        #PBS -m abe                                                              
-        #PBS -o /scratch/rx32940                        
-        #PBS -e /scratch/rx32940                        
-        #PBS -j oe
-    "
+#  while read SAMN; 
+#  do
+#     echo "Starting command"
+#     (
+#     echo "$SAMN"
+#     sapelo2_header="#!/bin/bash
+#         #PBS -q highmem_q                                                            
+#         #PBS -N assemble51_pair_$SAMN                                        
+#         #PBS -l nodes=1:ppn=12 -l mem=10gb                                        
+#         #PBS -l walltime=100:00:00                                                
+#         #PBS -M rx32940@uga.edu                                                  
+#         #PBS -m abe                                                              
+#         #PBS -o /scratch/rx32940                        
+#         #PBS -e /scratch/rx32940                        
+#         #PBS -j oe
+#     "
 
-    echo "$sapelo2_header" > ./sub_assemble51_pair.sh
-    echo "module load spades/3.12.0-k_245" >> ./sub_assemble51_pair.sh
+#     echo "$sapelo2_header" > ./sub_assemble51_pair.sh
+#     echo "module load spades/3.12.0-k_245" >> ./sub_assemble51_pair.sh
 
-    echo "python /usr/local/apps/gb/spades/3.12.0-k_245/bin/spades.py \
-    --pe1-1 $trim_seq/pair/${SAMN}_1_paired_trimmed.fastq.gz \
-    --pe1-2 $trim_seq/pair/${SAMN}_2_paired_trimmed.fastq.gz \
-    --s1 $trim_seq/pair/${SAMN}_1_unpaired_trimmed.fastq.gz \
-    --s2 $trim_seq/pair/${SAMN}_2_unpaired_trimmed.fastq.gz \
-    --careful --mismatch-correction \
-    -o /scratch/rx32940/Lepto_Work/assemblies/$SAMN" >> ./sub_assemble51_pair.sh
+#     echo "python /usr/local/apps/gb/spades/3.12.0-k_245/bin/spades.py \
+#     --pe1-1 $trim_seq/pair/${SAMN}_1_paired_trimmed.fastq.gz \
+#     --pe1-2 $trim_seq/pair/${SAMN}_2_paired_trimmed.fastq.gz \
+#     --careful --mismatch-correction \
+#     -o /scratch/rx32940/Lepto_Work/assemblies/$SAMN" >> ./sub_assemble51_pair.sh
 
 
-    qsub ./sub_assemble51_pair.sh
+#     qsub ./sub_assemble51_pair.sh
     
-    echo "$SAMN pair-end submitted"
-    ) &
+#     echo "$SAMN pair-end submitted"
+#     ) &
 
-    echo "Waiting..."
-    wait
+#     echo "Waiting..."
+#     wait
 
-done
+# done
+
+######################################################################
+#
+# QUAST
+# check the quality of each assemblies
+#
+######################################################################
+
+module load QUAST/5.0.2-foss-2018a-Python-2.7.14
+
+QUASTPATH="/scratch/rx32940" 
+
+# quast with interrogans Lai reference genome ASM9256v1
+cat $QUASTPATH/Lepto_Work/interrogans.txt | xargs -I{} quast.py \
+$QUASTPATH/Lepto_Work/assemblies/{}/scaffolds.fasta \
+-o $QUASTPATH/Lepto_Work/quast/{} \
+-r $QUASTPATH/reference/interrogans/GCF_000092565.1_ASM9256v1_genomic.fna \
+-g $QUASTPATH/reference/interrogans/GCF_000092565.1_ASM9256v1_genomic.gff
+-t 8 
+
+# quast with interrogans Lai reference genome ASM1394v1
+cat $QUASTPATH/Lepto_Work/borgpetersenii.txt | xargs -I{} quast.py \
+$QUASTPATH/Lepto_Work/assemblies/{}/scaffolds.fasta \
+-o $QUASTPATH/Lepto_Work/quast/{} \
+-r $QUASTPATH/reference/borgpetersenii/GCF_000013945.1_ASM1394v1_genomic.fna \
+-g $QUASTPATH/reference/borgpetersenii/GCF_000013945.1_ASM1394v1_genomic.gff
+-t 8 
