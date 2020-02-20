@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -q highmem_q                                                            
 #PBS -N assemble_pair                                        
-#PBS -l nodes=1:ppn=12 -l mem=10gb                                        
+#PBS -l nodes=1:ppn=1 -l mem=10gb                                        
 #PBS -l walltime=100:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
@@ -175,17 +175,30 @@ module load QUAST/5.0.2-foss-2018a-Python-2.7.14
 QUASTPATH="/scratch/rx32940" 
 
 # quast with interrogans Lai reference genome ASM9256v1
-cat $QUASTPATH/Lepto_Work/interrogans.txt | xargs -I{} quast.py \
-$QUASTPATH/Lepto_Work/assemblies/{}/scaffolds.fasta \
--o $QUASTPATH/Lepto_Work/quast/{} \
+cat $QUASTPATH/All_Lepto_Assemblies/sree_18/interrogans.txt | xargs -I{} quast.py \
+$QUASTPATH/All_Lepto_Assemblies/sree_18/assemblies/{}.fna.gz \
+-o $QUASTPATH/All_Lepto_Assemblies/sree_18/quast/{}/ \
 -r $QUASTPATH/reference/interrogans/GCF_000092565.1_ASM9256v1_genomic.fna \
 -g $QUASTPATH/reference/interrogans/GCF_000092565.1_ASM9256v1_genomic.gff
 -t 8 
 
 # quast with interrogans Lai reference genome ASM1394v1
-cat $QUASTPATH/Lepto_Work/borgpetersenii.txt | xargs -I{} quast.py \
-$QUASTPATH/Lepto_Work/assemblies/{}/scaffolds.fasta \
--o $QUASTPATH/Lepto_Work/quast/{} \
+cat $QUASTPATH/All_Lepto_Assemblies/sree_18/borgpetersenii.txt | xargs -I{} quast.py \
+$QUASTPATH/All_Lepto_Assemblies/sree_18/assemblies/{}.fna.gz \
+-o $QUASTPATH/All_Lepto_Assemblies/sree_18/quast/{}/ \
 -r $QUASTPATH/reference/borgpetersenii/GCF_000013945.1_ASM1394v1_genomic.fna \
 -g $QUASTPATH/reference/borgpetersenii/GCF_000013945.1_ASM1394v1_genomic.gff
 -t 8 
+
+######################################################################
+#
+# multiqc
+# Aggregate all QUAST reports for the 50 biosamples with collection date 
+#
+# #####################################################################
+
+# path_quast="$QUASTPATH/All_Lepto_Assemblies/sree_18/quast" 
+
+# module load MultiQC/1.5-foss-2016b-Python-2.7.14
+
+# multiqc $path_quast/*/report.tsv -d -dd 1 -o $path_quast

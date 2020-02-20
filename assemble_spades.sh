@@ -7,7 +7,7 @@ SRA_PATH="/scratch/rx32940"
 # --pe1-2 $SRA_PATH/picardeau/SRA_seq/{}_2.fastq.gz
 
 
-cat $SRA_PATH/All_Lepto_Assemblies/picardeau_313/remaining_biosamples.txt |\
+cat $SRA_PATH/Lepto_Work/restart.txt |\
 
  while read SAMN; 
  do
@@ -30,11 +30,9 @@ cat $SRA_PATH/All_Lepto_Assemblies/picardeau_313/remaining_biosamples.txt |\
 
     echo "$sapelo2_header" > ./sub.sh
     echo "module load spades/3.12.0-k_245" >> ./sub.sh
-
     echo "python /usr/local/apps/gb/spades/3.12.0-k_245/bin/spades.py \
-
     --restart-from ec --careful --mismatch-correction \
-    -o $SRA_PATH/All_Lepto_Assemblies/picardeau_313/assemblies/$SAMN" >> ./sub.sh
+    -o $SRA_PATH/Lepto_Work/assemblies/$SAMN" >> ./sub.sh
 
 
     qsub ./sub.sh
