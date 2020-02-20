@@ -170,25 +170,25 @@
 #
 ######################################################################
 
-module load QUAST/5.0.2-foss-2018a-Python-2.7.14
+# module load QUAST/5.0.2-foss-2018a-Python-2.7.14
 
-QUASTPATH="/scratch/rx32940" 
+# QUASTPATH="/scratch/rx32940" 
 
-# quast with interrogans Lai reference genome ASM9256v1
-cat $QUASTPATH/All_Lepto_Assemblies/sree_18/interrogans.txt | xargs -I{} quast.py \
-$QUASTPATH/All_Lepto_Assemblies/sree_18/assemblies/{}.fna.gz \
--o $QUASTPATH/All_Lepto_Assemblies/sree_18/quast/{}/ \
--r $QUASTPATH/reference/interrogans/GCF_000092565.1_ASM9256v1_genomic.fna \
--g $QUASTPATH/reference/interrogans/GCF_000092565.1_ASM9256v1_genomic.gff
--t 8 
+# # quast with interrogans Lai reference genome ASM9256v1
+# cat $QUASTPATH/All_Lepto_Assemblies/sree_18/interrogans.txt | xargs -I{} quast.py \
+# $QUASTPATH/All_Lepto_Assemblies/sree_18/assemblies/{}.fna.gz \
+# -o $QUASTPATH/All_Lepto_Assemblies/sree_18/quast/{}/ \
+# -r $QUASTPATH/reference/interrogans/GCF_000092565.1_ASM9256v1_genomic.fna \
+# -g $QUASTPATH/reference/interrogans/GCF_000092565.1_ASM9256v1_genomic.gff
+# -t 8 
 
-# quast with interrogans Lai reference genome ASM1394v1
-cat $QUASTPATH/All_Lepto_Assemblies/sree_18/borgpetersenii.txt | xargs -I{} quast.py \
-$QUASTPATH/All_Lepto_Assemblies/sree_18/assemblies/{}.fna.gz \
--o $QUASTPATH/All_Lepto_Assemblies/sree_18/quast/{}/ \
--r $QUASTPATH/reference/borgpetersenii/GCF_000013945.1_ASM1394v1_genomic.fna \
--g $QUASTPATH/reference/borgpetersenii/GCF_000013945.1_ASM1394v1_genomic.gff
--t 8 
+# # quast with interrogans Lai reference genome ASM1394v1
+# cat $QUASTPATH/All_Lepto_Assemblies/sree_18/borgpetersenii.txt | xargs -I{} quast.py \
+# $QUASTPATH/All_Lepto_Assemblies/sree_18/assemblies/{}.fna.gz \
+# -o $QUASTPATH/All_Lepto_Assemblies/sree_18/quast/{}/ \
+# -r $QUASTPATH/reference/borgpetersenii/GCF_000013945.1_ASM1394v1_genomic.fna \
+# -g $QUASTPATH/reference/borgpetersenii/GCF_000013945.1_ASM1394v1_genomic.gff
+# -t 8 
 
 ######################################################################
 #
@@ -197,8 +197,11 @@ $QUASTPATH/All_Lepto_Assemblies/sree_18/assemblies/{}.fna.gz \
 #
 # #####################################################################
 
-# path_quast="$QUASTPATH/All_Lepto_Assemblies/sree_18/quast" 
+path_quast="/scratch/rx32940/All_Lepto_Assemblies" 
 
-# module load MultiQC/1.5-foss-2016b-Python-2.7.14
+module load MultiQC/1.5-foss-2016b-Python-2.7.14
 
-# multiqc $path_quast/*/report.tsv -d -dd 1 -o $path_quast
+multiqc $path_quast/sree_18/quast/*/report.tsv \
+$path_quast/PATRIC_assemblies_633/quast_assemblies/*/report.tsv \
+-d -dd 1 -o $path_quast \
+-n ncbi_assemblies_QUAST
