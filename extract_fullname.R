@@ -1,5 +1,6 @@
-path <- "/Users/rx32940/Downloads/"
-data <- read.table(paste(path, "SAMN_Organism_1209.txt",sep=""), header = FALSE,sep = ",")
+# extract full name from list of biosamples - strain names with python script species_SAMN.py
+path = "/Users/rx32940/Dropbox/5.Rachel-projects/Phylogeography/Lepto_assemblies_V2/ncbi_assemblies/"
+data <- read.table(paste(path, "ncbi_assemblies_species.txt",sep=''), header = FALSE,sep = ",")
 
 head(data)
 
@@ -17,6 +18,6 @@ full_names <- paste(genus,species)
 
 data$V3 <- full_names
 
-write.csv(data ,paste(path,"Organism_fullname_1209.txt", sep=""))
+write.csv(data ,paste(path,"fullname_651.txt", sep=""))
 
 
