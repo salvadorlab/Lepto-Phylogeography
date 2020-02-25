@@ -205,3 +205,15 @@ multiqc $path_quast/sree_18/quast/*/report.tsv \
 $path_quast/PATRIC_assemblies_633/quast_assemblies/*/report.tsv \
 -d -dd 1 -o $path_quast \
 -n ncbi_assemblies_QUAST
+
+########################################################################
+#
+# use PAGIT to polish draft genomes
+# http://www.nature.com/articles/nprot.2012.068, 
+# provide instruction on workflow
+#
+########################################################################
+
+# module load PAGIT/1.64-foss-2016b
+
+# https://wiki.gacrc.uga.edu/wiki/PAGIT-Sapelo2
