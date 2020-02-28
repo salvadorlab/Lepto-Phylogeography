@@ -197,23 +197,23 @@
 #
 # #####################################################################
 
-path_quast="/scratch/rx32940/All_Lepto_Assemblies" 
+path_quast="/scratch/rx32940/Lepto_Work" 
 
 module load MultiQC/1.5-foss-2016b-Python-2.7.14
 
-multiqc $path_quast/sree_18/quast/*/report.tsv \
-$path_quast/PATRIC_assemblies_633/quast_assemblies/*/report.tsv \
+multiqc $path_quast/quast/*/report.tsv \
 -d -dd 1 -o $path_quast \
--n ncbi_assemblies_QUAST
+-n QC_self_asm_date_32
 
 ########################################################################
 #
-# use PAGIT to polish draft genomes
-# http://www.nature.com/articles/nprot.2012.068, 
-# provide instruction on workflow
-#
+# Pilon
+# for post assembly polishing
+# do qlogin for one of the genomes first, then do quast comparison
+# need assembly fasta and bam map to reference
+# 
 ########################################################################
 
-# module load PAGIT/1.64-foss-2016b
+# module load pilon/1.22-Java-1.8.0_144
 
-# https://wiki.gacrc.uga.edu/wiki/PAGIT-Sapelo2
+# https://github.com/broadinstitute/pilon/wiki
