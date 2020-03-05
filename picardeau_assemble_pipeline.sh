@@ -16,15 +16,15 @@
 #
 ####################################################################
 
-seqpath="/scratch/rx32940/picardeau/SRA_seq"
-outpath="/scratch/rx32940/Lepto_Work/picardeau_313/fastqc"
+# seqpath="/scratch/rx32940/picardeau/SRA_seq"
+# outpath="/scratch/rx32940/Lepto_Work/picardeau_313/fastqc"
 
-module load FastQC/0.11.8-Java-1.8.0_144
+# module load FastQC/0.11.8-Java-1.8.0_144
 
-all_files=$(ls -d "$seqpath"/*) # list absolute path of all files in the dir
+# all_files=$(ls -d "$seqpath"/*) # list absolute path of all files in the dir
 
-# do fastqc for all 313 * 2 runs Forward and Reverse at once
-fastqc -t 12 -o fastqc -o $outpath -f fastq $all_files 
+# # do fastqc for all 313 * 2 runs Forward and Reverse at once
+# fastqc -t 12 -o fastqc -o $outpath -f fastq $all_files 
 
 ######################################################################
 #
@@ -33,11 +33,11 @@ fastqc -t 12 -o fastqc -o $outpath -f fastq $all_files
 #
 # #####################################################################
 
-path_qc="/scratch/rx32940/Lepto_Work/picardeau_313/fastqc" 
+# path_qc="/scratch/rx32940/Lepto_Work/picardeau_313/fastqc" 
 
-module load MultiQC/1.5-foss-2016b-Python-2.7.14
+# module load MultiQC/1.5-foss-2016b-Python-2.7.14
 
-multiqc $path_qc/*_fastqc.zip -o $path_qc
+# multiqc $path_qc/*_fastqc.zip -o $path_qc
 
 ############################################################################
 # 
@@ -47,20 +47,20 @@ multiqc $path_qc/*_fastqc.zip -o $path_qc
 # 
 ############################################################################
 
-seqpath="/scratch/rx32940/picardeau/SRA_seq"
-ppath="/scratch/rx32940/Lepto_Work/picardeau_313"
+# seqpath="/scratch/rx32940/picardeau/SRA_seq"
+# ppath="/scratch/rx32940/Lepto_Work/picardeau_313"
 
-module load Trimmomatic/0.36-Java-1.8.0_144
+# module load Trimmomatic/0.36-Java-1.8.0_144
 
-paste $ppath/picardeau_313_sra.txt $ppath/picardeau_313_biosamples.txt |\
-while IFS="$(printf '\t')" read SRA SAMN; 
-do  
-    java -jar /usr/local/apps/eb/Trimmomatic/0.36-Java-1.8.0_144/trimmomatic-0.36.jar \
-    PE -threads 12 $seqpath/${SRA}_1.fastq.gz $seqpath/${SRA}_2.fastq.gz \
-    $ppath/trimmed/${SAMN}_1_paired_trimmed.fastq.gz $ppath/trimmed/${SAMN}_1_unpaired_trimmed.fastq.gz \
-    $ppath/trimmed/${SAMN}_2_paired_trimmed.fastq.gz $ppath/trimmed/${SAMN}_2_unpaired_trimmed.fastq.gz \
-    ILLUMINACLIP:/usr/local/apps/eb/Trimmomatic/0.36-Java-1.8.0_144/adapters/TruSeq3-PE.fa:2:30:10:2:keepBothReads LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
-done
+# paste $ppath/picardeau_313_sra.txt $ppath/picardeau_313_biosamples.txt |\
+# while IFS="$(printf '\t')" read SRA SAMN; 
+# do  
+#     java -jar /usr/local/apps/eb/Trimmomatic/0.36-Java-1.8.0_144/trimmomatic-0.36.jar \
+#     PE -threads 24 $seqpath/${SRA}_1.fastq.gz $seqpath/${SRA}_2.fastq.gz \
+#     $ppath/trimmed/${SAMN}_1_paired_trimmed.fastq.gz $ppath/trimmed/${SAMN}_1_unpaired_trimmed.fastq.gz \
+#     $ppath/trimmed/${SAMN}_2_paired_trimmed.fastq.gz $ppath/trimmed/${SAMN}_2_unpaired_trimmed.fastq.gz \
+#     ILLUMINACLIP:/usr/local/apps/eb/Trimmomatic/0.36-Java-1.8.0_144/adapters/TruSeq3-PE.fa:2:30:10:2:keepBothReads LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+# done
 
 ############################################################################
 #
