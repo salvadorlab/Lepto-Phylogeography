@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -q highmem_q                                                            
 #PBS -N assemble_picardeau                                        
-#PBS -l nodes=1:ppn=24 -l mem=10gb                                        
+#PBS -l nodes=1:ppn=1 -l mem=10gb                                        
 #PBS -l walltime=100:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
@@ -74,14 +74,13 @@ ppath="/scratch/rx32940/Lepto_Work/picardeau_313"
 # assemble pair-end read seq
 
 cat $ppath/picardeau_313_biosamples.txt |\
-
- while read SAMN; 
+while read SAMN; 
  do
     echo "Starting command"
     (
     echo "$SAMN"
     sapelo2_header="#!/bin/bash
-        #PBS -q highmem_q                                                            
+        #PBS -q batch                                                            
         #PBS -N picardeau_asm_$SAMN                                        
         #PBS -l nodes=1:ppn=24 -l mem=10gb                                        
         #PBS -l walltime=100:00:00                                                
@@ -99,10 +98,10 @@ cat $ppath/picardeau_313_biosamples.txt |\
     --pe1-1 $ppath/trimmed/${SAMN}_1_paired_trimmed.fastq.gz \
     --pe1-2 $ppath/trimmed/${SAMN}_2_paired_trimmed.fastq.gz \
     --careful --mismatch-correction \
-    -o $ppath/assemblies/$SAMN" >> ./sub_assemble51_pair.sh
+    -o $ppath/assemblies/$SAMN" >> ./sub_picardeau_asm.sh
 
 
-    qsub ./sub_assemble51_pair.sh
+    qsub ./sub_picardeau_asm.sh
     
     echo "$SAMN pair-end submitted"
     ) &
