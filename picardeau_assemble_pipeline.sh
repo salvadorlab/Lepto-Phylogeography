@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -q highmem_q                                                            
 #PBS -N assemble_picardeau                                        
-#PBS -l nodes=1:ppn=1 -l mem=10gb                                        
+#PBS -l nodes=1:ppn=24 -l mem=10gb                                        
 #PBS -l walltime=100:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
@@ -69,45 +69,96 @@
 #
 ############################################################################
 
-ppath="/scratch/rx32940/Lepto_Work/picardeau_313"
+# ppath="/scratch/rx32940/Lepto_Work/picardeau_313"
 
-# assemble pair-end read seq
+# # assemble pair-end read seq
 
-cat $ppath/picardeau_313_biosamples.txt |\
-while read SAMN; 
- do
-    echo "Starting command"
-    (
-    echo "$SAMN"
-    sapelo2_header="#!/bin/bash
-        #PBS -q batch                                                            
-        #PBS -N picardeau_asm_$SAMN                                        
-        #PBS -l nodes=1:ppn=24 -l mem=10gb                                        
-        #PBS -l walltime=100:00:00                                                
-        #PBS -M rx32940@uga.edu                                                  
-        #PBS -m abe                                                              
-        #PBS -o /scratch/rx32940                        
-        #PBS -e /scratch/rx32940                        
-        #PBS -j oe
-    "
+# cat $ppath/picardeau_313_biosamples.txt |\
+# while read SAMN; 
+#  do
+#     echo "Starting command"
+#     (
+#     echo "$SAMN"
+#     sapelo2_header="#!/bin/bash
+#         #PBS -q batch                                                            
+#         #PBS -N picardeau_asm_$SAMN                                        
+#         #PBS -l nodes=1:ppn=24 -l mem=10gb                                        
+#         #PBS -l walltime=100:00:00                                                
+#         #PBS -M rx32940@uga.edu                                                  
+#         #PBS -m abe                                                              
+#         #PBS -o /scratch/rx32940                        
+#         #PBS -e /scratch/rx32940                        
+#         #PBS -j oe
+#     "
 
-    echo "$sapelo2_header" > ./sub_picardeau_asm.sh
-    echo "module load spades/3.12.0-k_245" >> ./sub_picardeau_asm.sh
+#     echo "$sapelo2_header" > ./sub_picardeau_asm.sh
+#     echo "module load spades/3.12.0-k_245" >> ./sub_picardeau_asm.sh
 
-    echo "python /usr/local/apps/gb/spades/3.12.0-k_245/bin/spades.py \
-    --pe1-1 $ppath/trimmed/${SAMN}_1_paired_trimmed.fastq.gz \
-    --pe1-2 $ppath/trimmed/${SAMN}_2_paired_trimmed.fastq.gz \
-    --careful --mismatch-correction \
-    -o $ppath/assemblies/$SAMN" >> ./sub_picardeau_asm.sh
+#     echo "python /usr/local/apps/gb/spades/3.12.0-k_245/bin/spades.py \
+#     --pe1-1 $ppath/trimmed/${SAMN}_1_paired_trimmed.fastq.gz \
+#     --pe1-2 $ppath/trimmed/${SAMN}_2_paired_trimmed.fastq.gz \
+#     --careful --mismatch-correction \
+#     -o $ppath/assemblies/$SAMN" >> ./sub_picardeau_asm.sh
 
 
-    qsub ./sub_picardeau_asm.sh
+#     qsub ./sub_picardeau_asm.sh
     
-    echo "$SAMN pair-end submitted"
-    ) &
+#     echo "$SAMN pair-end submitted"
+#     ) &
 
-    echo "Waiting..."
-    wait
+#     echo "Waiting..."
+#     wait
 
+# done
+
+######################################################################
+#
+# QUAST
+# check the quality of each assemblies - not providing reference
+#
+######################################################################
+
+# module load QUAST/5.0.2-foss-2018a-Python-2.7.14
+
+# QUASTPATH="/scratch/rx32940/Lepto_Work/picardeau_313" 
+
+# cat $QUASTPATH/picardeau_313_biosamples.txt | xargs -I{} quast.py \
+# $QUASTPATH/assemblies/{}/scaffolds.fasta \
+# -o $QUASTPATH/quast/{}/ \
+# -t 8 
+
+# ######################################################################
+# #
+# # multiqc
+# # Aggregate all QUAST reports for the 50 biosamples with collection date 
+# #
+# # #####################################################################
+
+# path_quast="/scratch/rx32940/Lepto_Work/picardeau_313" 
+
+# module load MultiQC/1.5-foss-2016b-Python-2.7.14
+
+# multiqc $path_quast/quast/*/report.tsv \
+# -d -dd 1 -o $path_quast \
+# -n quast_picardueau_313
+
+########################################################################
+#
+# pagit - abacas for ordering contigs and polish
+# reference can't take multifasta file, joined by join_reference_union.sh
+# 
+########################################################################
+
+module load PAGIT/1.64-foss-2016b
+
+refseq="/scratch/rx32940/reference"
+outdir="/scratch/rx32940/Lepto_Work/picardeau_313/abacas"
+asmpath="/scratch/rx32940/Lepto_Work/picardeau_313/assemblies"
+
+for file in /scratch/rx32940/Lepto_Work/picardeau_313/assemblies/*;
+do  
+    species="$(python /home/rx32940/github/Lepto-Phylogeography/get_biosample_species.py "$file")" # get the species of the biosample acc
+    biosample="$(basename "$file")"
+    abacas.pl -r $refseq/$species/$species.union.fna -q $asmpath/$biosample/scaffolds.fasta -p nucmer -m -b -o $outdir/${biosample}_abacas
 done
 
