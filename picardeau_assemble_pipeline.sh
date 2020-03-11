@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -q highmem_q                                                            
 #PBS -N assemble_picardeau                                        
-#PBS -l nodes=1:ppn=10 -l mem=10gb                                        
+#PBS -l nodes=1:ppn=24 -l mem=10gb                                        
 #PBS -l walltime=100:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
@@ -156,8 +156,9 @@ outdir="/scratch/rx32940/Lepto_Work/picardeau_313/abacas"
 asmpath="/scratch/rx32940/Lepto_Work/picardeau_313/assemblies"
 
 for file in /scratch/rx32940/Lepto_Work/picardeau_313/assemblies/*;
-do
+do  
+    species="$(python /home/rx32940/github/Lepto-Phylogeography/get_biosample_species.py "$file")" # get the species of the biosample acc
     biosample="$(basename "$file")"
-    abacas.pl -r Refsequence.fasta -q $asmpath/$biosample/scaffolds.fasta -p nucmer -m -b -o $outdir/${biosample}_abacas
+    abacas.pl -r $refseq/$species/$species.union.fna -q $asmpath/$biosample/scaffolds.fasta -p nucmer -m -b -o $outdir/${biosample}_abacas
 done
 
