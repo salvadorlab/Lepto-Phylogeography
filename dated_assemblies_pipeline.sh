@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -q bahl_salv_q                                                            
 #PBS -N assemble_dated32                                        
-#PBS -l nodes=1:ppn=1 -l mem=10gb                                        
+#PBS -l nodes=1:ppn=8 -l mem=10gb                                        
 #PBS -l walltime=100:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
@@ -82,90 +82,90 @@
 #
 ############################################################################
 
-path_seq="/scratch/rx32940/merged_runs"
-trim_seq="/scratch/rx32940/Lepto_Work/dated_32/trimmed"
+# path_seq="/scratch/rx32940/merged_runs"
+# trim_seq="/scratch/rx32940/Lepto_Work/dated_32/trimmed"
 
-assemble single-end read seq
-cat $path_seq/single.txt |\
+# assemble single-end read seq
+# cat $path_seq/single.txt |\
 
- while read SAMN; 
- do
-    echo "Starting command"
-    (
-    echo "$SAMN"
-    sapelo2_header="#!/bin/bash
-        #PBS -q bahl_salv_q                                                            
-        #PBS -N assemble32_single_$SAMN                                        
-        #PBS -l nodes=1:ppn=12 -l mem=10gb                                        
-        #PBS -l walltime=100:00:00                                                
-        #PBS -M rx32940@uga.edu                                                  
-        #PBS -m abe                                                              
-        #PBS -o /scratch/rx32940                        
-        #PBS -e /scratch/rx32940                        
-        #PBS -j oe
-    "
+#  while read SAMN; 
+#  do
+#     echo "Starting command"
+#     (
+#     echo "$SAMN"
+#     sapelo2_header="#!/bin/bash
+#         #PBS -q bahl_salv_q                                                            
+#         #PBS -N assemble32_single_$SAMN                                        
+#         #PBS -l nodes=1:ppn=12 -l mem=10gb                                        
+#         #PBS -l walltime=100:00:00                                                
+#         #PBS -M rx32940@uga.edu                                                  
+#         #PBS -m abe                                                              
+#         #PBS -o /scratch/rx32940                        
+#         #PBS -e /scratch/rx32940                        
+#         #PBS -j oe
+#     "
 
-    echo "$sapelo2_header" > ./sub_assemble32_single.sh
-    echo "module load spades/3.12.0-k_245" >> ./sub_assemble32_single.sh
+#     echo "$sapelo2_header" > ./sub_assemble32_single.sh
+#     echo "module load spades/3.12.0-k_245" >> ./sub_assemble32_single.sh
 
-    echo "python /usr/local/apps/gb/spades/3.12.0-k_245/bin/spades.py \
-    --s1 $trim_seq/single/${SAMN}_trimmed.fastq.gz \
-    --careful --mismatch-correction \
-    -o /scratch/rx32940/Lepto_Work/dated_32/assemblies/$SAMN" >> ./sub_assemble32_single.sh
+#     echo "python /usr/local/apps/gb/spades/3.12.0-k_245/bin/spades.py \
+#     --s1 $trim_seq/single/${SAMN}_trimmed.fastq.gz \
+#     --careful --mismatch-correction \
+#     -o /scratch/rx32940/Lepto_Work/dated_32/assemblies/$SAMN" >> ./sub_assemble32_single.sh
 
 
-    qsub ./sub_assemble32_single.sh
+#     qsub ./sub_assemble32_single.sh
     
-    echo "$SAMN single-end submitted"
-    ) &
+#     echo "$SAMN single-end submitted"
+#     ) &
 
-    echo "Waiting..."
-    wait
+#     echo "Waiting..."
+#     wait
 
-done
+# done
 
-###################################################################
+# ###################################################################
 
-# assemble pair-end read seq
+# # assemble pair-end read seq
 
-cat $path_seq/pair_nonSree_SAMN.txt |\
+# cat $path_seq/pair_nonSree_SAMN.txt |\
 
- while read SAMN; 
- do
-    echo "Starting command"
-    (
-    echo "$SAMN"
-    sapelo2_header="#!/bin/bash
-        #PBS -q bahl_salv_q                                                            
-        #PBS -N assemble32_pair_$SAMN                                        
-        #PBS -l nodes=1:ppn=12 -l mem=10gb                                        
-        #PBS -l walltime=100:00:00                                                
-        #PBS -M rx32940@uga.edu                                                  
-        #PBS -m abe                                                              
-        #PBS -o /scratch/rx32940                        
-        #PBS -e /scratch/rx32940                        
-        #PBS -j oe
-    "
+#  while read SAMN; 
+#  do
+#     echo "Starting command"
+#     (
+#     echo "$SAMN"
+#     sapelo2_header="#!/bin/bash
+#         #PBS -q bahl_salv_q                                                            
+#         #PBS -N assemble32_pair_$SAMN                                        
+#         #PBS -l nodes=1:ppn=12 -l mem=10gb                                        
+#         #PBS -l walltime=100:00:00                                                
+#         #PBS -M rx32940@uga.edu                                                  
+#         #PBS -m abe                                                              
+#         #PBS -o /scratch/rx32940                        
+#         #PBS -e /scratch/rx32940                        
+#         #PBS -j oe
+#     "
 
-    echo "$sapelo2_header" > ./sub_assemble32_pair.sh
-    echo "module load spades/3.12.0-k_245" >> ./sub_assemble32_pair.sh
+#     echo "$sapelo2_header" > ./sub_assemble32_pair.sh
+#     echo "module load spades/3.12.0-k_245" >> ./sub_assemble32_pair.sh
 
-    echo "python /usr/local/apps/gb/spades/3.12.0-k_245/bin/spades.py \
-    --pe1-1 $trim_seq/pair/${SAMN}_1_paired_trimmed.fastq.gz \
-    --pe1-2 $trim_seq/pair/${SAMN}_2_paired_trimmed.fastq.gz \
-    --careful --mismatch-correction \
-    -o /scratch/rx32940/Lepto_Work/dated_32/assemblies/$SAMN" >> ./sub_assemble32_pair.sh
+#     echo "python /usr/local/apps/gb/spades/3.12.0-k_245/bin/spades.py \
+#     --pe1-1 $trim_seq/pair/${SAMN}_1_paired_trimmed.fastq.gz \
+#     --pe1-2 $trim_seq/pair/${SAMN}_2_paired_trimmed.fastq.gz \
+#     --careful --mismatch-correction \
+#     -o /scratch/rx32940/Lepto_Work/dated_32/assemblies/$SAMN" >> ./sub_assemble32_pair.sh
 
 
-    qsub ./sub_assemble32_pair.sh
+#     qsub ./sub_assemble32_pair.sh
     
-    echo "$SAMN pair-end submitted"
-    ) &
+#     echo "$SAMN pair-end submitted"
+#     ) &
 
-    echo "Waiting..."
-    wait
+#     echo "Waiting..."
+#     wait
 
-done
+# done
 
 ######################################################################
 #
@@ -174,25 +174,15 @@ done
 #
 ######################################################################
 
-# module load QUAST/5.0.2-foss-2018a-Python-2.7.14
+module load QUAST/5.0.2-foss-2018a-Python-2.7.14
 
-# QUASTPATH="/scratch/rx32940" 
+QUASTPATH="/scratch/rx32940/Lepto_Work/dated_32" 
 
-# # quast with interrogans Lai reference genome ASM9256v1
-# cat $QUASTPATH/All_Lepto_Assemblies/sree_18/interrogans.txt | xargs -I{} quast.py \
-# $QUASTPATH/All_Lepto_Assemblies/sree_18/assemblies/{}.fna.gz \
-# -o $QUASTPATH/All_Lepto_Assemblies/sree_18/quast/{}/ \
-# -r $QUASTPATH/reference/interrogans/GCF_000092565.1_ASM9256v1_genomic.fna \
-# -g $QUASTPATH/reference/interrogans/GCF_000092565.1_ASM9256v1_genomic.gff
-# -t 8 
-
-# # quast with interrogans Lai reference genome ASM1394v1
-# cat $QUASTPATH/All_Lepto_Assemblies/sree_18/borgpetersenii.txt | xargs -I{} quast.py \
-# $QUASTPATH/All_Lepto_Assemblies/sree_18/assemblies/{}.fna.gz \
-# -o $QUASTPATH/All_Lepto_Assemblies/sree_18/quast/{}/ \
-# -r $QUASTPATH/reference/borgpetersenii/GCF_000013945.1_ASM1394v1_genomic.fna \
-# -g $QUASTPATH/reference/borgpetersenii/GCF_000013945.1_ASM1394v1_genomic.gff
-# -t 8 
+no reference quast
+cat $QUASTPATH/self_assemble_dated_32.txt | xargs -I{} quast.py \
+$QUASTPATH/assemblies/{}/scaffolds.fasta \
+-o $QUASTPATH/quast/{}/ \
+-t 8 
 
 ######################################################################
 #
@@ -201,23 +191,20 @@ done
 #
 # #####################################################################
 
-# path_quast="/scratch/rx32940/Lepto_Work" 
+path_quast="/scratch/rx32940/Lepto_Work/dated_32" 
 
-# module load MultiQC/1.5-foss-2016b-Python-2.7.14
+module load MultiQC/1.5-foss-2016b-Python-2.7.14
 
-# multiqc $path_quast/quast/*/report.tsv \
-# -d -dd 1 -o $path_quast \
-# -n QC_self_asm_date_32
+multiqc $path_quast/quast/*/report.tsv \
+-d -dd 1 -o $path_quast \
+-n quast_self_asm_date_32
 
 ########################################################################
 #
-# Pilon
-# for post assembly polishing
-# do qlogin for one of the genomes first, then do quast comparison
-# need assembly fasta and bam map to reference
+# pagit 
 # 
 ########################################################################
 
-# module load pilon/1.22-Java-1.8.0_144
+module load PAGIT/1.64-foss-2016b
 
 # https://github.com/broadinstitute/pilon/wiki
