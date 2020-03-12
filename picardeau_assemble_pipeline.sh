@@ -118,14 +118,27 @@
 #
 ######################################################################
 
-# module load QUAST/5.0.2-foss-2018a-Python-2.7.14
+module load QUAST/5.0.2-foss-2018a-Python-2.7.14
 
-# QUASTPATH="/scratch/rx32940/Lepto_Work/picardeau_313" 
 
-# cat $QUASTPATH/picardeau_313_biosamples.txt | xargs -I{} quast.py \
-# $QUASTPATH/assemblies/{}/scaffolds.fasta \
-# -o $QUASTPATH/quast/{}/ \
-# -t 8 
+QUASTPATH="/scratch/rx32940/Lepto_Work/picardeau_313" 
+refseq="/scratch/rx32940/reference"
+
+for file in /scratch/rx32940/Lepto_Work/picardeau_313/assemblies/*;
+do
+    biosample="$(basename "$file")"
+    species="$(python /home/rx32940/github/Lepto-Phylogeography/get_biosample_species.py "$biosample")" # get the species of the biosample acc
+    refname="$(ls "$refseq"/"$species"/*_genomic.fna)"
+    annotation="$(ls "$refseq"/"$species"/*_genomic.gff)"
+    
+    quast.py \
+    $QUASTPATH/assemblies/$biosample/scaffolds.fasta \
+    --fragmented \
+    -r $refname \
+    -g $annotation \
+    -o $QUASTPATH/quast/$biosample/ \
+    -t 8 
+done
 
 # ######################################################################
 # #
@@ -134,13 +147,13 @@
 # #
 # # #####################################################################
 
-# path_quast="/scratch/rx32940/Lepto_Work/picardeau_313" 
+path_quast="/scratch/rx32940/Lepto_Work/picardeau_313" 
 
-# module load MultiQC/1.5-foss-2016b-Python-2.7.14
+module load MultiQC/1.5-foss-2016b-Python-2.7.14
 
-# multiqc $path_quast/quast/*/report.tsv \
-# -d -dd 1 -o $path_quast \
-# -n quast_picardueau_313
+multiqc $path_quast/quast/*/report.tsv \
+-d -dd 1 -o $path_quast \
+-n quast_picardueau_313
 
 ########################################################################
 #
@@ -149,16 +162,17 @@
 # 
 ########################################################################
 
-module load PAGIT/1.64-foss-2016b
+# module load PAGIT/1.64-foss-2016b
+# module load Anaconda2/2019.03
 
-refseq="/scratch/rx32940/reference"
-outdir="/scratch/rx32940/Lepto_Work/picardeau_313/abacas"
-asmpath="/scratch/rx32940/Lepto_Work/picardeau_313/assemblies"
+# refseq="/scratch/rx32940/reference"
+# outdir="/scratch/rx32940/Lepto_Work/picardeau_313/abacas"
+# asmpath="/scratch/rx32940/Lepto_Work/picardeau_313/assemblies"
 
-for file in /scratch/rx32940/Lepto_Work/picardeau_313/assemblies/*;
-do  
-    species="$(python /home/rx32940/github/Lepto-Phylogeography/get_biosample_species.py "$file")" # get the species of the biosample acc
-    biosample="$(basename "$file")"
-    abacas.pl -r $refseq/$species/$species.union.fna -q $asmpath/$biosample/scaffolds.fasta -p nucmer -m -b -o $outdir/${biosample}_abacas
-done
+# for file in /scratch/rx32940/Lepto_Work/picardeau_313/assemblies/*;
+# do  
+#     biosample="$(basename "$file")"
+#     species="$(python /home/rx32940/github/Lepto-Phylogeography/get_biosample_species.py "$biosample")" # get the species of the biosample acc
+#     abacas.pl -r $refseq/$species/$species.union.fna -q $asmpath/$biosample/scaffolds.fasta -p nucmer -m -b -o $outdir/${biosample}_abacas
+# done
 

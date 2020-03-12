@@ -178,7 +178,7 @@ module load QUAST/5.0.2-foss-2018a-Python-2.7.14
 
 QUASTPATH="/scratch/rx32940/Lepto_Work/dated_32" 
 
-no reference quast
+# no reference quast
 cat $QUASTPATH/self_assemble_dated_32.txt | xargs -I{} quast.py \
 $QUASTPATH/assemblies/{}/scaffolds.fasta \
 -o $QUASTPATH/quast/{}/ \
@@ -205,6 +205,6 @@ multiqc $path_quast/quast/*/report.tsv \
 # 
 ########################################################################
 
-module load PAGIT/1.64-foss-2016b
+# module load PAGIT/1.64-foss-2016b
 
-# https://github.com/broadinstitute/pilon/wiki
+# # https://github.com/broadinstitute/pilon/wiki
