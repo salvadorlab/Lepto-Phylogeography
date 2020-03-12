@@ -100,14 +100,14 @@
 # pair end reads
 ##################################################################################
 
-seqpath="/scratch/rx32940/Lepto_Work/rest_211/trimmed"
-path_qc="/scratch/rx32940/Lepto_Work/rest_211/2nd_qc"
+# seqpath="/scratch/rx32940/Lepto_Work/rest_211/trimmed"
+# path_qc="/scratch/rx32940/Lepto_Work/rest_211/2nd_qc"
 
-module load FastQC/0.11.8-Java-1.8.0_144
+# module load FastQC/0.11.8-Java-1.8.0_144
 
-cat /scratch/rx32940/All_Lepto_Assemblies/rest_sra_216/rest_sra_212.txt |\
-xargs -I{} fastqc -t 12 -o fastqc -o $path_qc -f fastq $seqpath/{}_1_paired_trimmed.fastq.gz \
-$seqpath/{}_2_paired_trimmed.fastq.gz
+# cat /scratch/rx32940/All_Lepto_Assemblies/rest_sra_216/rest_sra_212.txt |\
+# xargs -I{} fastqc -t 12 -o fastqc -o $path_qc -f fastq $seqpath/{}_1_paired_trimmed.fastq.gz \
+# $seqpath/{}_2_paired_trimmed.fastq.gz
 
 ######################################################################
 #
@@ -116,11 +116,11 @@ $seqpath/{}_2_paired_trimmed.fastq.gz
 #
 # #####################################################################
 
-path_qc="/scratch/rx32940/Lepto_Work/rest_211/fastqc" 
+# path_qc="/scratch/rx32940/Lepto_Work/rest_211/fastqc" 
 
-module load MultiQC/1.5-foss-2016b-Python-2.7.14
+# module load MultiQC/1.5-foss-2016b-Python-2.7.14
 
-multiqc $path_qc/*_fastqc.zip -o $path_qc
+# multiqc $path_qc/*_fastqc.zip -o $path_qc
 
 ############################################################################
 #
@@ -133,16 +133,15 @@ multiqc $path_qc/*_fastqc.zip -o $path_qc
 # path_seq="/scratch/rx32940/All_Lepto_Assemblies/rest_sra_216"
 # trim_seq="/scratch/rx32940/Lepto_Work/rest_211/trimmed"
 
-# cat $path_seq/rest_sra_212.txt |\
-
-#  while read SAMN; 
+# paste $path_seq/rest_sra_211.txt $path_seq/rest_biosample_211.txt |\
+# while IFS="$(printf '\t')" read SRA SAMN; 
 #  do
 #     echo "Starting command"
 #     (
-#     echo "$SAMN"
+#     echo "$SRA \t $SAMN"
 #     sapelo2_header="#!/bin/bash
 #         #PBS -q bahl_salv_q                                                            
-#         #PBS -N assemble32_pair_$SAMN                                        
+#         #PBS -N assembleRest_pair_$SAMN                                        
 #         #PBS -l nodes=1:ppn=12 -l mem=10gb                                        
 #         #PBS -l walltime=100:00:00                                                
 #         #PBS -M rx32940@uga.edu                                                  
@@ -156,8 +155,8 @@ multiqc $path_qc/*_fastqc.zip -o $path_qc
 #     echo "module load spades/3.12.0-k_245" >> ./sub_assembleRest.sh
 
 #     echo "python /usr/local/apps/gb/spades/3.12.0-k_245/bin/spades.py \
-#     --pe1-1 $trim_seq/${SAMN}_1_paired_trimmed.fastq.gz \
-#     --pe1-2 $trim_seq/${SAMN}_2_paired_trimmed.fastq.gz \
+#     --pe1-1 $trim_seq/${SRA}_1_paired_trimmed.fastq.gz \
+#     --pe1-2 $trim_seq/${SRA}_2_paired_trimmed.fastq.gz \
 #     --careful --mismatch-correction \
 #     -o /scratch/rx32940/Lepto_Work/rest_211/assemblies/$SAMN" >> ./sub_assembleRest.sh
 
@@ -171,3 +170,48 @@ multiqc $path_qc/*_fastqc.zip -o $path_qc
 #     wait
 
 # done
+
+######################################################################
+#
+# QUAST
+# check the quality of each assemblies - not providing reference
+#
+######################################################################
+
+module load QUAST/5.0.2-foss-2018a-Python-2.7.14
+
+
+QUASTPATH="/scratch/rx32940/Lepto_Work/rest_211" 
+refseq="/scratch/rx32940/reference"
+
+for file in /scratch/rx32940/Lepto_Work/rest_211/assemblies/*;
+do
+    biosample="$(basename "$file")"
+    species="$(python /home/rx32940/github/Lepto-Phylogeography/get_biosample_species.py "$biosample")" # get the species of the biosample acc
+    refname="$(ls "$refseq"/"$species"/*_genomic.fna)"
+    annotation="$(ls "$refseq"/"$species"/*_genomic.gff)"
+    
+    quast.py \
+    $QUASTPATH/assemblies/$biosample/scaffolds.fasta \
+    --fragmented \
+    -r $refname \
+    -g $annotation \
+    -o $QUASTPATH/quast/$biosample/ \
+    -t 8 
+done
+
+# ######################################################################
+# #
+# # multiqc
+# # Aggregate all QUAST reports for the 50 biosamples with collection date 
+# #
+# # #####################################################################
+
+path_quast="/scratch/rx32940/Lepto_Work/rest_211" 
+
+module load MultiQC/1.5-foss-2016b-Python-2.7.14
+
+multiqc $path_quast/quast/*/report.tsv \
+-d -dd 1 -o $path_quast \
+-n quast_rest_211
+
