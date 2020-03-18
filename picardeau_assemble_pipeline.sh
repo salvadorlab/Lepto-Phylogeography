@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -q highmem_q                                                            
 #PBS -N assemble_picardeau                                        
-#PBS -l nodes=1:ppn=24 -l mem=10gb                                        
+#PBS -l nodes=1:ppn=12 -l mem=10gb                                        
 #PBS -l walltime=100:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
@@ -118,27 +118,28 @@
 #
 ######################################################################
 
-module load QUAST/5.0.2-foss-2018a-Python-2.7.14
+# module load QUAST/5.0.2-foss-2018a-Python-2.7.14
 
 
-QUASTPATH="/scratch/rx32940/Lepto_Work/picardeau_313" 
-refseq="/scratch/rx32940/reference"
+# QUASTPATH="/scratch/rx32940/Lepto_Work/picardeau_313" 
+# refseq="/scratch/rx32940/reference"
 
-for file in /scratch/rx32940/Lepto_Work/picardeau_313/assemblies/*;
-do
-    biosample="$(basename "$file")"
-    species="$(python /home/rx32940/github/Lepto-Phylogeography/get_biosample_species.py "$biosample")" # get the species of the biosample acc
-    refname="$(ls "$refseq"/"$species"/*_genomic.fna)"
-    annotation="$(ls "$refseq"/"$species"/*_genomic.gff)"
+# for file in /scratch/rx32940/Lepto_Work/picardeau_313/assemblies/*;
+# do
+#     biosample="$(basename "$file")"
+#     species="$(python /home/rx32940/github/Lepto-Phylogeography/get_biosample_species.py "$biosample")" # get the species of the biosample acc
+#     refname="$(ls "$refseq"/"$species"/*_genomic.fna)"
+#     annotation="$(ls "$refseq"/"$species"/*_genomic.gff)"
     
-    quast.py \
-    $QUASTPATH/assemblies/$biosample/scaffolds.fasta \
-    --fragmented \
-    -r $refname \
-    -g $annotation \
-    -o $QUASTPATH/quast/$biosample/ \
-    -t 8 
-done
+#     quast.py \
+#     $QUASTPATH/assemblies/$biosample/scaffolds.fasta \
+#     --fragmented \
+#     -r $refname \
+#     -g $annotation \
+#     -o $QUASTPATH/quast/$biosample/ \
+#     -t 8 
+# done
+
 
 # ######################################################################
 # #
@@ -147,13 +148,44 @@ done
 # #
 # # #####################################################################
 
-path_quast="/scratch/rx32940/Lepto_Work/picardeau_313" 
+# path_quast="/scratch/rx32940/Lepto_Work/picardeau_313" 
 
+# module load MultiQC/1.5-foss-2016b-Python-2.7.14
+
+# multiqc $path_quast/quast/*/report.tsv \
+# -d -dd 1 -o $path_quast \
+# -n quast_picardueau_313
+
+#########################################################################
+###  QUAST low mapping isolates with NCBI STAT identified reference genome
+###########################################################################
+
+module load QUAST/5.0.2-foss-2018a-Python-2.7.14
 module load MultiQC/1.5-foss-2016b-Python-2.7.14
 
-multiqc $path_quast/quast/*/report.tsv \
--d -dd 1 -o $path_quast \
--n quast_picardueau_313
+ 
+QUASTPATH="/scratch/rx32940/Lepto_Work/picardeau_313" 
+refseq="/scratch/rx32940/reference"
+
+cat /scratch/rx32940/Lepto_Work/picardeau_313/low_map_isolates.txt |\
+while IFS="$(printf '\t')" read ACC SP;
+do
+    refname="$(ls "$refseq"/"$SP"/*_genomic.fna)"
+    annotation="$(ls "$refseq"/"$SP"/*_genomic.gff)"
+
+    quast.py \
+    $QUASTPATH/assemblies/$ACC/scaffolds.fasta \
+    --fragmented \
+    -r $refname \
+    -g $annotation \
+    -o $QUASTPATH/low_map_requast/$ACC \
+    -t 8
+
+done
+
+multiqc $QUASTPATH/low_map_requast/*/report.tsv \
+-d -dd 1 -o $QUASTPATH \
+-n low_map_requast_picardeau
 
 ########################################################################
 #
