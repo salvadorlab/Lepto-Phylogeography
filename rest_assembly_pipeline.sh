@@ -178,40 +178,70 @@
 #
 ######################################################################
 
+# module load QUAST/5.0.2-foss-2018a-Python-2.7.14
+
+
+# QUASTPATH="/scratch/rx32940/Lepto_Work/rest_211" 
+# refseq="/scratch/rx32940/reference"
+
+# for file in /scratch/rx32940/Lepto_Work/rest_211/assemblies/*;
+# do
+#     biosample="$(basename "$file")"
+#     species="$(python /home/rx32940/github/Lepto-Phylogeography/get_biosample_species.py "$biosample")" # get the species of the biosample acc
+#     refname="$(ls "$refseq"/"$species"/*_genomic.fna)"
+#     annotation="$(ls "$refseq"/"$species"/*_genomic.gff)"
+    
+#     quast.py \
+#     $QUASTPATH/assemblies/$biosample/scaffolds.fasta \
+#     --fragmented \
+#     -r $refname \
+#     -g $annotation \
+#     -o $QUASTPATH/quast/$biosample/ \
+#     -t 8 
+# done
+
+# # ######################################################################
+# # #
+# # # multiqc
+# # # Aggregate all QUAST reports for the 50 biosamples with collection date 
+# # #
+# # # #####################################################################
+
+# path_quast="/scratch/rx32940/Lepto_Work/rest_211" 
+
+# module load MultiQC/1.5-foss-2016b-Python-2.7.14
+
+# multiqc $path_quast/quast/*/report.tsv \
+# -d -dd 1 -o $path_quast \
+# -n quast_rest_211
+
+#########################################################################
+###  QUAST low mapping isolates with NCBI STAT identified reference genome
+###########################################################################
+
 module load QUAST/5.0.2-foss-2018a-Python-2.7.14
+module load MultiQC/1.5-foss-2016b-Python-2.7.14
 
-
+ 
 QUASTPATH="/scratch/rx32940/Lepto_Work/rest_211" 
 refseq="/scratch/rx32940/reference"
 
-for file in /scratch/rx32940/Lepto_Work/rest_211/assemblies/*;
+cat /scratch/rx32940/Lepto_Work/rest_211/low_map_isolates.txt |\
+while IFS="$(printf '\t')" read ACC SP;
 do
-    biosample="$(basename "$file")"
-    species="$(python /home/rx32940/github/Lepto-Phylogeography/get_biosample_species.py "$biosample")" # get the species of the biosample acc
-    refname="$(ls "$refseq"/"$species"/*_genomic.fna)"
-    annotation="$(ls "$refseq"/"$species"/*_genomic.gff)"
-    
+    refname="$(ls "$refseq"/"$SP"/*_genomic.fna)"
+    annotation="$(ls "$refseq"/"$SP"/*_genomic.gff)"
+
     quast.py \
-    $QUASTPATH/assemblies/$biosample/scaffolds.fasta \
+    $QUASTPATH/assemblies/$ACC/scaffolds.fasta \
     --fragmented \
     -r $refname \
     -g $annotation \
-    -o $QUASTPATH/quast/$biosample/ \
-    -t 8 
+    -o $QUASTPATH/low_map_requast/$ACC \
+    -t 8
+
 done
 
-# ######################################################################
-# #
-# # multiqc
-# # Aggregate all QUAST reports for the 50 biosamples with collection date 
-# #
-# # #####################################################################
-
-path_quast="/scratch/rx32940/Lepto_Work/rest_211" 
-
-module load MultiQC/1.5-foss-2016b-Python-2.7.14
-
-multiqc $path_quast/quast/*/report.tsv \
--d -dd 1 -o $path_quast \
--n quast_rest_211
-
+multiqc $QUASTPATH/low_map_requast/*/report.tsv \
+-d -dd 1 -o $QUASTPATH \
+-n low_map_requast_rest
