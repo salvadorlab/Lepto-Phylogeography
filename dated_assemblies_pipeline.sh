@@ -216,7 +216,7 @@ ppath="/scratch/rx32940/Lepto_Work/dated_32"
 ###### single end reads ###################################################
 
 cat $path_seq/single.txt | 
-while IFS="$(printf ',')" read SAMN; 
+while read SAMN; 
 do
     
     bwa mem -t 12 /scratch/rx32940/reference/interrogans/GCF_000092565.1_ASM9256v1_genomic.fna /scratch/rx32940/Lepto_Work/dated_32/trimmed/single/${SAMN}_trimmed.fastq.gz | samtools view -b - | samtools sort - > /scratch/rx32940/Lepto_Work/dated_32/bwa/$SAMN.sorted.bam
@@ -228,8 +228,8 @@ done
 
 ###### pair end reads ###################################################
 
-cat $path_seq/single.txt | 
-while IFS="$(printf ',')" read SAMN; 
+cat $path_seq/pair_nonSree_SAMN.txt | 
+while read SAMN; 
 do
     
     bwa mem -t 12 /scratch/rx32940/reference/interrogans/GCF_000092565.1_ASM9256v1_genomic.fna /scratch/rx32940/Lepto_Work/dated_32/trimmed/pair/${SAMN}_1_paired_trimmed.fastq.gz /scratch/rx32940/Lepto_Work/dated_32/trimmed/pair/${SAMN}_2_paired_trimmed.fastq.gz | samtools view -b - | samtools sort - > /scratch/rx32940/Lepto_Work/dated_32/bwa/$SAMN.sorted.bam
