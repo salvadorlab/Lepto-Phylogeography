@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -q highmem_q                                                            
 #PBS -N assemble_rest                                       
-#PBS -l nodes=1:ppn=24 -l mem=10gb                                        
+#PBS -l nodes=1:ppn=12 -l mem=50gb                                        
 #PBS -l walltime=100:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
@@ -219,29 +219,55 @@
 ###  QUAST low mapping isolates with NCBI STAT identified reference genome
 ###########################################################################
 
-module load QUAST/5.0.2-foss-2018a-Python-2.7.14
-module load MultiQC/1.5-foss-2016b-Python-2.7.14
+# module load QUAST/5.0.2-foss-2018a-Python-2.7.14
+# module load MultiQC/1.5-foss-2016b-Python-2.7.14
 
  
-QUASTPATH="/scratch/rx32940/Lepto_Work/rest_211" 
-refseq="/scratch/rx32940/reference"
+# QUASTPATH="/scratch/rx32940/Lepto_Work/rest_211" 
+# refseq="/scratch/rx32940/reference"
 
-cat /scratch/rx32940/Lepto_Work/rest_211/low_map_isolates.txt |\
-while IFS="$(printf '\t')" read ACC SP;
+# cat /scratch/rx32940/Lepto_Work/rest_211/low_map_isolates.txt |\
+# while IFS="$(printf '\t')" read ACC SP;
+# do
+#     refname="$(ls "$refseq"/"$SP"/*_genomic.fna)"
+#     annotation="$(ls "$refseq"/"$SP"/*_genomic.gff)"
+
+#     quast.py \
+#     $QUASTPATH/assemblies/$ACC/scaffolds.fasta \
+#     --fragmented \
+#     -r $refname \
+#     -g $annotation \
+#     -o $QUASTPATH/low_map_requast/$ACC \
+#     -t 8
+
+# done
+
+# multiqc $QUASTPATH/low_map_requast/*/report.tsv \
+# -d -dd 1 -o $QUASTPATH \
+# -n low_map_requast_rest
+
+#########################################################################
+# BWA mem + Samtools for coverage
+#########################################################################
+
+module load SAMtools/1.10-GCC-8.2.0-2.31.1
+module load BWA/0.7.17-foss-2016b
+module load Anaconda3/2019.03
+ml Qualimap2/2.2.1-foss-2016b-Java-1.8.0_144
+module load MultiQC/1.5-foss-2016b-Python-2.7.14
+
+
+ppath="/scratch/rx32940/Lepto_Work/rest_211"
+
+cat $ppath/rest_211_sra_samn.csv | 
+while IFS="$(printf ',')" read SRA SAMN; 
 do
-    refname="$(ls "$refseq"/"$SP"/*_genomic.fna)"
-    annotation="$(ls "$refseq"/"$SP"/*_genomic.gff)"
+    species="$(python /home/rx32940/github/Lepto-Phylogeography/get_biosample_species.py "$SAMN" "$ppath"/biosample_species_dict_rest_new.csv)"
 
-    quast.py \
-    $QUASTPATH/assemblies/$ACC/scaffolds.fasta \
-    --fragmented \
-    -r $refname \
-    -g $annotation \
-    -o $QUASTPATH/low_map_requast/$ACC \
-    -t 8
+    bwa mem -t 12 /scratch/rx32940/reference/$species/*_genomic.fna /scratch/rx32940/Lepto_Work/rest_211/trimmed/${SRA}_1_paired_trimmed.fastq.gz /scratch/rx32940/Lepto_Work/rest_211/trimmed/${SRA}_2_paired_trimmed.fastq.gz | samtools view -b - | samtools sort - > /scratch/rx32940/Lepto_Work/rest_211/bwa/$SAMN.sorted.bam
 
+    qualimap bamqc -bam /scratch/rx32940/Lepto_Work/rest_211/bwa/$SAMN.sorted.bam -outdir /scratch/rx32940/Lepto_Work/rest_211/cov/$SAMN -nt 12
+    
 done
 
-multiqc $QUASTPATH/low_map_requast/*/report.tsv \
--d -dd 1 -o $QUASTPATH \
--n low_map_requast_rest
+multiqc /scratch/rx32940/Lepto_Work/rest_211/cov -o /scratch/rx32940/Lepto_Work/rest_211/ -n multiqc_qualimap_rest_211

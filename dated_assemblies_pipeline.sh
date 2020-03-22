@@ -1,7 +1,7 @@
 #!/bin/bash
-#PBS -q bahl_salv_q                                                            
+#PBS -q highmem_q                                                            
 #PBS -N assemble_dated32                                        
-#PBS -l nodes=1:ppn=8 -l mem=10gb                                        
+#PBS -l nodes=1:ppn=12 -l mem=50gb                                        
 #PBS -l walltime=100:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
@@ -174,37 +174,68 @@
 #
 ######################################################################
 
-module load QUAST/5.0.2-foss-2018a-Python-2.7.14
+# module load QUAST/5.0.2-foss-2018a-Python-2.7.14
 
-QUASTPATH="/scratch/rx32940/Lepto_Work/dated_32" 
+# QUASTPATH="/scratch/rx32940/Lepto_Work/dated_32" 
 
-# no reference quast
-cat $QUASTPATH/self_assemble_dated_32.txt | xargs -I{} quast.py \
-$QUASTPATH/assemblies/{}/scaffolds.fasta \
--o $QUASTPATH/quast/{}/ \
--t 8 
+# # no reference quast
+# cat $QUASTPATH/self_assemble_dated_32.txt | xargs -I{} quast.py \
+# $QUASTPATH/assemblies/{}/scaffolds.fasta \
+# -o $QUASTPATH/quast/{}/ \
+# -t 8 
 
-######################################################################
-#
-# multiqc
-# Aggregate all QUAST reports for the 50 biosamples with collection date 
-#
-# #####################################################################
+# ######################################################################
+# #
+# # multiqc
+# # Aggregate all QUAST reports for the 50 biosamples with collection date 
+# #
+# # #####################################################################
 
-path_quast="/scratch/rx32940/Lepto_Work/dated_32" 
+# path_quast="/scratch/rx32940/Lepto_Work/dated_32" 
 
+# module load MultiQC/1.5-foss-2016b-Python-2.7.14
+
+# multiqc $path_quast/quast/*/report.tsv \
+# -d -dd 1 -o $path_quast \
+# -n quast_self_asm_date_32
+
+#########################################################################
+# BWA mem + Samtools for coverage
+#########################################################################
+
+module load SAMtools/1.10-GCC-8.2.0-2.31.1
+module load BWA/0.7.17-foss-2016b
+module load Anaconda3/2019.03
+ml Qualimap2/2.2.1-foss-2016b-Java-1.8.0_144
 module load MultiQC/1.5-foss-2016b-Python-2.7.14
 
-multiqc $path_quast/quast/*/report.tsv \
--d -dd 1 -o $path_quast \
--n quast_self_asm_date_32
 
-########################################################################
-#
-# pagit 
-# 
-########################################################################
+path_seq="/scratch/rx32940/merged_runs"
+ppath="/scratch/rx32940/Lepto_Work/dated_32"
 
-# module load PAGIT/1.64-foss-2016b
+###### single end reads ###################################################
 
-# # https://github.com/broadinstitute/pilon/wiki
+cat $path_seq/single.txt | 
+while IFS="$(printf ',')" read SAMN; 
+do
+    
+    bwa mem -t 12 /scratch/rx32940/reference/interrogans/GCF_000092565.1_ASM9256v1_genomic.fna /scratch/rx32940/Lepto_Work/dated_32/trimmed/single/${SAMN}_trimmed.fastq.gz | samtools view -b - | samtools sort - > /scratch/rx32940/Lepto_Work/dated_32/bwa/$SAMN.sorted.bam
+
+    qualimap bamqc -bam /scratch/rx32940/Lepto_Work/dated_32/bwa/$SAMN.sorted.bam -outdir /scratch/rx32940/Lepto_Work/dated_32/cov/$SAMN -nt 12
+    
+done
+
+
+###### pair end reads ###################################################
+
+cat $path_seq/single.txt | 
+while IFS="$(printf ',')" read SAMN; 
+do
+    
+    bwa mem -t 12 /scratch/rx32940/reference/interrogans/GCF_000092565.1_ASM9256v1_genomic.fna /scratch/rx32940/Lepto_Work/dated_32/trimmed/pair/${SAMN}_1_paired_trimmed.fastq.gz /scratch/rx32940/Lepto_Work/dated_32/trimmed/pair/${SAMN}_2_paired_trimmed.fastq.gz | samtools view -b - | samtools sort - > /scratch/rx32940/Lepto_Work/dated_32/bwa/$SAMN.sorted.bam
+
+    qualimap bamqc -bam /scratch/rx32940/Lepto_Work/dated_32/bwa/$SAMN.sorted.bam -outdir /scratch/rx32940/Lepto_Work/dated_32/cov/$SAMN -nt 12
+    
+done
+
+multiqc /scratch/rx32940/Lepto_Work/dated_32/cov -o /scratch/rx32940/Lepto_Work/dated_32/ -n multiqc_qualimap_dated_32
