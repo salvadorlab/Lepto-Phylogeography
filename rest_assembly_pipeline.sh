@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -q highmem_q                                                            
 #PBS -N assemble_rest                                       
-#PBS -l nodes=1:ppn=12 -l mem=50gb                                        
+#PBS -l nodes=1:ppn=12 -l mem=10gb                                        
 #PBS -l walltime=100:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
