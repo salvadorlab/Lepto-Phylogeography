@@ -1,8 +1,8 @@
 #!/bin/bash
-#PBS -q batch                                                            
-#PBS -N core_genes_prokka                                        
-#PBS -l nodes=1:ppn=12 -l mem=10gb                                        
-#PBS -l walltime=100:00:00                                                
+#PBS -q highmem_q                                                            
+#PBS -N core_genes_roary                                        
+#PBS -l nodes=1:ppn=12 -l mem=20gb                                        
+#PBS -l walltime=200:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
 #PBS -o /scratch/rx32940                        
@@ -53,39 +53,39 @@ outdir="/scratch/rx32940/core_gene_builder/prokka"
 #     wait
 # done
 
-# submit separate jobs for ncbi downloaded assemblies
+# # submit separate jobs for ncbi downloaded assemblies
 
-for asm in $ncbi_path/*;
-do
-    SAMN="$(basename "$asm" ".fna")"
-    sapelo2_header="#!/bin/bash
-        #PBS -q bahl_salv_q                                                            
-        #PBS -N prokka_$SAMN                                        
-        #PBS -l nodes=1:ppn=8 -l mem=10gb                                        
-        #PBS -l walltime=100:00:00                                                
-        #PBS -M rx32940@uga.edu                                                  
-        #PBS -m abe                                                              
-        #PBS -o /scratch/rx32940                        
-        #PBS -e /scratch/rx32940                        
-        #PBS -j oe
-    "
-    (
-        echo "$sapelo2_header" > ./qsub_prokka.sh
-        echo "module load prokka/1.13-foss-2016b-BioPerl-1.7.1" >> ./qsub_prokka.sh
+# for asm in $ncbi_path/*;
+# do
+#     SAMN="$(basename "$asm" ".fna")"
+#     sapelo2_header="#!/bin/bash
+#         #PBS -q bahl_salv_q                                                            
+#         #PBS -N prokka_$SAMN                                        
+#         #PBS -l nodes=1:ppn=8 -l mem=10gb                                        
+#         #PBS -l walltime=100:00:00                                                
+#         #PBS -M rx32940@uga.edu                                                  
+#         #PBS -m abe                                                              
+#         #PBS -o /scratch/rx32940                        
+#         #PBS -e /scratch/rx32940                        
+#         #PBS -j oe
+#     "
+#     (
+#         echo "$sapelo2_header" > ./qsub_prokka.sh
+#         echo "module load prokka/1.13-foss-2016b-BioPerl-1.7.1" >> ./qsub_prokka.sh
 
 
-        echo "prokka -kingdom Bacteria -outdir $outdir/$SAMN \
-        -genus Leptopsira -locustag $SAMN \
-        -prefix $SAMN \
-        --force \
-        /scratch/rx32940/core_gene_builder/assemblies/ncbi_Assemblies_202003/$SAMN.fna" >> ./qsub_prokka.sh
+#         echo "prokka -kingdom Bacteria -outdir $outdir/$SAMN \
+#         -genus Leptopsira -locustag $SAMN \
+#         -prefix $SAMN \
+#         --force \
+#         /scratch/rx32940/core_gene_builder/assemblies/ncbi_Assemblies_202003/$SAMN.fna" >> ./qsub_prokka.sh
 
-        qsub ./qsub_prokka.sh 
+#         qsub ./qsub_prokka.sh 
     
-    ) &
+#     ) &
     
-    wait
-done
+#     wait
+# done
 
 ##################################################################################
 #
@@ -93,6 +93,6 @@ done
 #
 ##################################################################################
 
-# module load Roary/3.12.0
+module load Roary/3.12.0
 
-# roary -e --mafft -p 8 *.gff -f /scratch/rx32940/core_gene_builder/roary/
+roary -e --mafft -p 12 -f /scratch/rx32940/core_gene_builder/roary/ /scratch/rx32940/core_gene_builder/filtered_gff/*.gff -v
