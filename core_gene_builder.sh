@@ -1,8 +1,8 @@
 #!/bin/bash
 #PBS -q highmem_q                                                            
-#PBS -N core_genes_roary                                        
-#PBS -l nodes=1:ppn=12 -l mem=20gb                                        
-#PBS -l walltime=200:00:00                                                
+#PBS -N roary                                       
+#PBS -l nodes=1:ppn=12 -l mem=100gb                                        
+#PBS -l walltime=300:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
 #PBS -o /scratch/rx32940                        
@@ -95,4 +95,6 @@ outdir="/scratch/rx32940/core_gene_builder/prokka"
 
 module load Roary/3.12.0
 
-roary -e --mafft -p 12 -f /scratch/rx32940/core_gene_builder/roary/ /scratch/rx32940/core_gene_builder/filtered_gff/*.gff -v
+# test with only interrogans species
+roary -e -n -p 12/scratch/rx32940/core_gene_builder/species_gff/interrogans/*.gff -v -f /scratch/rx32940/core_gene_builder/roary/interrogans/
+
