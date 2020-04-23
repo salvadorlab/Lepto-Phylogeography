@@ -1,7 +1,7 @@
 #!/bin/bash
-#PBS -q highmem_q                                                            
+#PBS -q batch                                                            
 #PBS -N roary                                       
-#PBS -l nodes=1:ppn=12 -l mem=100gb                                        
+#PBS -l nodes=1:ppn=24 -l mem=80gb                                        
 #PBS -l walltime=300:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
@@ -96,5 +96,7 @@ outdir="/scratch/rx32940/core_gene_builder/prokka"
 module load Roary/3.12.0
 
 # test with only interrogans species
-roary -e -n -p 12/scratch/rx32940/core_gene_builder/species_gff/interrogans/*.gff -v -f /scratch/rx32940/core_gene_builder/roary/interrogans/
+# roary -e -n -p 12 /scratch/rx32940/core_gene_builder/species_gff/adleri/*.gff -v -f /scratch/rx32940/core_gene_builder/roary/adleri/
 
+# create pangenome with roary including the outgroup
+roary -e -p 24 -f /scratch/rx32940/core_gene_builder/roary/include_outgroup /scratch/rx32940/core_gene_builder/filtered_gff/*.gff -v
