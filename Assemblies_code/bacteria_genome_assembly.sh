@@ -142,3 +142,25 @@ while read SAMN;
     wait
 
 done
+
+######################################################################
+#
+# QUAST
+# check the quality of each assemblies - not providing reference
+#
+######################################################################
+
+module load QUAST/5.0.2-foss-2018a-Python-2.7.14
+
+mkdir $outpath/quast
+
+for file in $outpath/assemblies/*;
+do
+    biosample="$(basename "$file")"
+    
+    quast.py \
+    $outpath/assemblies/$biosample/scaffolds.fasta \
+    --fragmented \
+    -o $outpath/quast/$biosample/ \
+    -t 12
+done
