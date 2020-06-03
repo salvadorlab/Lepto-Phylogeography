@@ -1,8 +1,8 @@
 #!/bin/bash
-#PBS -q bahl_salv_q                                                            
+#PBS -q batch                                                            
 #PBS -N get_homo_OMCL                                       
-#PBS -l nodes=1:ppn=12 -l mem=50gb                                        
-#PBS -l walltime=100:00:00                                                
+#PBS -l nodes=1:ppn=30 -l mem=50gb                                        
+#PBS -l walltime=300:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
 #PBS -o /scratch/rx32940                        
@@ -18,4 +18,4 @@ ml GETHOMOLOGUES/1.7.6
 # use COG algorithm with all possible clusters (even thus which might not contain sequences from all input genomes (taxa))
 # get_homologues.pl -d /scratch/rx32940/get_homo/gbk -t 0 -G -n 12
 # use OMCL algorithm with all possible clusters
-get_homologues.pl -d /scratch/rx32940/get_homo/gbk_dup -t 0 -M -n 12
+get_homologues.pl -d /scratch/rx32940/get_homo/gbk_dup -t 0 -M -n 30
