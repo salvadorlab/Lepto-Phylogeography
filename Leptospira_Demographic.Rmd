@@ -19,6 +19,7 @@ library(dplyr)
 library(tidyverse)
 library(lubridate)
 library(ggplot2)
+library(plotly)
 
 ```
 
@@ -117,11 +118,12 @@ unique(edited_date_389$country) # 30 -2 (San paulo & Zire-Belgium Congo -> Congo
 
 # Plot base on the Geographical location of each country
 ```{r}
-ggplot(edited_date_389,aes(x=country))+
+plot_country <- ggplot(edited_date_389,aes(x=country))+
   geom_bar()+
   theme(axis.text.x=element_text(angle=90,size=8))+
-  labs(title="Leptospira Isolates Geographical Distribution Base on Countries", y="Number of Isolates") + geom_text(stat="count",aes(label=..count..,vjust=-0.5,degree=25),size=3)
+  labs(title="Leptospira Isolates Geographical Distribution Base on Countries", y="Number of Isolates")
 
+ggplotly(plot_country)
 ```
 
 ### add GBD regions and super regions to the dataframe for plotting
@@ -134,11 +136,14 @@ GBD <- read.csv(paste(path,"countries_GBD_regions.csv",sep=""))
 # GBD
 edited_date_389 <- left_join(edited_date_389,GBD, by="country")
 length(edited_date_389$country)
+length(edited_date_389$country == "St.Kitts")
 ```
 ### Plot base on GBD Distribution
 ```{r}
-ggplot(edited_date_389) +
+plotGBD <- ggplot(edited_date_389) +
   geom_bar(aes(x=GBD.Super.Regions,fill=GBD.Regions))+
   theme(axis.text.x=element_text(angle=25,size=6,hjust=1,face="bold"), legend.position = "left",legend.key.size =  unit(0.5,"line"),title=element_text(size=8))+
   labs(title="Leptopsira Isolate Distribution Based on Global Burden of Disease (GBD)",x="GBD Super Regions",y="Number of Leptospira Isolates")
+
+ggplotly(plotGBD)
 ```
