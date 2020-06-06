@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -q highmem_q                                                            
-#PBS -N submit_prokka                                       
+#PBS -N submit_bwa                                       
 #PBS -l nodes=1:ppn=2 -l mem=10gb                                        
 #PBS -l walltime=100:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
@@ -11,12 +11,17 @@
 
 #####################################################################
 # input: absolute path to the fastq seq
-# output: absolute path for outdir, need to mkdir first
+#        if need coverage output for each assembly, need to provide path to the reference genomes 
+#           and species of each isolates
+# output: absolute path for outdir
+#            prokka need a separate output dir
+# 
 ######################################################################
 
 seqpath="/scratch/rx32940/rest_sra_216/PRJEB36553_4" 
 outpath="/scratch/rx32940/All_Lepto_Assemblies/PRJEB36553_4"
 prokkapath="/scratch/rx32940/core_gene_builder/prokka"
+refpath="/scratch/rx32940/reference"
 
 all_fastq="$(ls "$seqpath"/*)" # list all fastq in the dir
 # extract all the unique names from fastq dir into a file, find "_", print the first part, return unique values
@@ -181,33 +186,60 @@ ls $seqpath | awk -F'_' '{print $1}' | uniq > $outpath/all_biosamples.txt # base
 
 #########################################################################
 # BWA mem + Samtools for coverage 
-# - this step is only available if reference species can be provided)
+# - this step is only available if reference species can be provided in a csv file
+#   - need to specify which colname the species name is in (need who species name)
+# - need python script get_biosample_species.py in the same folder
 #########################################################################
+module load Anaconda3/2019.03
+module load MultiQC/1.5-foss-2016b-Python-2.7.14
 
-# module load SAMtools/1.10-GCC-8.2.0-2.31.1
-# module load BWA/0.7.17-foss-2016b
-# module load Anaconda3/2019.03
-# ml Qualimap2/2.2.1-foss-2016b-Java-1.8.0_144
-# module load MultiQC/1.5-foss-2016b-Python-2.7.14
+# mkdir $outpath/bwa
 
-
-# ppath="/scratch/rx32940/Lepto_Work/picardeau_313"
-
-# cat $ppath/picardeau_313_biosamples.txt | 
+# cat $outpath/all_biosamples.txt | \
 # while read SAMN;
 # do
-#     species="$(python /home/rx32940/github/Lepto-Phylogeography/get_biosample_species.py "$SAMN" "$ppath"/biosample_species_dict_picardeau_new.csv)"
+#     (
+#     echo $SAMN
 
-#     bwa mem -t 12 /scratch/rx32940/reference/$species/*_genomic.fna /scratch/rx32940/Lepto_Work/picardeau_313/trimmed/${SAMN}_1_paired_trimmed.fastq.gz /scratch/rx32940/Lepto_Work/picardeau_313/trimmed/${SAMN}_2_paired_trimmed.fastq.gz | samtools view -b - | samtools sort - > /scratch/rx32940/Lepto_Work/picardeau_313/bwa/$SAMN.sorted.bam
+#     sapelo2_header="#PBS -q batch\n#PBS -N bwa_$SAMN\n
+#     #PBS -l nodes=1:ppn=24 -l mem=10gb\n
+#     #PBS -l walltime=100:00:00\n
+#     #PBS -M rx32940@uga.edu\n                                                  
+#     #PBS -m abe\n                                                            
+#     #PBS -o /scratch/rx32940\n                      
+#     #PBS -e /scratch/rx32940\n                        
+#     #PBS -j oe\n"
 
-#     qualimap bamqc -bam /scratch/rx32940/Lepto_Work/picardeau_313/bwa/$SAMN.sorted.bam -outdir /scratch/rx32940/Lepto_Work/picardeau_313/cov/$SAMN -nt 12
-#     # samtools index /scratch/rx32940/Lepto_Work/picardeau_313/bwa/$SAMN.sorted.bam
+#     echo -e $sapelo2_header > $outpath/qsub_qualimap.sh # -e so echo can interpret \n as line break
 
-#     # samtools coverage /scratch/rx32940/Lepto_Work/picardeau_313/bwa/$SAMN.sorted.bam -o /scratch/rx32940/Lepto_Work/picardeau_313/cov/${SAMN}_covstat.txt
+#     echo -e "module load SAMtools/1.10-GCC-8.2.0-2.31.1
+#     module load BWA/0.7.17-foss-2016b
+#     module load Anaconda3/2019.03
+#     ml Qualimap2/2.2.1-foss-2016b-Java-1.8.0_144
+#     module load MultiQC/1.5-foss-2016b-Python-2.7.14\n" >> $outpath/qsub_qualimap.sh
 
+#     species="$(python /home/rx32940/github/Lepto-Phylogeography/Assemblies_code/get_biosample_species.py "$SAMN" "$outpath"/selfasm_sra_samn_species_4.csv 2)"
+
+#     echo "$species"
+
+#     echo "bwa mem -t 12 $refpath/$species/*_genomic.fna \
+#     $outpath/trimmed/${SAMN}_1_paired_trimmed.fastq.gz \
+#     $outpath/trimmed/${SAMN}_2_paired_trimmed.fastq.gz | \
+#     samtools view -b - | \
+#     samtools sort - > $outpath/bwa/$SAMN.sorted.bam\n" >> $outpath/qsub_qualimap.sh
+
+#     echo "qualimap bamqc -bam $outpath/bwa/$SAMN.sorted.bam -outdir $outpath/cov/$SAMN -nt 12\n" >> $outpath/qsub_qualimap.sh
+    
+#     # cat $outpath/qsub_qualimap.sh
+#     qsub $outpath/qsub_qualimap.sh
+#     ) &
+
+#     wait
+
+#     echo "waiting"
 # done
 
-# multiqc /scratch/rx32940/Lepto_Work/picardeau_313/cov -o /scratch/rx32940/Lepto_Work/picardeau_313/ -n multiqc_qualimap_picardeau_313
+multiqc $outpath/cov -o $outpath/ -n qualimap_cov_multiqc
 
 
 ##################################################################################
