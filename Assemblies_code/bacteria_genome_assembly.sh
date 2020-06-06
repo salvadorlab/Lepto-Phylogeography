@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -q highmem_q                                                            
-#PBS -N submit_bwa                                       
+#PBS -N multiqc_cov                                       
 #PBS -l nodes=1:ppn=2 -l mem=10gb                                        
 #PBS -l walltime=100:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
@@ -174,7 +174,7 @@ ls $seqpath | awk -F'_' '{print $1}' | uniq > $outpath/all_biosamples.txt # base
 # ######################################################################
 # #
 # # multiqc
-# # Aggregate all QUAST reports for the 50 biosamples with collection date 
+# # Aggregate all QUAST reports 
 # #
 # # #####################################################################
 
@@ -190,55 +190,64 @@ ls $seqpath | awk -F'_' '{print $1}' | uniq > $outpath/all_biosamples.txt # base
 #   - need to specify which colname the species name is in (need who species name)
 # - need python script get_biosample_species.py in the same folder
 #########################################################################
-module load Anaconda3/2019.03
-module load MultiQC/1.5-foss-2016b-Python-2.7.14
+# module load Anaconda3/2019.03
 
-mkdir $outpath/bwa
 
-cat $outpath/all_biosamples.txt | \
-while read SAMN;
-do
-    (
-    echo $SAMN
+# mkdir $outpath/bwa
 
-    sapelo2_header="#PBS -q batch\n#PBS -N bwa_$SAMN\n
-    #PBS -l nodes=1:ppn=24 -l mem=10gb\n
-    #PBS -l walltime=100:00:00\n
-    #PBS -M rx32940@uga.edu\n                                                  
-    #PBS -m abe\n                                                            
-    #PBS -o /scratch/rx32940\n                      
-    #PBS -e /scratch/rx32940\n                        
-    #PBS -j oe\n"
+# cat $outpath/all_biosamples.txt | \
+# while read SAMN;
+# do
+#     (
+#     echo $SAMN
 
-    echo -e $sapelo2_header > $outpath/qsub_qualimap.sh # -e so echo can interpret \n as line break
+#     sapelo2_header="#PBS -q batch\n#PBS -N bwa_$SAMN\n
+#     #PBS -l nodes=1:ppn=24 -l mem=10gb\n
+#     #PBS -l walltime=100:00:00\n
+#     #PBS -M rx32940@uga.edu\n                                                  
+#     #PBS -m abe\n                                                            
+#     #PBS -o /scratch/rx32940\n                      
+#     #PBS -e /scratch/rx32940\n                        
+#     #PBS -j oe\n"
 
-    echo -e "module load SAMtools/1.10-GCC-8.2.0-2.31.1
-    module load BWA/0.7.17-foss-2016b
-    module load Anaconda3/2019.03
-    ml Qualimap2/2.2.1-foss-2016b-Java-1.8.0_144
-    module load MultiQC/1.5-foss-2016b-Python-2.7.14\n" >> $outpath/qsub_qualimap.sh
+#     echo -e $sapelo2_header > $outpath/qsub_qualimap.sh # -e so echo can interpret \n as line break
 
-    species="$(python /home/rx32940/github/Lepto-Phylogeography/Assemblies_code/get_biosample_species.py "$SAMN" "$outpath"/selfasm_sra_samn_species_4.csv 2)"
+#     echo -e "module load SAMtools/1.10-GCC-8.2.0-2.31.1
+#     module load BWA/0.7.17-foss-2016b
+#     module load Anaconda3/2019.03
+#     ml Qualimap2/2.2.1-foss-2016b-Java-1.8.0_144
+#     module load MultiQC/1.5-foss-2016b-Python-2.7.14\n" >> $outpath/qsub_qualimap.sh
 
-    echo "$species"
+#     species="$(python /home/rx32940/github/Lepto-Phylogeography/Assemblies_code/get_biosample_species.py "$SAMN" "$outpath"/selfasm_sra_samn_species_4.csv 2)"
 
-    echo "bwa mem -t 12 $refpath/$species/*_genomic.fna \
-    $outpath/trimmed/${SAMN}_1_paired_trimmed.fastq.gz \
-    $outpath/trimmed/${SAMN}_2_paired_trimmed.fastq.gz | \
-    samtools view -b - | \
-    samtools sort - > $outpath/bwa/$SAMN.sorted.bam" >> $outpath/qsub_qualimap.sh
+#     echo "$species"
 
-    echo "qualimap bamqc -bam $outpath/bwa/$SAMN.sorted.bam -outdir $outpath/cov/$SAMN -nt 12" >> $outpath/qsub_qualimap.sh
+#     echo "bwa mem -t 12 $refpath/$species/*_genomic.fna \
+#     $outpath/trimmed/${SAMN}_1_paired_trimmed.fastq.gz \
+#     $outpath/trimmed/${SAMN}_2_paired_trimmed.fastq.gz | \
+#     samtools view -b - | \
+#     samtools sort - > $outpath/bwa/$SAMN.sorted.bam" >> $outpath/qsub_qualimap.sh
+
+#     echo "qualimap bamqc -bam $outpath/bwa/$SAMN.sorted.bam -outdir $outpath/cov/$SAMN -nt 12" >> $outpath/qsub_qualimap.sh
     
-    # cat $outpath/qsub_qualimap.sh
-    qsub $outpath/qsub_qualimap.sh
-    ) &
+#     # cat $outpath/qsub_qualimap.sh
+#     qsub $outpath/qsub_qualimap.sh
+#     ) &
 
-    wait
+#     wait
 
-    echo "waiting"
-done
+#     echo "waiting"
+# done
 
+######################################################################
+#
+# multiqc
+# Aggregate all qualimap output for coverage
+#
+# #####################################################################
+
+
+module load MultiQC/1.5-foss-2016b-Python-2.7.14
 multiqc $outpath/cov -o $outpath/ -n qualimap_cov_multiqc
 
 
