@@ -1,7 +1,8 @@
 #!/bin/bash
 #PBS -q batch                                                            
-#PBS -N get_homo_COG2                                       
-#PBS -l nodes=1:ppn=48 -l mem=10gb                                        
+#PBS -N get_homo_OMCL2                                    
+#PBS -l nodes=1:ppn=48 
+#PBS -l mem=30gb                                        
 #PBS -l walltime=300:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
@@ -16,6 +17,6 @@ ml GETHOMOLOGUES/1.7.6
 # default aglorithm doesn't have -t 0 option available (see manual section 4.8)
 
 # use COG algorithm with all possible clusters (even thus which might not contain sequences from all input genomes (taxa))
-get_homologues.pl -d /scratch/rx32940/get_homo/gbk -t 0 -G -n 48
+# get_homologues.pl -d /scratch/rx32940/get_homo/gbk -t 0 -G -n 48 -o
 # use OMCL algorithm with all possible clusters
-# get_homologues.pl -d /scratch/rx32940/get_homo/gbk_dup -t 0 -M -n 30
+get_homologues.pl -d /scratch/rx32940/get_homo/gbk_dup -t 0 -M -n 48 -o
