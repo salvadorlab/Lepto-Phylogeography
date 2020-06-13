@@ -1,9 +1,9 @@
 #!/bin/bash
-#PBS -q batch                                                            
-#PBS -N get_homo_OMCL2                                    
-#PBS -l nodes=1:ppn=48 
+#PBS -q bahl_salv_q                                                            
+#PBS -N COG_analysis                                    
+#PBS -l nodes=1:ppn=48
 #PBS -l mem=30gb                                        
-#PBS -l walltime=300:00:00                                                
+#PBS -l walltime=100:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
 #PBS -o /scratch/rx32940                        
@@ -17,6 +17,7 @@ ml GETHOMOLOGUES/1.7.6
 # default aglorithm doesn't have -t 0 option available (see manual section 4.8)
 
 # use COG algorithm with all possible clusters (even thus which might not contain sequences from all input genomes (taxa))
-# get_homologues.pl -d /scratch/rx32940/get_homo/gbk -t 0 -G -n 48 -o
+# used -o for blast search only, delete -o for orthologous genes clustering after blast
+get_homologues.pl -d /scratch/rx32940/get_homo/gbk -t 0 -G -n 48
 # use OMCL algorithm with all possible clusters
-get_homologues.pl -d /scratch/rx32940/get_homo/gbk_dup -t 0 -M -n 48 -o
+# get_homologues.pl -d /scratch/rx32940/get_homo/gbk_dup -t 0 -M -n 48 -o
