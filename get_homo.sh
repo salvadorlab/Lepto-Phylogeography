@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -q highmem_q                                                            
-#PBS -N OMCL_analysis                                    
+#PBS -N OMCL2_analysis                                    
 #PBS -l nodes=1:ppn=48
 #PBS -l mem=200gb                                        
 #PBS -l walltime=100:00:00                                                
