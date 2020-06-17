@@ -1,9 +1,9 @@
 #!/bin/bash
-#PBS -q highmem_q                                                            
-#PBS -N OMCL2_analysis                                    
-#PBS -l nodes=1:ppn=48
-#PBS -l mem=200gb                                        
-#PBS -l walltime=100:00:00                                                
+#PBS -q bahl_salv_q                                                            
+#PBS -N OMCL3_analysis                                    
+#PBS -l nodes=1:ppn=64
+#PBS -l mem=100gb                                        
+#PBS -l walltime=150:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
 #PBS -o /scratch/rx32940                        
@@ -11,6 +11,7 @@
 #PBS -j oe
 
 cd /scratch/rx32940/get_homo/
+
 
 ml GETHOMOLOGUES/1.7.6
 
@@ -20,4 +21,4 @@ ml GETHOMOLOGUES/1.7.6
 # used -o for blast search only, delete -o for orthologous genes clustering after blast
 # get_homologues.pl -d /scratch/rx32940/get_homo/gbk -t 0 -G -n 48
 # use OMCL algorithm with all possible clusters
-get_homologues.pl -d /scratch/rx32940/get_homo/gbk_dup -t 0 -M -n 48
+get_homologues.pl -d /scratch/rx32940/get_homo/gbk_dup -t 0 -M -n 64
