@@ -142,8 +142,8 @@ length(edited_date_389$country == "St.Kitts")
 ```{r}
 plotGBD <- ggplot(edited_date_389) +
   geom_bar(aes(x=GBD.Super.Regions,fill=GBD.Regions))+
-  theme(axis.text.x=element_text(angle=25,size=6,hjust=1,face="bold"), legend.position = "left",legend.key.size =  unit(0.5,"line"),title=element_text(size=8))+
+  theme(axis.text.x=element_text(angle=25,size=8,hjust=1,face="bold"), legend.position = "left",legend.key.size =  unit(0.2,"line"),title=element_text(size=8))+
   labs(title="Leptopsira Isolate Distribution Based on Global Burden of Disease (GBD)",x="GBD Super Regions",y="Number of Leptospira Isolates")
-
-ggplotly(plotGBD)
+plotGBD
+# ggplotly(plotGBD)
 ```
