@@ -24,7 +24,7 @@ library(plotly)
 ```
 
 ```{r}
-path = "/Users/rx32940/Dropbox/5.Rachel-projects/Phylogeography/Dated_Assemblies/"
+path = "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Dated_Assemblies/"
 setwd(path)
 ```
 ### 353 NCBI downloaded Assemblies with metadata in PATRIC
@@ -86,8 +86,20 @@ load("metadata_389_merged_edited.RData")
 earliest <- min(edited_date_389$Collection.Date.Formatted) # 1915-01-01
 latest <- max(edited_date_389$Collection.Date.Formatted) # 2017-10-30
 
-# save(edited_date_389,file=paste(path,"metadata_389_merged_edited.RData",sep="")) # save in RData to keep the date format (excel keep chaning formats)
+# make species of each isolate a separate column
+edited_date_389 %<>% mutate(species=unlist(lapply(strsplit(edited_date_389$Genome.Name.x, " "),function(item) {unlist(item)[2]})))
+# write_csv(edited_date_389,paste(path,"metadata_389_merged_edited.csv",sep=""))
+save(edited_date_389,file=paste(path,"metadata_389_merged_edited.RData",sep="")) # save in RData to keep the date format (excel keep chaning formats)
+species <- unique(edited_date_389$species)
+# write.table(species, paste(path,"dated_assemblies_unique_species_51.txt",sep=""), sep="\n",quote = FALSE,row.names = FALSE,col.names = FALSE)
 
+edited_date_389$species
+species_frequency <- ggplot(edited_date_389,aes(x=species)) +
+  geom_bar() + 
+  theme(axis.text.x = element_text(angle=90)) +
+  labs(title="Number of Isolates For Each Species")
+
+ggplotly(species_frequency)
 ```
 ### Distribution base on the year
 ```{r}
