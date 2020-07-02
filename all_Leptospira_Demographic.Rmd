@@ -48,6 +48,9 @@ ggplotly(distribution)
 isolate_needed <- all_973 %>% group_by(Species) %>% count %>%
   mutate(isolated_needed=ceiling(n/20)) 
 
-sum(isolate_needed$isolated_needed)
-isolate_needed
+colnames(isolate_needed) <- c("Species", "NumberOfIsolates", "Downsampled_Number")
+
+sum(isolate_needed$Downsampled_Number) # total number of isolates need
+
+# write.csv(isolate_needed, paste(all_path,"all_lepto_asm_downsample_by_20.csv",sep=""),row.names = FALSE)
 ```
