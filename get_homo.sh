@@ -1,9 +1,9 @@
 #!/bin/bash
 #PBS -q bahl_salv_q                                                            
-#PBS -N BDBH_core                                    
+#PBS -N bdbh_core                                    
 #PBS -l nodes=1:ppn=64
 #PBS -l mem=100gb                                        
-#PBS -l walltime=200:00:00                                                
+#PBS -l walltime=300:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
 #PBS -o /scratch/rx32940                        
@@ -23,7 +23,7 @@ module load GD/2.66-foss-2016b-Perl-5.24.1
 # 2) remove -o, do COG orthologous analysis
 # 3) use -c for genome composition analysis, produce tab file for parse_pangenome_matrix.pl
 # /scratch/rx32940/get_homo/get_homologues-x86_64-20170302/get_homologues.pl -d /scratch/rx32940/get_homo/gbk -G -n 64 -c -z
-/scratch/rx32940/get_homo/get_homologues-x86_64-20170302/get_homologues.pl -d /scratch/rx32940/get_homo/gbk_BDBH -n 64 -c -z
+/scratch/rx32940/get_homo/get_homologues-x86_64-20170302/get_homologues.pl -d /scratch/rx32940/get_homo/gbk_bdbh -n 64 -c -z
 
 # use OMCL algorithm with all possible clusters
 # get_homologues.pl -d /scratch/rx32940/get_homo/gbk_dup -t 0 -M -n 48

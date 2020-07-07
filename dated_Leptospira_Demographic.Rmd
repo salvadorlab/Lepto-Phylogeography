@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 title: "Leptospira_Demographic"
 author: "Rachel Xu"
@@ -188,3 +189,173 @@ plotGBD <- ggplot(edited_date_389) +
 plotGBD
 ggplotly(plotGBD)
 ```
+=======
+---
+title: "Leptospira_Demographic"
+author: "Rachel Xu"
+date: "6/3/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Demographic Analysis for Leptopsira Isolates with Collection Date
+   - **PATRIC** database has collection dates available for some isolates that were missing in NCBI (353)
+   - **NCBI** has Raw reads records with collection dates but w/o assemblies that were self-assembled (36)
+   
+```{r}
+
+library(dplyr)
+library(tidyverse)
+library(lubridate)
+library(ggplot2)
+library(plotly)
+library(magrittr)
+
+```
+
+```{r}
+path = "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Dated_Assemblies/"
+setwd(path)
+```
+### 353 NCBI downloaded Assemblies with metadata in PATRIC
+
+- Change all the dates into the same format
+- merge meatdata from PATRIC with NCBI biosample accessions ID's
+- if the collection.Date only has "year", change the date to "year-01-01"
+- if only has "year" and "month", change the date to "year-month-01"
+- format: "year-month-date"
+
+```{r}
+
+
+# biosample_353 <- read.csv(paste(path,"with_asm_353_acc.txt",sep=""), header=FALSE, sep="\n")
+# patric_metadata <- read.csv(paste(path,"PATRIC_WGS_dated_353.csv",sep=""), header = TRUE) 
+# 
+# colnames(biosample_353) <- "BioSample.Accession"
+# 
+# metadata_353 <- left_join(biosample_353, patric_metadata, by="BioSample.Accession")
+# 
+# # if Dates in Collection.Date contains "_", new col value in this row stays, elses add "-01-01"
+# metadata_353 %<>% select(-c("Genome.ID","Organism.Name","NCBI.Taxon.ID","MLST","Isolation.Comments",'Sequencing.Platform','Assembly.Method','Isolation.Country','Additional.Metadata','Genome.Quality.Flags', 'Genome.Quality',"RefSeq.Accessions","Sequencing.Status","SRA.Accession","GenBank.Accessions","X")) %>%
+#   mutate(Collection.Date.Edited = paste(Collection.Date,"-01-01",sep = ""))
+
+# write_csv(metadata_353,paste(path,"metadata_353_edited.csv",sep="")) # manually change dates into the same format
+  
+```
+
+### 389 NCBI Biosample database Leptospria Isolate Metadata (Collection Date)
+- the table was extracted from xml downloaded with list of biosample accessions with batch entrez
+- script for xml extraction in get_dated_asm.ipynb
+- xml: `/Users/rx32940/Dropbox/5.Rachel-projects/Phylogeography/Dated_Assemblies/dated_biosample_389_metadata.xml`
+```{r}
+
+# metadata_ncbi_389 <- read.csv(paste(path,"ncbi_biosample_metadata_389.csv",sep="")) 
+# merged_ncbi_patric <- full_join(metadata_353,metadata_ncbi_389, by=c("BioSample.Accession"))
+# write_csv(merged_ncbi_patric,paste(path,"metadata_389_merged_edited.csv",sep="")) # manually change dates into the same format
+
+```
+
+### START FROM THIS CELL: Format the collection date into a Date object with library(lubridate)
+* Read Formatted Date saved from analysis above- DO NOT CHANGE PREVIOUS CELLS"
+- add "-01-01" to end of all collection date
+- write the df to a csv
+- manually reformatted all the collection dates
+```{r}
+# edited_date_389 <- read.csv(paste(path,"metadata_389_merged_edited.csv",sep="")) %>%
+#   mutate(Collection.Date.Formatted = paste(as.character(Collection.Date.x),"-01-01",sep = "")) 
+# edited_date_389$Collection.Date.Formatted
+# write_csv(edited_date_389,paste(path,"metadata_389_merged_edited.csv",sep="")) # manually reformatted the dates
+
+# read the reformatted date table
+# edited_date_389 <- read.csv(paste(path,"metadata_389_merged_edited.csv",sep=""))
+#edited_date_389$Collection.Date.Formatted
+# edited_date_389$Collection.Date.Formatted <- ymd(edited_date_389$Collection.Date.Formatted)
+# 
+# edited_date_389$Year <- year(edited_date_389$Collection.Date.Formatted)
+load("metadata_389_merged_edited.RData")
+earliest <- min(edited_date_389$Collection.Date.Formatted) # 1915-01-01
+latest <- max(edited_date_389$Collection.Date.Formatted) # 2017-10-30
+
+# make species of each isolate a separate column
+edited_date_389 %<>% mutate(species=unlist(lapply(strsplit(edited_date_389$Genome.Name.x, " "),function(item) {unlist(item)[2]})))
+# write_csv(edited_date_389,paste(path,"metadata_389_merged_edited.csv",sep=""))
+save(edited_date_389,file=paste(path,"metadata_389_merged_edited.RData",sep="")) # save in RData to keep the date format (excel keep chaning formats)
+species <- sort(unique(edited_date_389$species))
+# write.table(species, paste(path,"dated_assemblies_unique_species_51.txt",sep=""), sep="\n",quote = FALSE,row.names = FALSE,col.names = FALSE)
+```
+
+### Plot the number of isolates each species has
+***- "sp." has 39 isolates, however, some of them actually has a species name already***
+    ***- find species names for "sp." in***
+    ```Dropbox/5.Rachel-projects/Phylogeography/Lepto_assemblies_V2/ncbi+self_973.csv```
+```{r}
+unique(edited_date_389$species)
+species_frequency <- ggplot(edited_date_389,aes(x=species)) +
+  geom_bar() + 
+  theme(axis.text.x = element_text(angle=90)) +
+  labs(title="Number of Isolates For Each Species")
+
+ggplotly(species_frequency)
+```
+### Distribution base on the year
+```{r}
+
+ggplot(edited_date_389,aes(x=as.character(Year))) +
+  geom_bar() +
+  geom_text(stat="count",aes(label=..count..,vjust=-0.5,degree=25),size=3) +
+  theme(axis.text.x=element_text(angle=90)) + 
+  labs(x="Year",y="Number of Isolates",title="Collection Time Distribution of Leptospira Isolates")
+ 
+```
+
+# Reformat the Geographical locations based on Country and regions
+```{r}
+# extract country out of geographical locations
+edited_date_389 <- edited_date_389 %>% mutate(country = ifelse(grepl(":",Geographic.Location.x,fixed=TRUE),str_trim(strsplit(Geographic.Location.x,":")[[1]][1]), ifelse(grepl(",",Geographic.Location.x,fixed=TRUE),str_trim(strsplit(Geographic.Location.x,":")[[1]][2]),Geographic.Location.x))) 
+
+# replace empty cells with Unknown for plotting
+edited_date_389$country <- ifelse(edited_date_389$country == "", "Unknown", edited_date_389$country)
+edited_date_389$country <- ifelse(edited_date_389$country == "Sao Paulo", "Brazil", edited_date_389$country)
+edited_date_389$country <- ifelse((edited_date_389$country == "Zaire") | (edited_date_389$country == "Belgian Congo"), "Congo democratic", edited_date_389$country)
+unique(edited_date_389$country) # 30 -2 (San paulo & Zire-Belgium Congo -> Congo Democratic)
+
+# write unique countries into a file to manually find their Global Burden of Disease District
+# write.table(unique(edited_date_389$country),paste(path,"countries_list_dated_30.txt",sep = ""),eol = "\n",row.names=FALSE,col.names=FALSE,quote = FALSE)
+# save(edited_date_389,file=paste(path,"metadata_389_merged_edited.RData",sep=""))
+```
+
+# Plot base on the Geographical location of each country
+```{r}
+plot_country <- ggplot(edited_date_389,aes(x=country))+
+  geom_bar()+
+  theme(axis.text.x=element_text(angle=90,size=8))+
+  labs(title="Leptospira Isolates Geographical Distribution Base on Countries", y="Number of Isolates")
+
+ggplotly(plot_country)
+```
+
+### add GBD regions and super regions to the dataframe for plotting
+- source of **GBD region** based on this article: https://aasldpubs.onlinelibrary.wiley.com/doi/full/10.1002/hep.26141
+- source of **GBD super region**: https://atlas.iapb.org/wp-content/uploads/GBD-21-Regions-Map.pdf
+
+```{r}
+
+GBD <- read.csv(paste(path,"countries_GBD_regions.csv",sep=""))
+# GBD
+edited_date_389 <- left_join(edited_date_389,GBD, by="country")
+length(edited_date_389$country)
+length(edited_date_389$country == "St.Kitts")
+```
+### Plot base on GBD Distribution
+```{r}
+plotGBD <- ggplot(edited_date_389) +
+  geom_bar(aes(x=GBD.Super.Regions,fill=GBD.Regions))+
+  theme(axis.text.x=element_text(angle=25,size=8,hjust=1,face="bold"), legend.position = "left",legend.key.size =  unit(0.2,"line"),title=element_text(size=8))+
+  labs(title="Leptopsira Isolate Distribution Based on Global Burden of Disease (GBD)",x="GBD Super Regions",y="Number of Leptospira Isolates")
+plotGBD
+# ggplotly(plotGBD)
+```
+
