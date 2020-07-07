@@ -116,8 +116,17 @@ ggplot(edited_date_389,aes(x=as.character(Year))) +
 # Reformat the Geographical locations based on Country and regions
 ```{r}
 # extract country out of geographical locations
-edited_date_389 <- edited_date_389 %>% mutate(country = ifelse(grepl(":",Geographic.Location.x,fixed=TRUE),str_trim(strsplit(Geographic.Location.x,":")[[1]][1]), ifelse(grepl(",",Geographic.Location.x,fixed=TRUE),str_trim(strsplit(Geographic.Location.x,":")[[1]][2]),Geographic.Location.x))) 
 
+edited_date_389 <- edited_date_389 %>% 
+  mutate(country =unlist(lapply(Geographic.Location.x,function(x){ # lapply the fct rowwise
+    ifelse(grepl(":",x,fixed=TRUE), # if ":" in the location 
+           str_trim(strsplit(x,":")[[1]][1]), # take the first word after split the sentence
+           ifelse(grepl(",",x,fixed=TRUE), # else if "," in the location 
+           str_trim(strsplit(x,",")[[1]][2]),x)) # take the second word
+  })))
+
+
+check <- edited_date_389 %>% select(c("Geographic.Location.x","country"))
 # replace empty cells with Unknown for plotting
 edited_date_389$country <- ifelse(edited_date_389$country == "", "Unknown", edited_date_389$country)
 edited_date_389$country <- ifelse(edited_date_389$country == "Sao Paulo", "Brazil", edited_date_389$country)
@@ -127,6 +136,24 @@ unique(edited_date_389$country) # 30 -2 (San paulo & Zire-Belgium Congo -> Congo
 # write unique countries into a file to manually find their Global Burden of Disease District
 # write.table(unique(edited_date_389$country),paste(path,"countries_list_dated_30.txt",sep = ""),eol = "\n",row.names=FALSE,col.names=FALSE,quote = FALSE)
 # save(edited_date_389,file=paste(path,"metadata_389_merged_edited.RData",sep=""))
+```
+### Write Isolates into a single file for separate analysis
+```{r}
+
+Brazil_172 <- edited_date_389 %>% subset(country == "Brazil")
+
+# number of unique species in Brazil
+unique(Brazil_172$species) # 15 including "unidentified sp."
+
+# time interval
+latest <- max(Brazil_172$Year) # 2017
+earliest <- min(Brazil_172$Year) # 1950
+latest-earliest
+
+Brazil_172$Geographic.Location.x
+
+
+
 ```
 
 # Plot base on the Geographical location of each country
@@ -144,9 +171,10 @@ ggplotly(plot_country)
 - source of **GBD super region**: https://atlas.iapb.org/wp-content/uploads/GBD-21-Regions-Map.pdf
 
 ```{r}
-
+# GBD to country dictionary
 GBD <- read.csv(paste(path,"countries_GBD_regions.csv",sep=""))
-# GBD
+
+colnames(GBD) <- c("country", "GBD.Regions", "GBD.Super.Regions")
 edited_date_389 <- left_join(edited_date_389,GBD, by="country")
 length(edited_date_389$country)
 length(edited_date_389$country == "St.Kitts")
@@ -158,5 +186,5 @@ plotGBD <- ggplot(edited_date_389) +
   theme(axis.text.x=element_text(angle=25,size=8,hjust=1,face="bold"), legend.position = "left",legend.key.size =  unit(0.2,"line"),title=element_text(size=8))+
   labs(title="Leptopsira Isolate Distribution Based on Global Burden of Disease (GBD)",x="GBD Super Regions",y="Number of Leptospira Isolates")
 plotGBD
-# ggplotly(plotGBD)
+ggplotly(plotGBD)
 ```
