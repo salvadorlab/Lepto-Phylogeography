@@ -18,7 +18,7 @@
 # 
 ######################################################################
 
-seqpath="/scratch/rx32940/rest_sra_216/PRJEB36553_4" 
+seqpath="/scratch/rx32940/All_Lepto_Assemblies/rest_sra_216/PRJEB36553_4" 
 outpath="/scratch/rx32940/All_Lepto_Assemblies/PRJEB36553_4"
 prokkapath="/scratch/rx32940/core_gene_builder/prokka"
 refpath="/scratch/rx32940/reference"
