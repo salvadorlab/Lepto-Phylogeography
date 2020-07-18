@@ -11,4 +11,4 @@
 
 # run pirate to find the core genome of the leptospira isolates with collection date
 # increase the mcl inflation value to 6 according to the software literature
-/home/rx32940/miniconda3/bin/PIRATE -i /scratch/rx32940/pirate/dated_lepto -o /scratch/rx32940/pirate/dated_output_mi4 -a -r -t 12 -f 4
+/home/rx32940/miniconda3/bin/PIRATE -i /scratch/rx32940/pirate/dated_lepto -o /scratch/rx32940/pirate/dated_output_mi4 -a -r -t 12 -pan-opt "-f 6"
