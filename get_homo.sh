@@ -1,9 +1,9 @@
 #!/bin/bash
-#PBS -q bahl_salv_q                                                            
-#PBS -N rep_inter                                    
+#PBS -q batch                                                            
+#PBS -N rep_intersect                                    
 #PBS -l nodes=1:ppn=2
 #PBS -l mem=100gb                                        
-#PBS -l walltime=500:00:00                                                
+#PBS -l walltime=300:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
 #PBS -o /scratch/rx32940                        
@@ -31,10 +31,18 @@ module load GD/2.66-foss-2016b-Perl-5.24.1
 # use BDBH to get the orthologous genes for all latino and caribbean isolates
 # /scratch/rx32940/get_homo/get_homologues-x86_64-20170302/get_homologues.pl -d /scratch/rx32940/get_homo/latin_isolates/gbk_latin_bdbh -n 24 -c -z
 
+# /scratch/rx32940/get_homo/get_homologues-x86_64-20170302/parse_pangenome_matrix.pl -m /scratch/rx32940/get_homo/gbk_latin_bdbh_homologues/SAMN11389084_f0_alltaxa_algBDBH_e0_ -s
+
+
 # classify pangenome into four departments
-# parse_pangenome_matrix.pl -m /scratch/rx32940/get_homo/gbk_homologues/SAMN02947784_f0_0taxa_algCOG_e0_ -s
+# /scratch/rx32940/get_homo/get_homologues-x86_64-20170302/parse_pangenome_matrix.pl -m /scratch/rx32940/get_homo/gbk_homologues/SAMN02947784_f0_0taxa_algCOG_e0_ -s
+
+
+
+
+
 
 # pangenome analysis for 106 representative isolates with COG algorithm (manual 4.8.1)
 # /scratch/rx32940/get_homo/get_homologues-x86_64-20170302/get_homologues.pl -d /scratch/rx32940/pangenome/gbk_subset -n 24 -t 0 -M
 
-/scratch/rx32940/get_homo/get_homologues-x86_64-20170302/compare_clusters.pl -m -o gbk_subset_intersection -d gbk_subset_homologues/SAMN02603616_f0_0taxa_algCOG_e0_, SAMN02603616_f0_0taxa_algOMCL_e0_
+/scratch/rx32940/get_homo/get_homologues-x86_64-20170302/compare_clusters.pl -m -o gbk_subset_intersection -d gbk_subset_homologues/SAMN02603616_f0_0taxa_algCOG_e0_,gbk_subset_homologues/SAMN02603616_f0_0taxa_algOMCL_e0_
