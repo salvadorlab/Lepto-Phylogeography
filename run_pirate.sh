@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -q batch                                                            
 #PBS -N pirate_date_mi4                                        
-#PBS -l nodes=1:ppn=12 -l mem=50gb                                        
+#PBS -l nodes=1:ppn=24 -l mem=1000gb                                        
 #PBS -l walltime=100:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
