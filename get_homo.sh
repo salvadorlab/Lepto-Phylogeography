@@ -51,7 +51,7 @@ cd $panpath
 
 # # pangenome analysis for 106 representative isolates with COG/OMCL algorithm (manual 4.8.1)
 # # -A, calculate ANI identity with the BLASTP scores among protein sequences
-$corepath/get_homologues-x86_64-20170302/get_homologues.pl -d $panpath/gbk_subset -n 24 -t 0 -M -A -c
+$corepath/get_homologues-x86_64-20170302/get_homologues.pl -d $panpath/gbk_subset -n 24 -t 0 -M -A
 # $corepath/get_homologues-x86_64-20170302/get_homologues.pl -d $panpath/gbk_subset -n 24 -t 0 -G -A
 
 # # get the intersection of clusters analyzed with the two differen clusters
