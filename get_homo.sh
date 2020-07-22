@@ -1,6 +1,6 @@
 #!/bin/bash
-#PBS -q batch                                                            
-#PBS -N COG_ANI                                    
+#PBS -q bahl_salv_q                                                            
+#PBS -N OMCL_ANI                                    
 #PBS -l nodes=1:ppn=24
 #PBS -l mem=100gb                                        
 #PBS -l walltime=300:00:00                                                
@@ -51,15 +51,15 @@ cd $panpath
 
 # # pangenome analysis for 106 representative isolates with COG/OMCL algorithm (manual 4.8.1)
 # # -A, calculate ANI identity with the BLASTP scores among protein sequences
-# $corepath/get_homologues-x86_64-20170302/get_homologues.pl -d $panpath/gbk_subset -n 24 -t 0 -M -A
-$corepath/get_homologues-x86_64-20170302/get_homologues.pl -d $panpath/gbk_subset -n 24 -t 0 -G -A
+$corepath/get_homologues-x86_64-20170302/get_homologues.pl -d $panpath/gbk_subset -n 24 -t 0 -M -A -c
+# $corepath/get_homologues-x86_64-20170302/get_homologues.pl -d $panpath/gbk_subset -n 24 -t 0 -G -A
+
+# # get the intersection of clusters analyzed with the two differen clusters
+# $corepath/get_homologues-x86_64-20170302/compare_clusters.pl -m -o $panpath/gbk_subset_intersection -d $panpath/gbk_subset_homologues/SAMN02603616_f0_0taxa_algCOG_e0_,$panpath/gbk_subset_homologues/SAMN02603616_f0_0taxa_algOMCL_e0_
 
 # plot ANI matrix 
 # -d, number of decimal places
 # $corepath/get_homologues-x86_64-20170302/plot_matrix_heatmap.sh -i $panpath/gbk_subset -d 2 
-
-# # get the intersection of clusters analyzed with the two differen clusters
-# $corepath/get_homologues-x86_64-20170302/compare_clusters.pl -m -o $panpath/gbk_subset_intersection -d $panpath/gbk_subset_homologues/SAMN02603616_f0_0taxa_algCOG_e0_,$panpath/gbk_subset_homologues/SAMN02603616_f0_0taxa_algOMCL_e0_
 
 # # analyze the intersected pangenome of representative isolates
 # $corepath/get_homologues-x86_64-20170302/parse_pangenome_matrix.pl -m $panpath/gbk_subset_intersection/pangenome_matrix_t0.tab -s
