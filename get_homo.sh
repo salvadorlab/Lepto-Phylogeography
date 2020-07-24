@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -q bahl_salv_q                                                            
-#PBS -N OMCL_ANI                                    
-#PBS -l nodes=1:ppn=24
+#PBS -N plot_heatmap                                    
+#PBS -l nodes=1:ppn=12
 #PBS -l mem=100gb                                        
 #PBS -l walltime=300:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
@@ -18,7 +18,7 @@
 module load GD/2.69-GCCcore-7.3.0-Perl-5.28.0
 module load BioPerl/1.7.1-foss-2016b-Perl-5.24.1
 module load GCCcore/5.4.0
-# Rscript /scratch/rx32940/load_packages.r
+Rscript /scratch/rx32940/load_packages.r
 
 corepath="/scratch/rx32940/get_homo"
 
@@ -51,15 +51,20 @@ cd $panpath
 
 # # pangenome analysis for 106 representative isolates with COG/OMCL algorithm (manual 4.8.1)
 # # -A, calculate ANI identity with the BLASTP scores among protein sequences
-$corepath/get_homologues-x86_64-20170302/get_homologues.pl -d $panpath/gbk_subset -n 24 -t 0 -M -A
+# $corepath/get_homologues-x86_64-20170302/get_homologues.pl -d $panpath/gbk_subset -n 24 -t 0 -M -A
 # $corepath/get_homologues-x86_64-20170302/get_homologues.pl -d $panpath/gbk_subset -n 24 -t 0 -G -A
 
 # # get the intersection of clusters analyzed with the two differen clusters
 # $corepath/get_homologues-x86_64-20170302/compare_clusters.pl -m -o $panpath/gbk_subset_intersection -d $panpath/gbk_subset_homologues/SAMN02603616_f0_0taxa_algCOG_e0_,$panpath/gbk_subset_homologues/SAMN02603616_f0_0taxa_algOMCL_e0_
+# $corepath/get_homologues-x86_64-20170302/compare_clusters.pl -m -o $panpath/gbk_subset_intersection -d $panpath/gbk_subset_homologues/SAMN02603616_f0_0taxa_algCOG_e0_Avg_identity.tab,$panpath/gbk_subset_homologues/SAMN02603616_f0_0taxa_algOMCL_e0_Avg_identity.tab
+
+# plot heatmap matrix 
+$corepath/get_homologues-x86_64-20170302/plot_matrix_heatmap.sh -i $panpath/gbk_subset_intersection/pangenome_matrix_t0.tab -t "Leptospira Pangenome Clusters" -o pdf -m 22 -v 22 -p 20 -H 20 -W 30
 
 # plot ANI matrix 
 # -d, number of decimal places
-# $corepath/get_homologues-x86_64-20170302/plot_matrix_heatmap.sh -i $panpath/gbk_subset -d 2 
+# $corepath/get_homologues-x86_64-20170302/plot_matrix_heatmap.sh -i $panpath/gbk_subset_homologues/SAMN02603616_f0_0taxa_algOMCL_e0_Avg_identity.tab -o pdf -H 8 -W 14 -m 28 -v 22 -t "Leptospira Pangenome ANI Matrix"
+
 
 # # analyze the intersected pangenome of representative isolates
 # $corepath/get_homologues-x86_64-20170302/parse_pangenome_matrix.pl -m $panpath/gbk_subset_intersection/pangenome_matrix_t0.tab -s
