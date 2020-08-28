@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -q batch                                                           
-#PBS -N core_AA_concate                                        
-#PBS -l nodes=1:ppn=1 -l mem=30gb                                        
+#PBS -N iqtree_aa                                        
+#PBS -l nodes=1:ppn=24 -l mem=100gb                                        
 #PBS -l walltime=300:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
@@ -43,5 +43,15 @@
 # # (1 is the perl code, but 1.25 when comparing number of core/pan genes and number of genes included in the default alignments)
 # this alignment will set percentage threshold to 0 (50% base on percentage set), but thinking about increasing to 70%  due to false-positives (use -t to set)
 
-/home/rx32940/miniconda3/scripts/create_pangenome_alignment_aa.pl -i /scratch/rx32940/pirate/all_dated/all_dated_output/PIRATE.coreGene_families_all_dated.ordered.tsv -f /scratch/rx32940/pirate/all_dated/all_dated_output/core_gene_global_759/ \
--o /scratch/rx32940/pirate/all_dated/all_dated_output/core_AA_global_alignment.fasta
+# /home/rx32940/miniconda3/scripts/create_pangenome_alignment_aa.pl -i /scratch/rx32940/pirate/all_dated/all_dated_output/PIRATE.coreGene_families_all_dated.ordered.tsv -f /scratch/rx32940/pirate/all_dated/all_dated_output/core_gene_global_759/ \
+# -o /scratch/rx32940/pirate/all_dated/all_dated_output/core_AA_global_alignment.fasta
+
+########## ML tree with core gene sequences alignment ##############################################
+module load IQ-TREE/1.6.5-omp
+
+# use MFP: model finder to find the right substitution model
+# -nt AUTO, detects best number of cores to use
+iqtree -nt AUTO -m MFP -pre /scratch/rx32940/pirate/all_dated/iqtree_all_date_aa/iqtree_all_date_aa -s /scratch/rx32940/pirate/all_dated/all_dated_output/core_aa_alignment_global.phy
+
+# bootstrap for ML tree 100 times confidence level
+# iqtree -m GTR+F+R8 -nt AUTO -b 100 -pre /scratch/rx32940/pirate/iqtree_mi6/iqtree_mi6 -s /scratch/rx32940/pirate/dated_output_mi6/core_alignment.fasta 
