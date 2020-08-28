@@ -47,11 +47,11 @@
 # -o /scratch/rx32940/pirate/all_dated/all_dated_output/core_AA_global_alignment.fasta
 
 ########## ML tree with core gene sequences alignment ##############################################
-module load IQ-TREE/1.6.5-omp
+# module load IQ-TREE/1.6.5-omp
 
 # use MFP: model finder to find the right substitution model
 # -nt AUTO, detects best number of cores to use
-iqtree -nt AUTO -m MFP -pre /scratch/rx32940/pirate/all_dated/iqtree_all_date_aa/iqtree_all_date_aa -s /scratch/rx32940/pirate/all_dated/all_dated_output/core_aa_alignment_global.phy
+# iqtree -nt AUTO -m MFP -pre /scratch/rx32940/pirate/all_dated/iqtree_all_date_aa/iqtree_all_date_aa -s /scratch/rx32940/pirate/all_dated/all_dated_output/core_aa_alignment_global.phy
 
 # bootstrap for ML tree 100 times confidence level
 # iqtree -m GTR+F+R8 -nt AUTO -b 100 -pre /scratch/rx32940/pirate/iqtree_mi6/iqtree_mi6 -s /scratch/rx32940/pirate/dated_output_mi6/core_alignment.fasta 
