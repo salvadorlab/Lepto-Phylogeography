@@ -138,6 +138,7 @@ unique(edited_date_389$country) # 30 -2 (San paulo & Zire-Belgium Congo -> Congo
 # write unique countries into a file to manually find their Global Burden of Disease District
 # write.table(unique(edited_date_389$country),paste(path,"countries_list_dated_30.txt",sep = ""),eol = "\n",row.names=FALSE,col.names=FALSE,quote = FALSE)
 # save(edited_date_389,file=paste(path,"metadata_389_merged_edited.RData",sep=""))
+# write.csv(edited_date_389, paste(path,"metadata_389_merged_edited.csv",sep=""))
 ```
 
 
