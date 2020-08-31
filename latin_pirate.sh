@@ -1,8 +1,8 @@
 #!/bin/bash
 #PBS -q bahl_salv_q                                                            
-#PBS -N latin_bt                                        
+#PBS -N latin_bt_2                                        
 #PBS -l nodes=1:ppn=64 -l mem=100gb                                        
-#PBS -l walltime=300:00:00                                                
+#PBS -l walltime=500:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
 #PBS -o /scratch/rx32940                        
