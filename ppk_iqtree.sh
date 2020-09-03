@@ -42,14 +42,17 @@ module load SAMtools/1.10-GCC-8.2.0-2.31.1
 # -name -fi $fasta_path/$SAMN.fasta -bed $gff
 # done
 
-# merge all ppk gene fasta files into a multifasta
-# 1) rename the header of each fasta
+# # merge all ppk gene fasta files into a multifasta
+# # 1) rename the header of each fasta
 # for fasta in $out_path/ppk_fasta/*;
 # do
 # SAMN=$(basename $fasta "_ppk.fasta")
 # # replace the line with the pattern starting with ">" by ">"and the biosample id 
 # sed -i "s/^\(>.*\)/>$SAMN/" $fasta;
 # done
+
+# # 2) isolates with ppk gene duplications were found and labelled by _1/_2/_3 to mark differences
+# # duplications were found by iqtree in later steps
 
 # 2) combine fasta file into a multi-fasta file
 # cat $out_path/ppk_fasta/*_ppk.fasta > $out_path/ppk_all_date.fasta 
