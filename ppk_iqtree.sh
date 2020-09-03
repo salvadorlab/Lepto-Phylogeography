@@ -59,7 +59,7 @@ module load SAMtools/1.10-GCC-8.2.0-2.31.1
 # mafft --thread 12 --maxiterate 1000 --globalpair --nuc $out_path/ppk_all_date.fasta > $out_path/ppk_all_dated_alignment.fasta
 
 # # generate ppk ML tree
-# module load IQ-TREE/1.6.5-omp
+module load IQ-TREE/1.6.5-omp
 iqtree -nt AUTO -m MFP -pre $out_path/ppk_iqtree/ppk_iqtree -s $out_path/ppk_all_dated_alignment.fasta 
 
 
