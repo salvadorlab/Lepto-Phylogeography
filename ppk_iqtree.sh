@@ -1,7 +1,7 @@
 #!/bin/bash
-#PBS -q batch                                                            
-#PBS -N ppk_mafft                                    
-#PBS -l nodes=1:ppn=12 -l mem=80gb                                        
+#PBS -q bahl_salv_q                                                            
+#PBS -N ppk_iqtree                                    
+#PBS -l nodes=1:ppn=64 -l mem=100gb                                        
 #PBS -l walltime=300:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
@@ -13,8 +13,8 @@ fasta_path="/scratch/rx32940/pirate/all_dated/all_dated_assemblies"
 gff_path="/scratch/rx32940/pirate/all_dated/all_dated_prokka"
 out_path="/scratch/rx32940/pirate/all_dated/all_dated_ppk"
 
-module load BEDTools/2.29.2-GCC-8.2.0-2.31.1
-module load SAMtools/1.10-GCC-8.2.0-2.31.1
+# module load BEDTools/2.29.2-GCC-8.2.0-2.31.1
+# module load SAMtools/1.10-GCC-8.2.0-2.31.1
 
 
 
@@ -59,10 +59,10 @@ module load SAMtools/1.10-GCC-8.2.0-2.31.1
 
 # create multisequence alignment for all dated isolates' ppk gene sequences
 # module load MAFFT/7.470-GCC-8.3.0-with-extensions
-mafft --thread 12 --maxiterate 1000 --globalpair --nuc $out_path/ppk_all_date_wo_dup.fasta > $out_path/ppk_all_date_wo_dup_alignment.fasta 
+# mafft --thread 12 --maxiterate 1000 --globalpair --nuc $out_path/ppk_all_date_wo_dup.fasta > $out_path/ppk_all_date_wo_dup_alignment.fasta 
 
 # # generate ppk ML tree
-# module load IQ-TREE/1.6.5-omp
-# iqtree -nt AUTO -m MFP -pre $out_path/ppk_iqtree/ppk_iqtree -s $out_path/ppk_all_dated_alignment.fasta 
+module load IQ-TREE/1.6.5-omp
+iqtree -nt AUTO -m MFP -pre $out_path/ppk_iqtree_nodup/ppk_iqtree_nodup -s $out_path/ppk_all_date_wo_dup_alignment.fasta 
 
 
