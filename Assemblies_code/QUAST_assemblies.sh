@@ -15,7 +15,7 @@ QUASTPATH="/scratch/rx32940/pirate/all_dated"
 cat /scratch/rx32940/pirate/dated_lepto_389.txt  | \
 xargs -I{} quast.py \
 $QUASTPATH/all_dated_assemblies/{}.fasta \
--o $QUASTPATH/all_dated_assemblies/all_dated_quast/{} \
+-o $QUASTPATH/all_dated_quast/{} \
 -t 12 
 
 # module load MultiQC/1.5-foss-2016b-Python-2.7.14
