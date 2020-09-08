@@ -96,6 +96,17 @@ species <- sort(unique(edited_date_389$species))
 # write.table(species, paste(path,"dated_assemblies_unique_species_51.txt",sep=""), sep="\n",quote = FALSE,row.names = FALSE,col.names = FALSE)
 
 unique(edited_date_389$species)
+
+# pathogenic species
+pathogenic <- c("interrogans","mayottensis","santarosai","borgpetersenii","dzianensis","alstonii", "adleri","noguchii", "kirschneri", "barantonii", "weilii","putramalaysiae","alexanderi","gomenensis","kmetyi")
+# intermediate species
+intermediate <- c("andrefontaineae","wolffii","sarikeiensis","fainei","selangorensis","inadai","dzoumogneensis","fluminis","licerasiae","koniamboensis","fletcheri","langatensis","semungkisensis")
+# assign isolates to one of the three groups
+edited_date_389 %<>% mutate(group=ifelse(species %in% pathogenic, "pathogenic",ifelse(species %in% intermediate, "intermediate","saprophytic/Unknown")))
+# save to Rdata
+# write.csv(edited_date_389,file=paste(path,"metadata_389_merged_edited.csv",sep=""))
+
+
 species_frequency <- ggplot(edited_date_389,aes(x=species)) +
   geom_bar() + 
   theme(axis.text.x = element_text(angle=90)) +
