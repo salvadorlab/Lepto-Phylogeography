@@ -1,0 +1,78 @@
+---
+title: "pathogenic_demographic"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(plotly)
+
+```
+### pathogenic isolates information
+```{r}
+
+ppath <- "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Dated_Assemblies/"
+all_global_meta<- read.csv(paste0(ppath,"Global/388_global_metadata_fig_ann.txt"),sep="\t") 
+
+# distribution between pathogenic vs. intermediate vs. saprophytic
+three_groups_plot <- ggplot(all_global_meta, aes(x=group))+
+  geom_bar() +
+  geom_text(stat="count",aes(label=..count..,vjust=-0.5,degree=25),size=3) 
+three_groups_plot
+pathogenic_lepto <- all_global_meta %>% subset(group="pathogenic") 
+
+# pathogenic countries
+pathogenic_country <- ggplot(pathogenic_lepto,aes(x=country))+
+  geom_bar()+
+  theme(axis.text.x=element_text(angle=90))+
+  geom_text(stat="count",aes(label=..count..,vjust=-0.5,degree=25),size=3) 
+pathogenic_country
+
+# pathogenic years
+pathogenic_year <- ggplot(pathogenic_lepto,aes(x=Year))+
+  geom_bar()+
+  theme(axis.text.x=element_text(angle=90))+
+  geom_text(stat="count",aes(label=..count..,vjust=-0.8,degree=25),size=2) 
+pathogenic_year
+```
+
+## select all interrogans from isolates with collection date
+```{r}
+
+interrogans_db <- all_global_meta %>% subset(species == "interrogans")
+interrogans_db
+# 
+# write.table(interrogans_db$BioSample.Accession, paste0(ppath, "pathogenic/dated_interrogans_isolates.txt"), sep="\n",col.names = FALSE, row.names = FALSE, quote = FALSE)
+```
+
+### countries
+```{r}
+interrogans_country <- interrogans_db %>% select(BioSample.Accession,country)
+country_plot <- ggplot(interrogans_country, aes(x=country)) +
+  geom_bar()+
+  theme(axis.text.x=element_text(angle=90))+
+  geom_text(stat="count",aes(label=..count..,vjust=-0.5,degree=25),size=3) 
+
+country_plot
+# ggplotly(country_plot)
+```
+
+## year
+```{r}
+interrogans_year <- interrogans_db %>% select(BioSample.Accession,Year)
+year_plot <- ggplot(interrogans_year, aes(x=Year)) +
+  geom_bar()+
+  theme(axis.text.x=element_text(angle=90))+
+  geom_text(stat="count",aes(label=..count..,vjust=-0.5,degree=25),size=3) 
+
+year_plot
+# ggplotly(year_plot)
+
+```
+
