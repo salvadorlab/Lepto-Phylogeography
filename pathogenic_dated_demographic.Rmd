@@ -47,8 +47,12 @@ pathogenic_year
 
 interrogans_db <- all_global_meta %>% subset(species == "interrogans")
 interrogans_db
-# 
+
+# write iterrogans SAMN list 
 # write.table(interrogans_db$BioSample.Accession, paste0(ppath, "pathogenic/dated_interrogans_isolates.txt"), sep="\n",col.names = FALSE, row.names = FALSE, quote = FALSE)
+
+# write interrogans metadata
+write.csv(interrogans_db, paste0(ppath,"pathogenic/dated_interrogans_metadata.csv"))
 ```
 
 ### countries
@@ -73,6 +77,18 @@ year_plot <- ggplot(interrogans_year, aes(x=Year)) +
 
 year_plot
 # ggplotly(year_plot)
+
+```
+
+### subsample interrogans collected in 2017
+```{r}
+
+# L. interrogans from St.Kitts (excluding from St.Kitts:St.Kitts & St.Kitts:Basseterre )
+interrogans_db %>% subset(Year %in% 2017) %>% subset(country %in% "Saint Kitts and Nevis") %>% subset(! Geographic.Location.x %in% c("Saint Kitts and Nevis: Saint Kitts","Saint Kitts and Nevis:Basseterre"))
+
+# randomly choose 1 for subsampling
+# sample(1:10, 1, replace=TRUE)# chose SAMN11389086
+
 
 ```
 
