@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -q bahl_salv_q                                                          
-#PBS -N interrogans_pirate                                       
+#PBS -N subppk_core_iqtree                                       
 #PBS -l nodes=1:ppn=64 -l mem=100gb                                        
 #PBS -l walltime=500:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
@@ -20,4 +20,5 @@ pirate_path="/scratch/rx32940/pirate"
 # -a -r -t 64 -pan-opt "-f 6"
 
 module load IQ-TREE/1.6.5-omp
-iqtree -nt AUTO -m MFP -pre $pirate_path/interrogans_dated/iqtree_interrogans/iqtree_interrogans_core -s $pirate_path/interrogans_dated/interrogans_out/core_alignment.fasta
+iqtree -nt AUTO -m MFP -pre $pirate_path/all_dated/all_dated_ppk/all_dated_core_nodup/all_dated_core_nodup_iqtree/all_dated_core_nodup \
+-s $pirate_path/all_dated/all_dated_ppk/all_dated_core_nodup/all_dated_core_nodup_pirate/core_alignment.fasta
