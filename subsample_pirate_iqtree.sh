@@ -19,6 +19,14 @@ $software_path/bin/PIRATE \
 -o $pirate_path/interrogans_dated/interrogans_out \
 -a -r -t 64 -pan-opt "-f 6"
 
+# create an amino acid core genome alignment 
+# $software_path/tools/subsetting/create_pangenome_alignment_aa.pl \
+# -i $pirate_path/interrogans_dated/interrogans_out/PIRATE.gene_families.tsv \
+# -f $pirate_path/interrogans_dated/interrogans_out/feature_sequences \
+# -o $pirate_path/interrogans_dated/interrogans_out/interrogans_core_aa_alignment.fasta \
+# -g $pirate_path/interrogans_dated/interrogans_out/interrogans_core_aa_alignment.gff \
+# --amino-acid
+
 # module load IQ-TREE/1.6.5-omp
 # iqtree -nt AUTO -m MFP -pre $pirate_path/all_dated/all_dated_ppk/all_dated_core_nodup/all_dated_core_nodup_iqtree/all_dated_core_nodup \
 # -s $pirate_path/all_dated/all_dated_ppk/all_dated_core_nodup/all_dated_core_nodup_pirate/core_alignment.fasta
