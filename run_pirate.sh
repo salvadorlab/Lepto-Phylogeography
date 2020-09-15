@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -q batch                                                           
-#PBS -N iqtree_aa                                        
-#PBS -l nodes=1:ppn=24 -l mem=100gb                                        
+#PBS -N subppk_core_aa_alignment                                        
+#PBS -l nodes=1:ppn=2 -l mem=100gb                                        
 #PBS -l walltime=300:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
@@ -37,14 +37,20 @@
 # iqtree -nt AUTO -m MFP -pre /scratch/rx32940/pirate/iqtree_snps/iqtree_mi6_snps -s /scratch/rx32940/pirate/snp_sites/snp_mi6.phylip -o SAMN02947961
 
 
-########## concatenate AA alignment of 95% core gene clusters  ##############################################
+##########  AA core alignment of 95% core gene clusters  ##############################################
 # 759 genes were gene clusters shared by at leatst 95% of the biosamples
 # with upper threshold of avg dosage set to 1.25 
 # # (1 is the perl code, but 1.25 when comparing number of core/pan genes and number of genes included in the default alignments)
-# this alignment will set percentage threshold to 0 (50% base on percentage set), but thinking about increasing to 70%  due to false-positives (use -t to set)
 
-# /home/rx32940/miniconda3/scripts/create_pangenome_alignment_aa.pl -i /scratch/rx32940/pirate/all_dated/all_dated_output/PIRATE.coreGene_families_all_dated.ordered.tsv -f /scratch/rx32940/pirate/all_dated/all_dated_output/core_gene_global_759/ \
-# -o /scratch/rx32940/pirate/all_dated/all_dated_output/core_AA_global_alignment.fasta
+# create an amino acid core genome alignment 
+$software_path/tools/subsetting/create_pangenome_alignment_aa.pl \
+-i $pirate_path/all_dated/all_dated_ppk/all_dated_core_nodup/all_dated_core_nodup_pirate/PIRATE.gene_families.tsv \
+-f $pirate_path/all_dated/all_dated_ppk/all_dated_core_nodup/all_dated_core_nodup_pirate/feature_sequences \
+-o $pirate_path/all_dated/all_dated_ppk/all_dated_core_nodup/all_dated_core_nodup_pirate/interrogans_core_aa_alignment.fasta \
+-g $pirate_path/all_dated/all_dated_ppk/all_dated_core_nodup/all_dated_core_nodup_pirate/interrogans_core_aa_alignment.gff \
+--amino-acid
+
+
 
 ########## ML tree with core gene sequences alignment ##############################################
 # module load IQ-TREE/1.6.5-omp
