@@ -42,8 +42,10 @@
 # with upper threshold of avg dosage set to 1.25 
 # # (1 is the perl code, but 1.25 when comparing number of core/pan genes and number of genes included in the default alignments)
 
+software_path="/home/rx32940/miniconda3"
+pirate_path="/scratch/rx32940/pirate"
 # create an amino acid core genome alignment 
-$software_path/tools/subsetting/create_pangenome_alignment_aa.pl \
+perl $software_path/tools/subsetting/create_pangenome_alignment_aa.pl \
 -i $pirate_path/all_dated/all_dated_ppk/all_dated_core_nodup/all_dated_core_nodup_pirate/PIRATE.gene_families.tsv \
 -f $pirate_path/all_dated/all_dated_ppk/all_dated_core_nodup/all_dated_core_nodup_pirate/feature_sequences \
 -o $pirate_path/all_dated/all_dated_ppk/all_dated_core_nodup/all_dated_core_nodup_pirate/interrogans_core_aa_alignment.fasta \
