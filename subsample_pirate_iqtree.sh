@@ -1,7 +1,7 @@
 #!/bin/bash
-#PBS -q bahl_salv_q                                                          
-#PBS -N interrogans_iqtree                                      
-#PBS -l nodes=1:ppn=64 -l mem=100gb                                        
+#PBS -q batch                                                          
+#PBS -N interrogans_iqtree_aa                                      
+#PBS -l nodes=1:ppn=24 -l mem=100gb                                        
 #PBS -l walltime=500:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
@@ -27,13 +27,17 @@ pirate_path="/scratch/rx32940/pirate"
 # END { printf "%s", n }
 # ' $gene.aa.fasta > $gene.aa2.fasta;
 # done
+# perl $software_path/tools/subsetting/create_pangenome_alignment_aa.pl --amino-acid \
+# -i $pirate_path/interrogans_dated/interrogans_out/PIRATE.core_gene_families.ordered.tsv \
+# -f $pirate_path/interrogans_dated/interrogans_out/core_feature_sequences \
+# -o $pirate_path/interrogans_dated/interrogans_out/interrogans_core_aa_alignment.fasta \
+# -g $pirate_path/interrogans_dated/interrogans_out/interrogans_core_aa_alignment.gff 
 
-perl $software_path/tools/subsetting/create_pangenome_alignment_aa.pl --amino-acid \
--i $pirate_path/interrogans_dated/interrogans_out/PIRATE.core_gene_families.ordered.tsv \
--f $pirate_path/interrogans_dated/interrogans_out/core_feature_sequences \
--o $pirate_path/interrogans_dated/interrogans_out/interrogans_core_aa_alignment.fasta \
--g $pirate_path/interrogans_dated/interrogans_out/interrogans_core_aa_alignment.gff 
+# module load IQ-TREE/1.6.5-omp
+# iqtree -nt AUTO -m MFP -pre $pirate_path/interrogans_dated/iqtree_interrogans/iqtree_interrogans \
+# -s $pirate_path/interrogans_dated/interrogans_out/core_alignment.fasta
 
+# amino acid iqtree for interrogans
 module load IQ-TREE/1.6.5-omp
-iqtree -nt AUTO -m MFP -pre $pirate_path/interrogans_dated/iqtree_interrogans/iqtree_interrogans \
--s $pirate_path/interrogans_dated/interrogans_out/core_alignment.fasta
+iqtree -nt AUTO -m MFP -pre $pirate_path/interrogans_dated/iqtree_interrogans/iqtree_interrogans_aa \
+-s $pirate_path/interrogans_dated/interrogans_out/interrogans_core_aa_alignment.fasta
