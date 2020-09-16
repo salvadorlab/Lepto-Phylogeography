@@ -20,12 +20,19 @@ pirate_path="/scratch/rx32940/pirate"
 # -a -r -t 64 -pan-opt "-f 6"
 
 # create an amino acid core genome alignment 
-# perl $software_path/tools/subsetting/create_pangenome_alignment_aa.pl \
-# -i $pirate_path/interrogans_dated/interrogans_out/core_PIRATE.gene_families.tsv \
-# -f $pirate_path/interrogans_dated/interrogans_out/core_feature_sequences \
-# -o $pirate_path/interrogans_dated/interrogans_out/interrogans_core_aa_alignment.fasta \
-# -g $pirate_path/interrogans_dated/interrogans_out/interrogans_core_aa_alignment.gff \
-# --amino-acid
+# amino acid sequences has line breaks within each gene,
+# line breaks were removed by the code underneath and stored in the core_feature_sequences dir:
+# cat ../core_gene_interrogans_3123.txt | for file in ./*; do gene=$(basename "$file" ".aa.fasta"); awk '!/^>/ { printf "%s", $0; n = "\n" } 
+# /^>/ { print n $0; n = "" }
+# END { printf "%s", n }
+# ' $gene.aa.fasta > $gene.aa2.fasta;
+# done
+
+perl $software_path/tools/subsetting/create_pangenome_alignment_aa.pl --amino-acid \
+-i $pirate_path/interrogans_dated/interrogans_out/PIRATE.core_gene_families.ordered.tsv \
+-f $pirate_path/interrogans_dated/interrogans_out/core_feature_sequences \
+-o $pirate_path/interrogans_dated/interrogans_out/interrogans_core_aa_alignment.fasta \
+-g $pirate_path/interrogans_dated/interrogans_out/interrogans_core_aa_alignment.gff 
 
 module load IQ-TREE/1.6.5-omp
 iqtree -nt AUTO -m MFP -pre $pirate_path/interrogans_dated/iqtree_interrogans/iqtree_interrogans \
