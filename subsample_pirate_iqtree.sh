@@ -1,7 +1,7 @@
 #!/bin/bash
-#PBS -q batch                                                          
+#PBS -q bahl_salv_q                                                          
 #PBS -N interrogans_iqtree_aa                                      
-#PBS -l nodes=1:ppn=24 -l mem=100gb                                        
+#PBS -l nodes=1:ppn=64 -l mem=100gb                                        
 #PBS -l walltime=500:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
