@@ -45,7 +45,7 @@ pathogenic_year
 ## select all interrogans from isolates with collection date
 ```{r}
 
-interrogans_db <- all_global_meta %>% subset(species == "interrogans")
+interrogans_db <- all_global_meta %>% subset(group == "pathogenic")
 interrogans_db
 
 # write iterrogans SAMN list 
@@ -64,7 +64,7 @@ country_plot <- ggplot(interrogans_country, aes(x=country)) +
   geom_text(stat="count",aes(label=..count..,vjust=-0.5,degree=25),size=3) 
 
 country_plot
-# ggplotly(country_plot)
+ggplotly(country_plot)
 ```
 
 ## year

@@ -98,11 +98,32 @@ species <- sort(unique(edited_date_389$species))
 unique(edited_date_389$species)
 
 # pathogenic species
-pathogenic <- c("interrogans","mayottensis","santarosai","borgpetersenii","dzianensis","alstonii", "adleri","noguchii", "kirschneri", "barantonii", "weilii","putramalaysiae","alexanderi","gomenensis","kmetyi")
+pathogenic <- c("interrogans","mayottensis","santarosai","borgpetersenii","dzianensis","alstonii", "adleri","noguchii", "kirschneri", "barantonii", "weilii","putramalaysiae","alexanderi","gomenensis","kmetyi","yasudae","elllisii","adleri","stimsonii","kmetyi")
 # intermediate species
-intermediate <- c("andrefontaineae","wolffii","sarikeiensis","fainei","selangorensis","inadai","dzoumogneensis","fluminis","licerasiae","koniamboensis","fletcheri","langatensis","semungkisensis")
-# assign isolates to one of the three groups
-edited_date_389 %<>% mutate(group=ifelse(species %in% pathogenic, "pathogenic",ifelse(species %in% intermediate, "intermediate","saprophytic/Unknown")))
+intermediate <- c("andrefontaineae","wolffii","sarikeiensis","fainei","selangorensis","inadai","dzoumogneensis","fluminis","licerasiae","koniamboensis","fletcheri","langatensis","semungkisensis","perolatii","neocaledonica","haakeii","saintgironsiae","hartskeerlii","johnsonii","venezuelensis")
+
+# 1) assign isolate to one of the three groups or unknown base on their species
+edited_date_389 %<>% mutate(group=ifelse(species %in% pathogenic, "pathogenic",ifelse(species %in% intermediate, "intermediate",ifelse(species != "sp.", "saprophytic", "Unknown")))) # if == sp., assign to unknown, else to saprophytic
+
+# 2) select species were labelled "sp.", thus assigned to unknown in previous steps
+temp <- edited_date_389 %>% subset(group == "Unknown") 
+# 3) found species of "sp." isolates from NCBI
+species <- c("kobayashii","perolatii","harrisiae","neocaledonica","haakeii","yasudae",
+             "elllisii","meyeri","macculloughii","adleri","perolatii","saintgironsiae",
+             "hartskeerlii","hartskeerlii","levettii","harrisiae","johnsonii","stimsonii","sp.",
+             "meyeri","levettii","stimsonii","kmetyi","haakeii","venezuelensis","levettii","ellinghausenii","kmetyi","adleri","elllisii",
+             "meyeri","yasudae","ryugenii","sp.","sp.","barantonii","wolffii","brenneri","sp.")
+# 4) substitute sp. with species found above
+temp$species <- species
+temp$Genome.Name.x <- str_replace(temp$Genome.Name.x, " sp. ", paste0(" ",temp$species," ")) # replace sp. with species in the genome name
+# 5) assign these isolates into groups base on their new species
+temp %<>% mutate(group=ifelse(species %in% pathogenic, "pathogenic",ifelse(species %in% intermediate, "intermediate",ifelse(species != "sp.", "saprophytic", "Unknown")))) # if == sp., assign to unknown, else to saprophytic
+# 6) remove "sp." rows from original dataframe
+edited_date_389 %<>% subset(c(group!="Unknown"))
+# 7) bind species replaced dataframe to the orignial dataframe
+edited_date_389 <- rbind(edited_date_389,temp)
+edited_date_389 %<>% subset(species != "illini") # get rid of Leptonema illini
+
 # save to Rdata
 # write.csv(edited_date_389,file=paste(path,"metadata_389_merged_edited.csv",sep=""))
 
@@ -158,9 +179,10 @@ unique(edited_date_389$country) # 30 -2 (San paulo & Zire-Belgium Congo -> Congo
 plot_country <- ggplot(edited_date_389,aes(x=country))+
   geom_bar()+
   theme(axis.text.x=element_text(angle=90,size=8))+
-  labs(title="Leptospira Isolates Geographical Distribution Base on Countries", y="Number of Isolates")
+  labs(title="Leptospira Isolates Geographical Distribution Base on Countries", y="Number of Isolates") +
+  geom_text(stat="count",aes(label=..count..,vjust=-0.5,degree=25),size=3) 
 
-ggplotly(plot_country)
+plot_country
 ```
 
 ### add GBD regions and super regions to the dataframe for plotting
