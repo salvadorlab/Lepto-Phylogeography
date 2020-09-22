@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(ggplot2)
 library(plotly)
+library(magrittr)
 
 ```
 ### pathogenic isolates information
@@ -51,8 +52,13 @@ interrogans_db
 # write iterrogans SAMN list 
 # write.table(interrogans_db$BioSample.Accession, paste0(ppath, "pathogenic/dated_interrogans_isolates.txt"), sep="\n",col.names = FALSE, row.names = FALSE, quote = FALSE)
 
+# read list of interrogans with sra record
+sra_interrogans <- read.csv(paste0(ppath,"pathogenic/Leptospira_dated_sra_isolates.txt"),sep="\n",header = FALSE,col.names = "BioSample.Accession")
+
+interrogans_db %<>% mutate(SRA_available = ifelse(BioSample.Accession %in% sra_interrogans$BioSample.Accession, "yes", "no"))
+interrogans_db
 # write interrogans metadata
-write.csv(interrogans_db, paste0(ppath,"pathogenic/dated_interrogans_metadata.csv"))
+# write.csv(interrogans_db, paste0(ppath,"pathogenic/dated_interrogans_metadata.csv"))
 ```
 
 ### countries
@@ -92,3 +98,26 @@ interrogans_db %>% subset(Year %in% 2017) %>% subset(country %in% "Saint Kitts a
 
 ```
 
+# Interrogans SRA records break down
+```{r}
+
+SRA_interrogans_db <- interrogans_db %>% subset(SRA_available == "yes")
+max(SRA_interrogans_db$Year)
+
+
+country_plot <- ggplot(SRA_interrogans_db, aes(x=country)) +
+  geom_bar()+
+  theme(axis.text.x=element_text(angle=90))+
+  geom_text(stat="count",aes(label=..count..,vjust=-0.5,degree=25),size=3) 
+
+country_plot
+ggplotly(country_plot)
+
+year_plot <- ggplot(SRA_interrogans_db, aes(x=Year)) +
+  geom_bar()+
+  theme(axis.text.x=element_text(angle=90))+
+  geom_text(stat="count",aes(label=..count..,vjust=-0.5,degree=25),size=3) 
+
+year_plot
+ggplotly(year_plot)
+```
