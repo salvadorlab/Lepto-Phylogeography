@@ -30,4 +30,4 @@ gubbins_path="/scratch/rx32940/gubbins/dated_interrogans"
 # 6) snippy-clean_full_aln core.full.aln > clean.full.aln
 
 # use gubbins to find recombination regions within the genomes
-$software_path/run_gubbins.py -v -p $gubbins_path/gubbins_out/dated_interrogans_gubbins $gubbins_path/snippy_out/clean.full.aln
+$software_path/run_gubbins.py --threads 64 -v -p $gubbins_path/gubbins_out/dated_interrogans_gubbins $gubbins_path/snippy_out/clean.full.aln
