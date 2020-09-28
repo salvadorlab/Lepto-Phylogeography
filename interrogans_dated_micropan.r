@@ -1,3 +1,4 @@
+#  follow this tutorial: https://github.com/larssnip/micropan
 library(micropan)
 library(ggplot2)
 
