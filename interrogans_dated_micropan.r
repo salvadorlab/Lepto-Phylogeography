@@ -39,4 +39,4 @@ faa.files <- list.files("faa",pattern="\\.faa$", full.names=T)
 # The BLAST E-value is the number of expected hits 
 # of similar quality (score) that could be found just by chance.
 # thus, the higher the e-value, the higher the possibility that two sequence are not related
-blastpAllAll(faa.files, out.folder="blast", verbose = T, threads=24, job = 6, start.at=120)
+blastpAllAll(faa.files, out.folder="blast", verbose = T, threads=24, job = 11)
