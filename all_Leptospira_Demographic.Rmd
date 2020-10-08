@@ -43,6 +43,17 @@ distribution <- ggplot(all_973, aes(x=Species)) +
 ggplotly(distribution)
 
 ```
+### Select All Leptospira Interrogans isolates
+```{r}
+interrogans_path <- "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Interrogans/"
+all_interrogans <- all_973 %>% subset(species %in% "Leptospira interrogans")
+# write.csv(all_interrogans, paste0(interrogans_path,"all_interrogans_440.csv"))
+
+interrogans_acc <- all_interrogans$Sample
+write.table(interrogans_acc,paste0(interrogans_path,"interrogans_acc_440.txt"), row.names = FALSE, col.names = FALSE, quote = FALSE, sep="\n")
+```
+
+
 ### Downsample each species by 10
 ```{r}
 isolate_needed <- all_973 %>% group_by(Species) %>% count %>%
