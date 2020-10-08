@@ -24,3 +24,10 @@ $software_path/bin/PIRATE \
 # snippy-multi snippy_input.tab \
 # --ref $dir_path/GCF_000092565.1_ASM9256v1_genomic.fna --cpus 64 > \
 # run_snippy.sh
+
+# gubbins to detect recombination
+# use Kirschneri as outgroup
+$software_path/run_gubbins.py --threads 64 \
+-v -p $gubbins_path/gubbins/all_interrogans_gubbins \
+$dir_path/snippy/clean.full.aln \
+-o SAMN02947890
