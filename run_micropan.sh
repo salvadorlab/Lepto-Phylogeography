@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -q batch                                                          
-#PBS -N blastp_11                                      
-#PBS -l nodes=1:ppn=24 -l mem=50gb                                        
+#PBS -N prot_dist                                      
+#PBS -l nodes=1:ppn=12 -l mem=50gb                                        
 #PBS -l walltime=500:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              

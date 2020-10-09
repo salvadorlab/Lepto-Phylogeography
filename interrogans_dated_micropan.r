@@ -39,4 +39,19 @@ faa.files <- list.files("faa",pattern="\\.faa$", full.names=T)
 # The BLAST E-value is the number of expected hits 
 # of similar quality (score) that could be found just by chance.
 # thus, the higher the e-value, the higher the possibility that two sequence are not related
-blastpAllAll(faa.files, out.folder="blast", verbose = T, threads=24, job = 11)
+blastpAllAll(faa.files, out.folder="blast", verbose = T)
+# blast jobs terminated in the middle of running progress
+# find  /path/to/dest -type f -empty -delete # delete all empty files
+# reran blastpAllAll
+
+# list all blast files
+blast.files <- list.files("blast", pattern = "txt$", full.names = T)
+# find all self blast files
+self.tbl <- readBlastSelf(blast.files)
+# find all no-self alignments
+pair.tbl <- readBlastPair(blast.files)
+# compute distances between all proteins
+dst.tbl <- bDist(blast.tbl = bind_rows(self.tbl, pair.tbl))
+
+saveRDS(dst.tbl, all_protein_distance.RData)
+
