@@ -24,6 +24,9 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 # -o $dir_path/pirate \
 # -a -r -t 30 
 
+# # parse PIRATE outputs 
+# perl PIRATE_to_roary.pl -i /scratch/rx32940/interrogans_genome/pirate/PIRATE.*.tsv -o /scratch/rx32940/interrogans_genome/pirate/roary_presence_absence
+
 # # after filtered genes base on : https://github.com/salvadorlab/Lepto-Phylogeography/issues/6#issuecomment-705812907
 # # run fastGear on filtered conservative genes
 # $fastGear_path/run_fastGEAR.sh $matlab_path \

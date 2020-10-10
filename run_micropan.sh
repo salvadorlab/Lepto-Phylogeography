@@ -1,7 +1,7 @@
 #!/bin/bash
-#PBS -q bahl_salv_q                                                          
+#PBS -q batch                                                          
 #PBS -N prot_dist                                      
-#PBS -l nodes=1:ppn=12 -l mem=100gb                                        
+#PBS -l nodes=1:ppn=1 -l mem=100gb                                        
 #PBS -l walltime=300:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
