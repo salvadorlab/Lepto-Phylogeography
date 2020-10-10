@@ -15,7 +15,7 @@ fastGear_path="/home/rx32940/fastGEARpackageLinux64bit"
 matlab_path="/home/rx32940/MATLAB/v901" 
 file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 
-LD_LIBRARY_PATH=/home/rx32940/MATLAB/v901/runtime/glnxa64:/home/rx32940/MATLAB/v901/bin/glnxa64:/home/rx32940/MATLAB/v901/sys/os/glnxa64:/home/rx32940/MATLAB/v901/sys/opengl/lib/glnxa64
+# LD_LIBRARY_PATH=/home/rx32940/MATLAB/v901/runtime/glnxa64:/home/rx32940/MATLAB/v901/bin/glnxa64:/home/rx32940/MATLAB/v901/sys/os/glnxa64:/home/rx32940/MATLAB/v901/sys/opengl/lib/glnxa64
 
 # intra-species MCL value = 2 (default)
 # to identify core-pan genome for all interrogans isolates
@@ -45,7 +45,7 @@ LD_LIBRARY_PATH=/home/rx32940/MATLAB/v901/runtime/glnxa64:/home/rx32940/MATLAB/v
 
 # gubbins to detect recombination
 # use Kirschneri as outgroup
-$software_path/run_gubbins.py --threads 60 \
--v -p $gubbins_path/gubbins/all_interrogans_gubbins \
+$software_path/bin/run_gubbins.py --threads 60 \
+-v -p $dir_path/gubbins/all_interrogans_gubbins \
 $dir_path/snippy/clean.full.aln \
 -o SAMN02947890
