@@ -53,5 +53,5 @@ pair.tbl <- readBlastPair(blast.files)
 # compute distances between all proteins
 dst.tbl <- bDist(blast.tbl = bind_rows(self.tbl, pair.tbl))
 
-saveRDS(dst.tbl, all_protein_distance.RData)
+save(dst.tbl, "all_protein_distance.RData")
 

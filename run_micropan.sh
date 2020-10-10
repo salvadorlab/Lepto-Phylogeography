@@ -1,8 +1,8 @@
 #!/bin/bash
-#PBS -q batch                                                          
+#PBS -q bahl_salv_q                                                          
 #PBS -N prot_dist                                      
-#PBS -l nodes=1:ppn=12 -l mem=50gb                                        
-#PBS -l walltime=500:00:00                                                
+#PBS -l nodes=1:ppn=12 -l mem=100gb                                        
+#PBS -l walltime=300:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
 #PBS -o /scratch/rx32940                        
