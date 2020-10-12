@@ -1,0 +1,120 @@
+---
+title: "Parse_roary_pre/abs"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### Pirate to Roary result Analysis
+- use workflow from: https://www.lesleysitter.com/2019/08/23/roary-analysis/
+
+```{r}
+library(dplyr)
+library(reshape2)
+library(ggplot2)
+file_path <- "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Interrogans/"
+```
+
+```{r}
+# read in pirate to roary presence/absence csv
+file <- as.data.frame(read.csv(paste0(file_path,"pirate_to_roary_PA.csv")))
+head(file)
+
+```
+
+```{r}
+info <- within(file,rm("Gene","Non.unique.Gene.name","No..isolates","No..sequences","Avg.sequences.per.isolate","Genome.Fragment","Order.within.Fragment","Accessory.Fragment","Accessory.Order.with.Fragment","QC","Min.group.size.nuc","Max.group.size.nuc","Avg.group.size.nuc"))
+
+# convert info to matrix
+abscence_presence <- as.matrix(info[,-1])
+# use annotation as the rownames 
+rownames(abscence_presence) <-info[,1]
+# if the annotated gene is absent, label 0
+abscence_presence[abscence_presence == ""] <- 0
+# else present, label 1
+abscence_presence[which(abscence_presence!=0)] <- 1
+
+
+a_p_matrix <- mapply(abscence_presence, FUN=as.numeric)
+a_p_matrix <- matrix(data=a_p_matrix, ncol=length(colnames(abscence_presence)), nrow=length(row.names(abscence_presence)))
+row.names(a_p_matrix) <- row.names(abscence_presence)
+colnames(a_p_matrix) <- colnames(abscence_presence)
+```
+
+```{r}
+pdf(paste(file_path,"pres_abs_heatmap.pdf"))
+# plot heat map
+heatmap_p_a <- heatmap(a_p_matrix, col = c("#FFE986","#FF736E"), main = "Absence/Presence of genes", trace="none", labRow=FALSE)
+dev.off() 
+
+```
+
+```{r}
+
+
+reversed_ap <- t(a_p_matrix)
+
+# find the covariance of each genome
+cov_ap <- cov(reversed_ap)
+pca_pa <- prcomp(reversed_ap)
+pca_summary <- summary(reversed_ap)
+library(ggfortify)
+library(factoextra)
+autoplot(pca_pa) # plot ggfortify
+fviz_eig(pca_pa) # sree plot
+# eigenvalues <1 would mean that the component actually explains less than a single # explanatory variable we discard them
+get_eigenvalue(pca_pa)
+get_pca_var(pca_pa)$contrib
+
+```
+
+
+```{r}
+# number of total genomes
+genomes_count <- length(colnames(a_p_matrix))
+# bind the total number of genes for each genome 
+abscence_presence <- cbind(a_p_matrix, rowSums(a_p_matrix))
+
+# create a summary table for each genome
+summary_table <- matrix(data=NA, nrow=3, ncol=length(colnames(abscence_presence)))
+colnames(summary_table) <- colnames(abscence_presence)
+rownames(summary_table) <- c("Total_genes","Unique_genes","Core_genes")
+
+# total genome
+summary_table[1,] <- colSums(abscence_presence)
+# unique genes (rowsum ==1)
+summary_table[2,] <- colSums(abscence_presence[which(abscence_presence[,ncol(abscence_presence)] == 1),])
+# 95% core genes
+summary_table[3,] <- colSums(abscence_presence[which(abscence_presence[,ncol(abscence_presence)] >= (genomes_count*0.95)),])
+summary_table <- summary_table[,-ncol(summary_table)]
+
+```
+
+```{r}
+average_table <- data.frame(x=1:6, y=1:6, z=1:6)
+# average statistics of all the genomes
+average_table[,1] <- c("Total genes analyzed","Orthologous groups","Average gene count","Average core genes","Average unique genes","Total unique genes")
+average_table[1,2] <- sum(summary_table[1,])
+average_table[2,2] <- length(rownames(abscence_presence))
+average_table[3,2] <- median(summary_table[1,])
+average_table[4,2] <- length(rownames(abscence_presence[which(abscence_presence[,ncol(abscence_presence)] >= (genomes_count*0.95)),]))
+average_table[5,2] <- round(length(rownames(abscence_presence[which(abscence_presence[,ncol(abscence_presence)] == 1),]))/length(colnames(abscence_presence)))
+average_table[6,2] <- length(rownames(abscence_presence[which(abscence_presence[,ncol(abscence_presence)] == 1),]))
+
+# reorder the summary table by melting
+melt_summary_table <- melt(summary_table)
+melt_summary_table <- melt_summary_table[order(melt_summary_table$value),]
+```
+
+```{r}
+
+# plot summary table
+p1 <- ggplot(melt_summary_table, aes(x = reorder(Var2, value), y = value)) + 
+          geom_bar( stat = 'identity') + 
+          facet_grid(. ~ Var1, scales = "free_x") + 
+          xlab("Genomes") +
+          ylab("Count") +
+          coord_flip()
+ggsave(paste0(file_path, "all_lepto_genome_stat.pdf"),p1)
+```
