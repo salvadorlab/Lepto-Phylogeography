@@ -6,9 +6,9 @@ library(ggplot2)
 setwd("/scratch/rx32940/pirate/interrogans_dated/micropan_interrogans/")
 fasta_path <- "/scratch/rx32940/gubbins/dated_interrogans/fasta_dated_interrrogans"
 
-interrogans_meta <- read.table("../dated_interrogans_metadata.csv", sep=",", header = TRUE) %>%
- select(c("BioSample.Accession","Genome.Name.x","Strain.x","BioProject.Accession.x","Genome.Length","Host.Name.x","group","country")) %>%
- mutate(genome_id=str_c("GID",1:n())) # assign each genome a GID (must)
+# interrogans_meta <- read.table("../dated_interrogans_metadata.csv", sep=",", header = TRUE) %>%
+#  select(c("BioSample.Accession","Genome.Name.x","Strain.x","BioProject.Accession.x","Genome.Length","Host.Name.x","group","country")) %>%
+#  mutate(genome_id=str_c("GID",1:n())) # assign each genome a GID (must)
 
 
 # # find genes of each genome with prodigal
@@ -35,23 +35,33 @@ interrogans_meta <- read.table("../dated_interrogans_metadata.csv", sep=",", hea
 # }
 #  dir.create("blast")
  
-faa.files <- list.files("faa",pattern="\\.faa$", full.names=T)
-# The BLAST E-value is the number of expected hits 
-# of similar quality (score) that could be found just by chance.
-# thus, the higher the e-value, the higher the possibility that two sequence are not related
-blastpAllAll(faa.files, out.folder="blast", verbose = T)
-# blast jobs terminated in the middle of running progress
-# find  /path/to/dest -type f -empty -delete # delete all empty files
-# reran blastpAllAll
+# faa.files <- list.files("faa",pattern="\\.faa$", full.names=T)
+# # The BLAST E-value is the number of expected hits 
+# # of similar quality (score) that could be found just by chance.
+# # thus, the higher the e-value, the higher the possibility that two sequence are not related
+# blastpAllAll(faa.files, out.folder="blast", verbose = T)
+# # blast jobs terminated in the middle of running progress
+# # find  /path/to/dest -type f -empty -delete # delete all empty files
+# # reran blastpAllAll
 
-# list all blast files
-blast.files <- list.files("blast", pattern = "txt$", full.names = T)
-# find all self blast files
-self.tbl <- readBlastSelf(blast.files)
-# find all no-self alignments
-pair.tbl <- readBlastPair(blast.files)
-# compute distances between all proteins
-dst.tbl <- bDist(blast.tbl = bind_rows(self.tbl, pair.tbl))
+# # list all blast files
+# blast.files <- list.files("blast", pattern = "txt$", full.names = T)
+# # find all self blast files
+# self.tbl <- readBlastSelf(blast.files)
+# # find all no-self alignments
+# pair.tbl <- readBlastPair(blast.files)
+# # compute distances between all proteins
+# dst.tbl <- bDist(blast.tbl = bind_rows(self.tbl, pair.tbl))
 
-write.csv(dst.tbl, "all_protein_distance.csv",quote=FALSE,sep=",")
+# # store the distance matrix
+# write.csv(dst.tbl, "all_protein_distance.csv",quote=FALSE,sep=",")
+
+# read the distance matrix into variable
+dst.tbl <- read.csv("all_protein_distance.csv")
+
+# plot a histogram of these distances, to get a picture of how similar the proteins tend to be
+fig3 <- ggplot(dst.tbl) +
+  geom_histogram(aes(x = Distance), bins = 100)
+
+ggsave("prot_dist_distr.pdf",fig3)
 

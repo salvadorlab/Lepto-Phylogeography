@@ -1,8 +1,8 @@
 #!/bin/bash
 #PBS -q bahl_salv_q                                                           
-#PBS -N test_fastGear_gene                                       
-#PBS -l nodes=1:ppn=60 -l mem=100gb                                        
-#PBS -l walltime=500:00:00                                                
+#PBS -N gubbins_all_int                                       
+#PBS -l nodes=1:ppn=64 -l mem=100gb                                        
+#PBS -l walltime=200:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
 #PBS -o /scratch/rx32940                        
@@ -48,7 +48,7 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 
 # gubbins to detect recombination
 # use Kirschneri as outgroup
-$software_path/bin/run_gubbins.py --threads 60 \
+$software_path/bin/run_gubbins.py --threads 64 \
 -v -p $dir_path/gubbins/all_interrogans_gubbins \
 $dir_path/snippy/clean.full.aln \
 -o SAMN02947890
