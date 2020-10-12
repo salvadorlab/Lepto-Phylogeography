@@ -56,12 +56,22 @@ fasta_path <- "/scratch/rx32940/gubbins/dated_interrogans/fasta_dated_interrroga
 # # store the distance matrix
 # write.csv(dst.tbl, "all_protein_distance.csv",quote=FALSE,sep=",")
 
-# read the distance matrix into variable
+# # read the distance matrix into variable
+# # identical proteins have distance = 0
+# dst.tbl <- read.csv("all_protein_distance.csv")
+
+# # plot a histogram of these distances, to get a picture of how similar the proteins tend to be
+# fig3 <- ggplot(dst.tbl) +
+#   geom_histogram(aes(x = Distance), bins = 100)
+# # save the plot
+# ggsave("prot_dist_distr.pdf",fig3)
+
+# uses classical hierarchical clustering based on the distances
+# complete linkage is the 'strictest' way of clustering, no distance between two members can exceed the threshold we specify.
+# exact control of the 'radius' of our clusters the gene families
+# specify a large threshold at .75
 dst.tbl <- read.csv("all_protein_distance.csv")
+clst.blast <- bClust(dst.tbl, linkage = "complete", threshold = 0.75)
+write.csv(clst.blast,"prot_clusters_distbased_.75.csv",quote=FALSE,sep=",")
 
-# plot a histogram of these distances, to get a picture of how similar the proteins tend to be
-fig3 <- ggplot(dst.tbl) +
-  geom_histogram(aes(x = Distance), bins = 100)
-
-ggsave("prot_dist_distr.pdf",fig3)
 
