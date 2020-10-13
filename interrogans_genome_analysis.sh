@@ -50,5 +50,4 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 # use Kirschneri as outgroup
 $software_path/bin/run_gubbins.py --threads 64 \
 -v -p $dir_path/gubbins/all_interrogans_gubbins \
-$dir_path/snippy/clean.full.aln \
--o SAMN02947890
+$dir_path/snippy/clean.full.aln
