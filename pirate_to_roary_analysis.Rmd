@@ -61,25 +61,46 @@ library(factoextra)
 
 
 # read metadata for all samples
-inter_meta<- read.csv(paste0(file_path,"all_interrogans_metadata_440.csv") ) %>% select(c("BioSample.Accession","Host.Name","Geographic.Location","country","Serovar","Institute"))
+# this file was produced with python script all_interrogans_metadata.ipynb
+# however, host name, countries were fixed for analysis
+inter_meta<- read.csv(paste0(file_path,"all_interrogans_metadata_440.csv") ) #%>% select(c("BioSample.Accession","Host.Name","Geographic.Location","country","Serovar","Institute","biosample_name"))
 
 inter_meta[inter_meta == ""] <- "NA"
+# fix inconsistency in capitalization
+inter_meta$Serovar <- ifelse(inter_meta$Serovar == "icterohaemorrhagiae", "Icterohaemorrhagiae", inter_meta$Serovar)
+inter_meta$Serovar <- ifelse(inter_meta$Serovar == "pomona", "Pomona", inter_meta$Serovar)
+inter_meta$Serovar <- ifelse(inter_meta$Serovar == "copenhageni", "Copenhageni", inter_meta$Serovar)
+
+# Seovar name extracted from biosample names
+# some serovar name in biosample name is inconsistent with serovar label
+# Serovar_2 uses serovar in biosample if unmatch
+inter_meta_2 <- inter_meta %>% mutate(Serovar_2=ifelse( grepl("serovar",biosample_name,fixed = TRUE), unlist(lapply(biosample_name,function(x) {unlist(strsplit(x," "))[match("serovar", unlist(strsplit(x," ")))+1]})), Serovar)) 
+
+# However, if the Serovar weren't labelled specifically, we will use the one defined in the biosample name
+inter_meta_2$Serovar <- ifelse(inter_meta_2$Serovar == "NA", inter_meta_2$Serovar_2, inter_meta_2$Serovar)
+# Serovar fixed
+# write.csv(inter_meta_2,paste0(file_path,"all_interrogans_metadata_440_edited.csv"))
 
 # merge matrix with the metadata
 reversed_ap_1 <- as.data.frame(reversed_ap) # reversed_ap were matrix, now to df
 reversed_ap_1$BioSample.Accession <- rownames(reversed_ap)
-abs_pres_meta <- join(inter_meta, reversed_ap_1, by="BioSample.Accession")
+abs_pres_meta <- join(inter_meta_2, reversed_ap_1, by="BioSample.Accession")
 rownames(abs_pres_meta) <- abs_pres_meta$BioSample.Accession
 
+# complete Pca 
+pca_pa_complete <- prcomp(abs_pres_meta[-c(1:21)])
+pca_plot_complete <- autoplot(pca_pa_complete, data = abs_pres_meta,x=1,y=2)
+ggplotly(pca_plot_complete) 
+
 # remove points with no info for the specific grouping. ex. Seovar, country, Host.Name
-pca_matrix <- abs_pres_meta %>% subset(c(country != "NA"))
+pca_matrix <- abs_pres_meta %>% subset(c(Serovar_2 != "NA"))
 # pca analysis
-pca_pa <- prcomp( pca_matrix[-c(1:7)]) # exclude metadata columns
+pca_pa <- prcomp( pca_matrix[-c(1:21)]) # exclude metadata columns
 pca_pa$x # coordinates of each isolates project on to each PC
 
 # plot pca
 # https://cran.r-project.org/web/packages/ggfortify/vignettes/plot_pca.html
-pca_plot <- autoplot(pca_pa, data = pca_matrix, colour = 'country',x=1,y=2)
+pca_plot <- autoplot(pca_pa, data = pca_matrix, colour = 'Serovar_2',x=1,y=2,label=TRUE, label.size=1,shape=TRUE,color="Institute")
 
 ggplotly(pca_plot)
 
