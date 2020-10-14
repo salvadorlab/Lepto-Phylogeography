@@ -54,8 +54,9 @@ heatmap_p_a <- heatmap(reversed_ap, col = c("#FFE986","#FF736E"), main = "Absenc
 dev.off() 
 
 ```
-
+### Merge metadata of the isolates with gene presence/absence profile
 ```{r}
+
 library(ggfortify)
 library(factoextra)
 
@@ -65,6 +66,7 @@ library(factoextra)
 # however, host name, countries were fixed for analysis
 inter_meta<- read.csv(paste0(file_path,"all_interrogans_metadata_440.csv") ) #%>% select(c("BioSample.Accession","Host.Name","Geographic.Location","country","Serovar","Institute","biosample_name"))
 
+# set empty cell to NA
 inter_meta[inter_meta == ""] <- "NA"
 # fix inconsistency in capitalization
 inter_meta$Serovar <- ifelse(inter_meta$Serovar == "icterohaemorrhagiae", "Icterohaemorrhagiae", inter_meta$Serovar)
@@ -87,6 +89,12 @@ reversed_ap_1$BioSample.Accession <- rownames(reversed_ap)
 abs_pres_meta <- join(inter_meta_2, reversed_ap_1, by="BioSample.Accession")
 rownames(abs_pres_meta) <- abs_pres_meta$BioSample.Accession
 
+```
+
+### PCA ANAlYSIS
+```{r}
+
+
 # complete Pca 
 pca_pa_complete <- prcomp(abs_pres_meta[-c(1:21)])
 pca_plot_complete <- autoplot(pca_pa_complete, data = abs_pres_meta,x=1,y=2)
@@ -94,21 +102,59 @@ ggplotly(pca_plot_complete)
 
 # remove points with no info for the specific grouping. ex. Seovar, country, Host.Name
 pca_matrix <- abs_pres_meta %>% subset(c(Serovar_2 != "NA"))
+
 # pca analysis
 pca_pa <- prcomp( pca_matrix[-c(1:21)]) # exclude metadata columns
-pca_pa$x # coordinates of each isolates project on to each PC
 
+# coordinates of each isolates project on to each PC
+pca_pa$x 
+
+# loadings, how the variables contribute to the PCA axes. e.g., negative values indicate negative relationship.
+pca_loadings <- pca_pa$rotation 
+
+get_eigenvalue(pca_pa)
+get_pca_var(pca_pa)$contrib
+
+##### identify the gene contribute most variation in PC1 ###################
+
+# Decarbamoylnovobiocin carbamoyltransferase, g01151
+abs(pca_loadings[,"PC1"])[which.max(abs(pca_loadings[,"PC1"]))] 
+
+# get genes with top contribution to variation
+top_contrib_genes <- as.data.frame(sort(abs(pca_loadings[,"PC1"])[abs(pca_loadings[,"PC1"]) > 0.055])) 
+
+# rename variation contribution column
+names(top_contrib_genes)[1] <- "Var_contrib"
+
+top_contrib_genes$Gene <- rownames(top_contrib_genes) # prepare for merging
+
+# get gene names and annotation for gene id
+gene_names_db <- file %>% select(c("Gene",	"Non.unique.Gene.name",	"Annotation"))
+top_contrib_genes$Var_contrib <- as.numeric(top_contrib_genes$Var_contrib)
+typeof(top_contrib_genes$Var_contrib)
+
+# find the name and annotation of genes contribute most to variation
+# exclude hypothetical genes
+# what are the functions of these genes?
+top_contrib_gene <- left_join(top_contrib_genes, gene_names_db, by ="Gene",all=TRUE) %>% subset(Annotation != "hypothetical protein")
+
+```
+
+### plot PCA
+```{r}
 # plot pca
 # https://cran.r-project.org/web/packages/ggfortify/vignettes/plot_pca.html
-pca_plot <- autoplot(pca_pa, data = pca_matrix, colour = 'Serovar_2',x=1,y=2,label=TRUE, label.size=1,shape=TRUE,color="Institute")
-
-ggplotly(pca_plot)
 
 fviz_eig(pca_pa) # sree plot
 # eigenvalues <1 would mean that the component actually explains less than a single # explanatory variable we discard them
 
-get_eigenvalue(pca_pa)
-get_pca_var(pca_pa)$contrib
+pca_plot <- autoplot(pca_pa, data = pca_matrix, colour = 'Serovar_2',x=1,y=2)
+
+ggplotly(pca_plot)
+
+
+
+
 
 ```
 
