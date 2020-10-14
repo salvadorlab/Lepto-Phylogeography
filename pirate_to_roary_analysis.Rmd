@@ -109,29 +109,26 @@ pca_pa <- prcomp( pca_matrix[-c(1:21)]) # exclude metadata columns
 # coordinates of each isolates project on to each PC
 pca_pa$x 
 
-# loadings, how the variables contribute to the PCA axes. e.g., negative values indicate negative relationship.
-pca_loadings <- pca_pa$rotation 
-
-get_eigenvalue(pca_pa)
-get_pca_var(pca_pa)$contrib
-
 ##### identify the gene contribute most variation in PC1 ###################
 
-# Decarbamoylnovobiocin carbamoyltransferase, g01151
-abs(pca_loadings[,"PC1"])[which.max(abs(pca_loadings[,"PC1"]))] 
+# An eigenvalue is a number, telling you how much variance there is in the data in that direction. The eigenvector with the highest eigenvalue is therefore the principal component
+get_eigenvalue(pca_pa)
+# find the contribution of each variable to vairation within PC1
+PC1_contrib <-sort(get_pca_var(pca_pa)$contrib[,"Dim.1"],decreasing=TRUE)
+max(PC1_contrib) #g01151, 0.366226
 
 # get genes with top contribution to variation
-top_contrib_genes <- as.data.frame(sort(abs(pca_loadings[,"PC1"])[abs(pca_loadings[,"PC1"]) > 0.055])) 
+top_contrib_genes <- as.data.frame(PC1_contrib)
 
 # rename variation contribution column
-names(top_contrib_genes)[1] <- "Var_contrib"
+names(top_contrib_genes)[1] <- "PC1_var_contrib"
 
 top_contrib_genes$Gene <- rownames(top_contrib_genes) # prepare for merging
 
 # get gene names and annotation for gene id
 gene_names_db <- file %>% select(c("Gene",	"Non.unique.Gene.name",	"Annotation"))
-top_contrib_genes$Var_contrib <- as.numeric(top_contrib_genes$Var_contrib)
-typeof(top_contrib_genes$Var_contrib)
+top_contrib_genes$PC1_var_contrib <- as.numeric(top_contrib_genes$PC1_var_contrib)
+typeof(top_contrib_genes$PC1_var_contrib)
 
 # find the name and annotation of genes contribute most to variation
 # exclude hypothetical genes
