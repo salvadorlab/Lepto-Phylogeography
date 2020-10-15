@@ -1,13 +1,12 @@
 #!/bin/bash
-#PBS -q bahl_salv_q                                                           
-#PBS -N gubbins_all_int                                       
-#PBS -l nodes=1:ppn=64 -l mem=100gb                                        
-#PBS -l walltime=200:00:00                                                
-#PBS -M rx32940@uga.edu                                                  
-#PBS -m abe                                                              
-#PBS -o /scratch/rx32940                        
-#PBS -e /scratch/rx32940                        
-#PBS -j oe
+## PBS -N test_fastGear                                       
+## PBS -l nodes=1:ppn=1 -l mem=100gb                                        
+## PBS -l walltime=200:00:00                                                
+## PBS -M rx32940@uga.edu                                                  
+## PBS -m abe                                                              
+## PBS -o /scratch/rx32940                        
+## PBS -e /scratch/rx32940                        
+## PBS -j oe
 
 dir_path="/scratch/rx32940/interrogans_genome"
 software_path="/home/rx32940/miniconda3"
@@ -27,12 +26,53 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 # # parse PIRATE outputs 
 # perl PIRATE_to_roary.pl -i /scratch/rx32940/interrogans_genome/pirate/PIRATE.*.tsv -o /scratch/rx32940/interrogans_genome/pirate/roary_presence_absence
 
-# # after filtered genes base on : https://github.com/salvadorlab/Lepto-Phylogeography/issues/6#issuecomment-705812907
-# # run fastGear on filtered conservative genes
-# $fastGear_path/run_fastGEAR.sh $matlab_path \
-# $file_path/g00295_1.nucleotide.fasta \
-# $dir_path/fastGear/interrogans_g00295.mat \
-# $fastGear_path/fG_input_specs.txt
+# after filtered genes base on : https://github.com/salvadorlab/Lepto-Phylogeography/issues/6#issuecomment-705812907
+# run fastGear on filtered conservative genes
+# splited the 8135 genes with avg dosage <= 1.25 in to 41 files with 200 gene id per file
+# split -l 200 pan_genome_list.txt 
+# mkdir folders for each gene in the fastGear folder
+
+    
+script_path="dir_path=\"/scratch/rx32940/interrogans_genome\"\n
+software_path=\"/home/rx32940/miniconda3\"\n
+fastGear_path=\"/home/rx32940/fastGEARpackageLinux64bit\"\n
+matlab_path=\"/home/rx32940/MATLAB/v901\"\n
+file_path=\"/scratch/rx32940/interrogans_genome/pirate/feature_sequences\"\n
+LD_LIBRARY_PATH=/home/rx32940/MATLAB/v901/runtime/glnxa64:/home/rx32940/MATLAB/v901/bin/glnxa64:/home/rx32940/MATLAB/v901/sys/os/glnxa64:/home/rx32940/MATLAB/v901/sys/opengl/lib/glnxa64\n"
+    
+for list in $dir_path/x*;
+do
+    echo "create script for $list"
+    (
+    echo -e 
+    job_header="#!/bin/bash\n
+    #PBS -q batch\n
+    #PBS -N ${list}_fastGear\n
+    #PBS -l nodes=1:ppn=1 -l mem=30gb\n
+    #PBS -l walltime=200:00:00\n
+    #PBS -M rx32940@uga.edu\n
+    #PBS -m abe\n
+    #PBS -o /scratch/rx32940\n
+    #PBS -e /scratch/rx32940\n
+    #PBS -j oe\n"
+
+    echo -e "$job_header" > $dir_path/submit_sub_fastGear.sh
+
+    echo -e "$script_path" >> $dir_path/submit_sub_fastGear.sh
+
+    echo -e "cat $list | xargs -I{} \
+    $fastGear_path/run_fastGEAR.sh $matlab_path \
+    $file_path/{}.nucleotide.fasta \
+    $dir_path/fastGear/{}/interrogans_{}.mat \
+    $fastGear_path/fG_input_specs.txt" >> $dir_path/submit_sub_fastGear.sh
+
+    qsub $dir_path/submit_sub_fastGear.sh
+    
+    echo -e "submitted script for $list"
+    ) &
+    echo "waiting"
+    wait
+done
 
 # # plot base on original sample order
 # $fastGear_path/run_plotRecombinations.sh $matlab_path $dir_path/fastGear/interrogans_g00295.mat 1 1
@@ -48,6 +88,6 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 
 # gubbins to detect recombination
 # use Kirschneri as outgroup
-$software_path/bin/run_gubbins.py --threads 64 \
--v -p $dir_path/gubbins/all_interrogans_gubbins \
-$dir_path/snippy/clean.full.aln
+# $software_path/bin/run_gubbins.py --threads 50 \
+# -v -p $dir_path/gubbins/all_interrogans_gubbins \
+# $dir_path/snippy/clean.full.aln
