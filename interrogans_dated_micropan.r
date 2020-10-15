@@ -72,6 +72,29 @@ fasta_path <- "/scratch/rx32940/gubbins/dated_interrogans/fasta_dated_interrroga
 # specify a large threshold at .75
 dst.tbl <- read.csv("all_protein_distance.csv")
 clst.blast <- bClust(dst.tbl, linkage = "complete", threshold = 0.75)
-write.csv(clst.blast,"prot_clusters_distbased_.75.csv",quote=FALSE,sep=",")
+
+# matrix with one row for each genome and one column for each gene cluster
+panmat.blast <- panMatrix(clst.blast)
+
+# plot the pan-matrix, how many clusters are found in 1,2,...,all genomes
+panmatrix_plot <- tibble(Clusters = as.integer(table(factor(colSums(panmat.blast > 0),
+                                          levels = 1:nrow(panmat.blast)))),
+       Genomes = 1:nrow(panmat.blast)) %>% 
+  ggplot(aes(x = Genomes, y = Clusters)) +
+  geom_col() + labs(title = "Number of clusters found in 1, 2,...,all genomes")
+  ggsave("ncluster_in_genomes.pdf",panmatrix_plot)
+
+  # heaps fct estimatess the openness of the pangenome
+  # pan-genome is closed if the estimated alpha is above 1.0
+  heaps.est <- as.data.frame(heaps(panmat.blast, n.perm = 500))
+  write.csv(heap.est,"pangenome_index_alpha.csv",quote=FALSE,sep=",",header=TRUE)
+
+  # use fitting the binomial mixture models to estimate pangenomen size
+  fitted <- binomixEstimate(panmat.blast)
+  # inspecting the fitted BIC.tbl we can see how many mixture components is supported best by these data
+  # component gene clusters into n categories (number of BIC compinent) with respect to how frequent they tend to occur in the genomes
+  write.csv(as.data.frame(fitted$BIC.tbl),"BIC_gene_clusters.csv",quote=FALSE,sep=",",header=TRUE)
+
+
 
 
