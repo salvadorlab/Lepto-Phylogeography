@@ -107,9 +107,14 @@ pca_matrix <- abs_pres_meta %>% subset(c(Serovar_2 != "NA"))
 pca_pa <- prcomp( pca_matrix[-c(1:21)]) # exclude metadata columns
 
 # coordinates of each isolates project on to each PC
-pca_pa$x 
+#head(pca_pa$x) 
 
-##### identify the gene contribute most variation in PC1 ###################
+
+```
+### identify the gene contribute most variation 
+```{r}
+
+##### in PC1 ###################
 
 # An eigenvalue is a number, telling you how much variance there is in the data in that direction. The eigenvector with the highest eigenvalue is therefore the principal component
 get_eigenvalue(pca_pa)
@@ -128,13 +133,41 @@ top_contrib_genes$Gene <- rownames(top_contrib_genes) # prepare for merging
 # get gene names and annotation for gene id
 gene_names_db <- file %>% select(c("Gene",	"Non.unique.Gene.name",	"Annotation"))
 top_contrib_genes$PC1_var_contrib <- as.numeric(top_contrib_genes$PC1_var_contrib)
-typeof(top_contrib_genes$PC1_var_contrib)
+#typeof(top_contrib_genes$PC1_var_contrib)
 
 # find the name and annotation of genes contribute most to variation
 # exclude hypothetical genes
 # what are the functions of these genes?
-top_contrib_gene <- left_join(top_contrib_genes, gene_names_db, by ="Gene",all=TRUE) %>% subset(Annotation != "hypothetical protein")
+# take t
+top_contrib_gene <- left_join(top_contrib_genes, gene_names_db, by ="Gene",all=TRUE) %>% subset(Annotation != "hypothetical protein") 
+# write.csv(top_contrib_gene, paste0(file_path,"gene_contrib_PC1.csv"),row.names = FALSE)
 
+
+##### in PC2 ###################
+
+
+# find the contribution of each variable to vairation within PC1
+PC2_contrib <-sort(get_pca_var(pca_pa)$contrib[,"Dim.2"],decreasing=TRUE)
+max(PC2_contrib) #g00035_2, 0.75119330  
+
+# get genes with top contribution to variation
+top_contrib_genes2 <- as.data.frame(PC2_contrib)
+
+# rename variation contribution column
+names(top_contrib_genes2)[1] <- "PC2_var_contrib"
+
+top_contrib_genes2$Gene <- rownames(top_contrib_genes2) # prepare for merging
+
+# get gene names and annotation for gene id
+gene_names_db <- file %>% select(c("Gene",	"Non.unique.Gene.name",	"Annotation"))
+top_contrib_genes2$PC2_var_contrib <- as.numeric(top_contrib_genes2$PC2_var_contrib)
+# typeof(top_contrib_genes2$PC2_var_contrib)
+
+# find the name and annotation of genes contribute most to variation
+# exclude hypothetical genes
+# what are the functions of these genes?
+top_contrib_gene2 <- left_join(top_contrib_genes2, gene_names_db, by ="Gene",all=TRUE) %>% subset(Annotation != "hypothetical protein")
+write.csv(top_contrib_gene, paste0(file_path,"gene_contrib_PC2.csv"),row.names = FALSE)
 ```
 
 ### plot PCA
