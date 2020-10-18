@@ -1,12 +1,14 @@
 #!/bin/bash
-## PBS -N all_int_iqtree                                      
-## PBS -l nodes=1:ppn=64 -l mem=100gb                                        
-## PBS -l walltime=200:00:00                                                
-## PBS -M rx32940@uga.edu                                                  
-## PBS -m abe                                                              
-## PBS -o /scratch/rx32940                        
-## PBS -e /scratch/rx32940                        
-## PBS -j oe
+#PBS -q bahl_salv_q                                                          
+#PBS -N pirate_paraoff                                      
+#PBS -l nodes=1:ppn=64 -l mem=100gb                                        
+#PBS -l walltime=120:00:00                                                
+#PBS -M rx32940@uga.edu                                                  
+#PBS -m abe                                                              
+#PBS -o /scratch/rx32940                        
+#PBS -e /scratch/rx32940                        
+#PBS -j oe
+
 
 dir_path="/scratch/rx32940/interrogans_genome"
 software_path="/home/rx32940/miniconda3"
@@ -18,19 +20,19 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 
 # intra-species MCL value = 2 (default)
 # to identify core-pan genome for all interrogans isolates
-# $software_path/bin/PIRATE \
-# -i $dir_path/prokka \
-# -o $dir_path/pirate \
-# -a -r -t 30 
+$software_path/bin/PIRATE \
+-i $dir_path/prokka \
+-o $dir_path/pirate_paraoff \
+-a -r -t 30 --para-off
 
 # # parse PIRATE outputs 
 # perl PIRATE_to_roary.pl -i /scratch/rx32940/interrogans_genome/pirate/PIRATE.*.tsv -o /scratch/rx32940/interrogans_genome/pirate/roary_presence_absence
 
 # # recontruct the ML tree with core genome concatenation produced by PIRATE
 # # this will be used in python code for plot fastGear results
-module load IQ-TREE/1.6.5-omp
-iqtree -nt AUTO -m MFP -pre $dir_path/iqtree/all_int_core \
--s $dir_path/pirate/core_alignment.fasta
+# module load IQ-TREE/1.6.5-omp
+# iqtree -nt AUTO -m MFP -pre $dir_path/iqtree/all_int_core \
+# -s $dir_path/pirate/core_alignment.fasta 
 
 # after filtered genes base on : https://github.com/salvadorlab/Lepto-Phylogeography/issues/6#issuecomment-705812907
 # run fastGear on filtered conservative genes
