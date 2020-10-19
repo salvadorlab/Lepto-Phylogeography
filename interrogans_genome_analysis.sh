@@ -20,10 +20,10 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 
 # intra-species MCL value = 2 (default)
 # to identify core-pan genome for all interrogans isolates
-$software_path/bin/PIRATE \
--i $dir_path/prokka \
--o $dir_path/pirate_paraoff \
--a -r -t 30 --para-off
+# $software_path/bin/PIRATE \
+# -i $dir_path/prokka \
+# -o $dir_path/pirate_paraoff \
+# -a -r -t 30
 
 # # parse PIRATE outputs 
 # perl PIRATE_to_roary.pl -i /scratch/rx32940/interrogans_genome/pirate/PIRATE.*.tsv -o /scratch/rx32940/interrogans_genome/pirate/roary_presence_absence
@@ -82,11 +82,47 @@ $software_path/bin/PIRATE \
 #     wait
 # done
 
+# # get genes with only one sequence per loci in genes present in all 440 interrogans isolates
+# echo "" > $dir_path/one_seq_loci.txt
+# cat $dir_path/genes_in_all_int.txt |\
+# while read gene;
+# do
+# # echo $gene
+# n_lineage=$(cat "$dir_path"/fastGear/"$gene"/output/lineage_information.txt | wc -l)
+# # echo $n_lineage
+# if [[ "$n_lineage" -eq 441 ]]
+# then
+# echo "in"
+# echo -e $gene >> $dir_path/one_seq_loci.txt
+# fi
+# done
+
+
 # # # plot scatterplot for all genes in pan genome
-# python post_fastGEAR.py \
-# -i $dir_path/fastGear/ \
-# -o $dir_path/fastGear_out/all_int_recomb \
-# -s -f pdf -z False 
+# 1*) have to login as ssh -Y sapelo2
+#
+# 2*) module load Biopython/1.68-foss-2016b-Python-3.5.2 
+#    module load Anaconda3/5.0.1
+# 
+# 3) to add gene alignment for each gene inside corresponding fatsGear gene folder
+# cat $dir_path/all_loci_fastGear.txt | xargs -I{} cp $dir_path/pirate/feature_sequences/{}.nucleotide.fasta $dir_path/fastGear/{}/{}.fasta 
+# 
+# 4) reformat strain name within lineage_information.txt and recombinations_recent.txt
+# 
+# 5) mkdir $dir_path/post_fastGear/fastGear_oneloci/, for loci with one seq per isolates in all isolates
+#  cat $dir_path/one_seq_loci.txt | xargs -I{} scp -r $dir_path/fastGear/{} $dir_path/post_fastGear/fastGear_oneloci/
+# for heat map with 191 gene with one seq/loci found in all isolates
+# python /home/rx32940/github/Lepto-Phylogeography/post_fastGEAR.py \
+# -i $dir_path/post_fastGear/fastGear_oneloci/ \
+# -g $dir_path/one_seq_loci.txt \
+# -o $dir_path/post_fastGear/oneloci \
+# -s True -f pdf -p $dir_path/interrogans_acc_440.txt -xs 20 -y 5 -x 0
+
+# python /home/rx32940/github/Lepto-Phylogeography/post_fastGEAR.py \
+# -i $dir_path/fastGear \
+# -g $dir_path/all_loci_fastGear.txt \
+# -o $dir_path/post_fastGear/allcog \
+# -s True -f pdf -p $dir_path/interrogans_acc_440.txt -z False -y 5 -x 5
 
 # run snippy- generate script
 # snippy_input.tab generation refer to github issue

@@ -352,9 +352,9 @@ def parse_genes(args):
     number_of_samples = []
     gene_len_dict = OrderedDict()
     for i, gene_path in enumerate(genes_output_folders):
-        if os.path.isfile(gene_path+'/output/recombinations_recent.txt'):
-            if os.path.isfile(gene_path+'/output/lineage_information.txt'):
-                with open(gene_path+'/output/recombinations_recent.txt', 'r') as fin:
+        if os.path.isfile(gene_path+'/output/recombinations_recent_2.txt'):
+            if os.path.isfile(gene_path+'/output/lineage_information_2.txt'):
+                with open(gene_path+'/output/recombinations_recent_2.txt', 'r') as fin:
                     if fin.readline().strip() == '0 RECENT RECOMBINATION EVENTS':
                         if not args.a:# skip if ancestral = Fasle
                             continue
@@ -373,9 +373,9 @@ def parse_genes(args):
                 if not found:
                     print('Cant find gene alignment for ' + gene + ' . Please use one of the following suffixes: .fa', '.fasta', '.fna', '.aln', '.fsa')
             else:
-                print ('missing a file!!!!!!!!!!!!',gene_path+'/output/lineage_information.txt')
+                print ('missing a file!!!!!!!!!!!!',gene_path+'/output/lineage_information_2.txt')
         else:
-            print ('missing a file!!!!!!!!!!!!',gene_path+'/output/recombinations_recent.txt')
+            print ('missing a file!!!!!!!!!!!!',gene_path+'/output/recombinations_recent_2.txt')
     if args.g:
         input_gene = sorted(list(GOI))[0]
         try:  assert len(GOI) == len(gene_len_dict)
@@ -511,8 +511,8 @@ def base_lineage(args, gene, order):
     #get base lineage
     lineages = defaultdict(int)
     most_common = defaultdict(int)
-    if os.path.isfile(args.i + '/' + gene + '/output/lineage_information.txt'):
-        with open(args.i + '/' + gene + '/output/lineage_information.txt', 'r') as fin:
+    if os.path.isfile(args.i + '/' + gene + '/output/lineage_information_2.txt'):
+        with open(args.i + '/' + gene + '/output/lineage_information_2.txt', 'r') as fin:
             fin.readline() #'StrainIndex', 'Lineage', 'Cluster', 'Name'
             for line in fin:
                 strain_index, lineage, cluster, name = line.strip().split()[:4]
@@ -520,7 +520,7 @@ def base_lineage(args, gene, order):
                 lineages[sample] = int(lineage)
                 most_common[lineage] += 1
     else:
-        print (gene +' has no base lineage_information.txt')
+        print (gene +' has no base lineage_information_2.txt')
 
     count = 0
     for lineage in most_common:
