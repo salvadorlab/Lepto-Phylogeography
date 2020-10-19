@@ -117,7 +117,7 @@ python /home/rx32940/github/Lepto-Phylogeography/post_fastGEAR.py \
 -g $dir_path/one_seq_loci.txt \
 -o $dir_path/post_fastGear/oneloci \
 -s True -f pdf -p $dir_path/interrogans_acc_440.txt -xs 20 -y 5 -x 0
-
+# for scatter plot with the use of all genes in all isolates
 python /home/rx32940/github/Lepto-Phylogeography/post_fastGEAR.py \
 -i $dir_path/fastGear \
 -g $dir_path/all_loci_fastGear.txt \
