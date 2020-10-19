@@ -112,17 +112,17 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 # 5) mkdir $dir_path/post_fastGear/fastGear_oneloci/, for loci with one seq per isolates in all isolates
 #  cat $dir_path/one_seq_loci.txt | xargs -I{} scp -r $dir_path/fastGear/{} $dir_path/post_fastGear/fastGear_oneloci/
 # for heat map with 191 gene with one seq/loci found in all isolates
-# python /home/rx32940/github/Lepto-Phylogeography/post_fastGEAR.py \
-# -i $dir_path/post_fastGear/fastGear_oneloci/ \
-# -g $dir_path/one_seq_loci.txt \
-# -o $dir_path/post_fastGear/oneloci \
-# -s True -f pdf -p $dir_path/interrogans_acc_440.txt -xs 20 -y 5 -x 0
+python /home/rx32940/github/Lepto-Phylogeography/post_fastGEAR.py \
+-i $dir_path/post_fastGear/fastGear_oneloci/ \
+-g $dir_path/one_seq_loci.txt \
+-o $dir_path/post_fastGear/oneloci \
+-s True -f pdf -p $dir_path/interrogans_acc_440.txt -xs 20 -y 5 -x 0
 
-# python /home/rx32940/github/Lepto-Phylogeography/post_fastGEAR.py \
-# -i $dir_path/fastGear \
-# -g $dir_path/all_loci_fastGear.txt \
-# -o $dir_path/post_fastGear/allcog \
-# -s True -f pdf -p $dir_path/interrogans_acc_440.txt -z False -y 5 -x 5
+python /home/rx32940/github/Lepto-Phylogeography/post_fastGEAR.py \
+-i $dir_path/fastGear \
+-g $dir_path/all_loci_fastGear.txt \
+-o $dir_path/post_fastGear/allcog \
+-s True -f pdf -p $dir_path/interrogans_acc_440.txt -z False -y 5 -x 5
 
 # run snippy- generate script
 # snippy_input.tab generation refer to github issue
