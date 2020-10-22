@@ -95,10 +95,10 @@ rownames(abs_pres_meta) <- abs_pres_meta$BioSample.Accession
 ```{r}
 
 
-# complete Pca 
-pca_pa_complete <- prcomp(abs_pres_meta[-c(1:21)])
-pca_plot_complete <- autoplot(pca_pa_complete, data = abs_pres_meta,x=1,y=2)
-ggplotly(pca_plot_complete) 
+# # complete Pca 
+# pca_pa_complete <- prcomp(abs_pres_meta[-c(1:21)])
+# pca_plot_complete <- autoplot(pca_pa_complete, data = abs_pres_meta,x=1,y=2)
+# ggplotly(pca_plot_complete) 
 
 # remove points with no info for the specific grouping. ex. Seovar, country, Host.Name
 pca_matrix <- abs_pres_meta %>% subset(c(Serovar_2 != "NA"))
@@ -139,7 +139,7 @@ top_contrib_genes$PC1_var_contrib <- as.numeric(top_contrib_genes$PC1_var_contri
 # exclude hypothetical genes
 # what are the functions of these genes?
 # take t
-top_contrib_gene <- left_join(top_contrib_genes, gene_names_db, by ="Gene",all=TRUE) %>% subset(Annotation != "hypothetical protein") 
+top_contrib_gene <- left_join(top_contrib_genes, gene_names_db, by ="Gene",all=TRUE) #%>% subset(Annotation != "hypothetical protein") 
 # write.csv(top_contrib_gene, paste0(file_path,"gene_contrib_PC1.csv"),row.names = FALSE)
 
 
@@ -166,7 +166,7 @@ top_contrib_genes2$PC2_var_contrib <- as.numeric(top_contrib_genes2$PC2_var_cont
 # find the name and annotation of genes contribute most to variation
 # exclude hypothetical genes
 # what are the functions of these genes?
-top_contrib_gene2 <- left_join(top_contrib_genes2, gene_names_db, by ="Gene",all=TRUE) %>% subset(Annotation != "hypothetical protein")
+top_contrib_gene2 <- left_join(top_contrib_genes2, gene_names_db, by ="Gene",all=TRUE) #%>% subset(Annotation != "hypothetical protein")
 # write.csv(top_contrib_gene2, paste0(file_path,"gene_contrib_PC2.csv"),row.names = FALSE)
 ```
 
