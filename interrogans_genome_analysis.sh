@@ -2,7 +2,7 @@
 #PBS -q bahl_salv_q                                                          
 #PBS -N fastANI                                      
 #PBS -l nodes=1:ppn=64 -l mem=100gb                                        
-#PBS -l walltime=80:00:00                                                
+#PBS -l walltime=30:00:00                                                
 #PBS -M rx32940@uga.edu                                                  
 #PBS -m abe                                                              
 #PBS -o /scratch/rx32940                        
@@ -135,7 +135,7 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 # -i $dir_path/post_fastGear/fastGear_oneloci/ \
 # -g $dir_path/one_seq_loci.txt \
 # -o $dir_path/post_fastGear/oneloci \
-# -s True -f pdf -p $dir_path/interrogans_acc_440.txt -xs 20 -y 5 -x 0
+# -s True -f pdf -p $dir_path/iqtree/all_int_core.newick -xs 40 -y 0 -x 0
 # # for scatter plot with the use of all genes in all isolates
 # python /home/rx32940/github/Lepto-Phylogeography/post_fastGEAR.py \
 # -i $dir_path/fastGear \
@@ -173,4 +173,4 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 $software_path/bin/fastANI --ql $dir_path/full_path_all_asm.txt \
 --rl $dir_path/full_path_all_asm.txt \
 -o $dir_path/fastANI/all_int_ani.out \
---matrix
+--matrix -t 64
