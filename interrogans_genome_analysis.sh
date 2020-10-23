@@ -155,15 +155,25 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 # --ref $dir_path/GCF_000092565.1_ASM9256v1_genomic.fna --cpus 64 > \
 # run_snippy.sh
 
+# remove Reference genome from the final snippy alignment (with invariant sites)
+# -v invert matching
+# -p pattern
+# module load seqkit/0.10.2_conda
+cat $dir_path/snippy/core.full.aln | seqkit grep -v -p Reference > $dir_path/snippy/no_ref_core.fasta 
+
+# recall snps with snp-sites from multi-fasta alignment for snps without reference genome
+snp-sites $dir_path/snippy/snp_sites_core.fasta -o $dir_path/snippy/snps_noref_core.fasta
+
 # # remove all the "weird" characters and replace them with N
-# snippy-clean_full_aln core.full.aln > clean.full.aln
+# snippy-clean_full_aln $dir_path/snippy/snps_noref_core.fasta > $dir_path/snippy/clean.full.aln
 
 # gubbins to detect recombination
-# use Kirschneri as outgroup
 # $software_path/bin/run_gubbins.py --threads 50 \
 # -v -p $dir_path/gubbins/all_interrogans_gubbins \
 # $dir_path/snippy/clean.full.aln
 
+# keep only the containing exclusively ACGT
+# snp-sites -c $dir_path/gubbins/all_interrogans_gubbins.filtered_polymorphic_sites.fasta > $dir_path/gubbins/clean.core.aln
 #########################################################
 #
 # fastANI - get ANI score for all vs all samples
