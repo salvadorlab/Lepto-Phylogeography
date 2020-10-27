@@ -178,7 +178,7 @@ top_contrib_gene2 <- left_join(top_contrib_genes2, gene_names_db, by ="Gene",all
 fviz_eig(pca_pa) # sree plot
 # eigenvalues <1 would mean that the component actually explains less than a single # explanatory variable we discard them
 
-pca_plot <- autoplot(pca_pa, data = pca_matrix, colour = 'Serovar_2',x=1,y=2,label=TRUE)
+pca_plot <- autoplot(pca_pa, data = pca_matrix, colour = 'Serovar_2',x=1,y=2)
 
 ggplotly(pca_plot)
 
