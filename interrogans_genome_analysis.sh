@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --partition=bahl_salv_p
-#SBATCH --job-name=pirate_lb
+#SBATCH --job-name=iqtree_lb
 #SBATCH --ntasks=1                    	
 #SBATCH --cpus-per-task=64             
 #SBATCH --time=500:00:00
 #SBATCH --mem=100G
-#SBATCH --output=/scratch/rx32940/pirate_lb.%j.out       
-#SBATCH --error=/scratch/rx32940/pirate_lb.%j.err         
+#SBATCH --output=/scratch/rx32940/iqtree_lb.%j.out       
+#SBATCH --error=/scratch/rx32940/iqtree_lb.%j.out        
 #SBATCH --mail-user=rx32940@uga.edu
 #SBATCH --mail-type=ALL
 
@@ -26,26 +26,27 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 
 # intra-species MCL value = 2 (default)
 # to identify core-pan genome for all interrogans isolates
-cd $dir_path/pirate
-$software_path/bin/PIRATE \
--i $dir_path/prokka \
--o $dir_path/pirate \
--a -r -t 64
+# cd $dir_path/pirate
+# $software_path/bin/PIRATE \
+# -i $dir_path/prokka \
+# -o $dir_path/pirate \
+# -a -r -t 64
 
 # # parse PIRATE outputs 
-# perl PIRATE_to_roary.pl -i /scratch/rx32940/interrogans_genome/pirate/PIRATE.*.tsv -o /scratch/rx32940/interrogans_genome/pirate/roary_presence_absence
+# perl $software_path/tools/convert_format/PIRATE_to_roary.pl -i /scratch/rx32940/interrogans_genome/pirate/PIRATE.*.tsv -o /scratch/rx32940/interrogans_genome/pirate/roary_presence_absence
 
 #########################################################
 #
-# PIRATE - for core genome detection
+# IQTREE - for core genome concatenation ML tree
 #
 ##########################################################
 
 # # recontruct the ML tree with core genome concatenation produced by PIRATE
 # # this will be used in python code for plot fastGear results
-# module load IQ-TREE/1.6.5-omp
-# iqtree -nt AUTO -m MFP -pre $dir_path/iqtree/all_int_core \
-# -s $dir_path/pirate/core_alignment.fasta 
+module load IQ-TREE/1.6.5-omp
+cd $dir_path/iqtree/
+iqtree -nt AUTO -m MFP -pre $dir_path/iqtree/int_no_lb_core \
+-s $dir_path/pirate/core_alignment.fasta 
 
 
 #########################################################
