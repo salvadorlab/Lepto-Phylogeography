@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --partition=bahl_salv_p
-#SBATCH --job-name=gubbins_noref
+#SBATCH --job-name=pirate_nolb
 #SBATCH --ntasks=1                    	
 #SBATCH --cpus-per-task=64             
 #SBATCH --time=500:00:00
 #SBATCH --mem=100G
-#SBATCH --output=/scratch/rx32940/gubbins_noref.%j.out        
-#SBATCH --error=/scratch/rx32940/gubbins_noref.%j.err          
+#SBATCH --output=/scratch/rx32940/pirate_nolb.%j.out       
+#SBATCH --error=/scratch/rx32940/pirate_nolb.%j.out         
 #SBATCH --mail-user=rx32940@uga.edu
 #SBATCH --mail-type=ALL
 
@@ -26,10 +26,11 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 
 # intra-species MCL value = 2 (default)
 # to identify core-pan genome for all interrogans isolates
-# $software_path/bin/PIRATE \
-# -i $dir_path/prokka \
-# -o $dir_path/pirate \
-# -a -r -t 30
+cd $dir_path/pirate
+$software_path/bin/PIRATE \
+-i $dir_path/prokka \
+-o $dir_path/pirate \
+-a -r -t 64
 
 # # parse PIRATE outputs 
 # perl PIRATE_to_roary.pl -i /scratch/rx32940/interrogans_genome/pirate/PIRATE.*.tsv -o /scratch/rx32940/interrogans_genome/pirate/roary_presence_absence
@@ -168,11 +169,11 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 # # remove all the "weird" characters and replace them with N
 # snippy-clean_full_aln $dir_path/snippy/snps_noref_core.fasta > $dir_path/snippy/clean.full.aln
 
-# gubbins to detect recombination
-cd $dir_path/gubbins_noref
-$software_path/bin/run_gubbins.py --threads 64 \
--v -p $dir_path/gubbins_noref/all_interrogans_gubbins_noref \
-$dir_path/snippy/clean.full.aln
+# # gubbins to detect recombination
+# cd $dir_path/gubbins_noref
+# $software_path/bin/run_gubbins.py --threads 64 \
+# -v -p $dir_path/gubbins_noref/all_interrogans_gubbins_noref \
+# $dir_path/snippy/clean.full.aln
 
 # keep only the containing exclusively ACGT
 # snp-sites -c $dir_path/gubbins/all_interrogans_gubbins.filtered_polymorphic_sites.fasta > $dir_path/gubbins/clean.core.aln
