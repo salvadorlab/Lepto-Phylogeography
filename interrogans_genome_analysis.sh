@@ -1,13 +1,14 @@
 #!/bin/bash
-#PBS -q bahl_salv_q                                                          
-#PBS -N fastANI                                      
-#PBS -l nodes=1:ppn=64 -l mem=100gb                                        
-#PBS -l walltime=30:00:00                                                
-#PBS -M rx32940@uga.edu                                                  
-#PBS -m abe                                                              
-#PBS -o /scratch/rx32940                        
-#PBS -e /scratch/rx32940                        
-#PBS -j oe
+#SBATCH --partition=bahl_salv_p
+#SBATCH --job-name=gubbins_noref
+#SBATCH --ntasks=1                    	
+#SBATCH --cpus-per-task=64             
+#SBATCH --time=500:00:00
+#SBATCH --mem=100G
+#SBATCH --output=/scratch/rx32940/gubbins_noref.%j.out        
+#SBATCH --error=/scratch/rx32940/gubbins_noref.%j.err          
+#SBATCH --mail-user=rx32940@uga.edu
+#SBATCH --mail-type=ALL
 
 
 dir_path="/scratch/rx32940/interrogans_genome"
@@ -159,18 +160,19 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 # -v invert matching
 # -p pattern
 # module load seqkit/0.10.2_conda
-cat $dir_path/snippy/core.full.aln | seqkit grep -v -p Reference > $dir_path/snippy/no_ref_core.fasta 
+# cat $dir_path/snippy/core.full.aln | seqkit grep -v -p Reference > $dir_path/snippy/no_ref_core.fasta 
 
 # recall snps with snp-sites from multi-fasta alignment for snps without reference genome
-snp-sites $dir_path/snippy/snp_sites_core.fasta -o $dir_path/snippy/snps_noref_core.fasta
+# snp-sites $dir_path/snippy/snp_sites_core.fasta -o $dir_path/snippy/snps_noref_core.fasta
 
 # # remove all the "weird" characters and replace them with N
 # snippy-clean_full_aln $dir_path/snippy/snps_noref_core.fasta > $dir_path/snippy/clean.full.aln
 
 # gubbins to detect recombination
-# $software_path/bin/run_gubbins.py --threads 50 \
-# -v -p $dir_path/gubbins/all_interrogans_gubbins \
-# $dir_path/snippy/clean.full.aln
+cd $dir_path/gubbins_noref
+$software_path/bin/run_gubbins.py --threads 64 \
+-v -p $dir_path/gubbins_noref/all_interrogans_gubbins_noref \
+$dir_path/snippy/clean.full.aln
 
 # keep only the containing exclusively ACGT
 # snp-sites -c $dir_path/gubbins/all_interrogans_gubbins.filtered_polymorphic_sites.fasta > $dir_path/gubbins/clean.core.aln
@@ -180,7 +182,7 @@ snp-sites $dir_path/snippy/snp_sites_core.fasta -o $dir_path/snippy/snps_noref_c
 #
 ##########################################################
 
-$software_path/bin/fastANI --ql $dir_path/full_path_all_asm.txt \
---rl $dir_path/full_path_all_asm.txt \
--o $dir_path/fastANI/all_int_ani.out \
---matrix -t 64
+# $software_path/bin/fastANI --ql $dir_path/full_path_all_asm.txt \
+# --rl $dir_path/full_path_all_asm.txt \
+# -o $dir_path/fastANI/all_int_ani.out \
+# --matrix -t 64
