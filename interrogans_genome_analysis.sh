@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --partition=bahl_salv_p
-#SBATCH --job-name=pirate_nolb
+#SBATCH --job-name=pirate_lb
 #SBATCH --ntasks=1                    	
 #SBATCH --cpus-per-task=64             
 #SBATCH --time=500:00:00
 #SBATCH --mem=100G
-#SBATCH --output=/scratch/rx32940/pirate_nolb.%j.out       
-#SBATCH --error=/scratch/rx32940/pirate_nolb.%j.out         
+#SBATCH --output=/scratch/rx32940/pirate_lb.%j.out       
+#SBATCH --error=/scratch/rx32940/pirate_lb.%j.err         
 #SBATCH --mail-user=rx32940@uga.edu
 #SBATCH --mail-type=ALL
 
@@ -183,7 +183,8 @@ $software_path/bin/PIRATE \
 #
 ##########################################################
 
+# cd $dir_path/fastANI/
 # $software_path/bin/fastANI --ql $dir_path/full_path_all_asm.txt \
 # --rl $dir_path/full_path_all_asm.txt \
 # -o $dir_path/fastANI/all_int_ani.out \
-# --matrix -t 64
+# --matrix -t 64 > running.log
