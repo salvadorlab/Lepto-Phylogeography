@@ -43,10 +43,10 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 
 # # recontruct the ML tree with core genome concatenation produced by PIRATE
 # # this will be used in python code for plot fastGear results
-module load IQ-TREE/1.6.5-omp
-cd $dir_path/iqtree/
-iqtree -nt AUTO -m MFP -pre $dir_path/iqtree/int_no_lb_core \
--s $dir_path/pirate/core_alignment.fasta 
+# module load IQ-TREE/1.6.5-omp
+# cd $dir_path/iqtree/
+# iqtree -nt AUTO -m MFP -pre $dir_path/iqtree/int_no_lb_core \
+# -s $dir_path/pirate/core_alignment.fasta 
 
 
 #########################################################
@@ -154,7 +154,7 @@ iqtree -nt AUTO -m MFP -pre $dir_path/iqtree/int_no_lb_core \
 
 # run snippy- generate script
 # snippy_input.tab generation refer to github issue
-# snippy-multi snippy_input.tab \
+# $software_path/bin/snippy-multi $dir_path/snippy_input.tab \
 # --ref $dir_path/GCF_000092565.1_ASM9256v1_genomic.fna --cpus 64 > \
 # run_snippy.sh
 
