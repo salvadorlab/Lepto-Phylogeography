@@ -1,14 +1,14 @@
 #!/bin/bash
-#SBATCH --partition=bahl_salv_p
-#SBATCH --job-name=iqtree_lb
-#SBATCH --ntasks=1                    	
-#SBATCH --cpus-per-task=64             
-#SBATCH --time=500:00:00
-#SBATCH --mem=100G
-#SBATCH --output=/scratch/rx32940/iqtree_lb.%j.out       
-#SBATCH --error=/scratch/rx32940/iqtree_lb.%j.out        
-#SBATCH --mail-user=rx32940@uga.edu
-#SBATCH --mail-type=ALL
+# SBATCH --partition=bahl_salv_p
+# SBATCH --job-name=iqtree_lb
+# SBATCH --ntasks=1                    	
+# SBATCH --cpus-per-task=1             
+# SBATCH --time=500:00:00
+# SBATCH --mem=100G
+# SBATCH --output=/scratch/rx32940/iqtree_lb.%j.out       
+# SBATCH --error=/scratch/rx32940/iqtree_lb.%j.out        
+# SBATCH --mail-user=rx32940@uga.edu
+# SBATCH --mail-type=ALL
 
 
 dir_path="/scratch/rx32940/interrogans_genome"
@@ -60,48 +60,51 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 # mkdir folders for each gene in the fastGear folder
 
     
-# script_path="dir_path=\"/scratch/rx32940/interrogans_genome\"\n
-# software_path=\"/home/rx32940/miniconda3\"\n
-# fastGear_path=\"/home/rx32940/fastGEARpackageLinux64bit\"\n
-# matlab_path=\"/home/rx32940/MATLAB/v901\"\n
-# file_path=\"/scratch/rx32940/interrogans_genome/pirate/feature_sequences\"\n
-# LD_LIBRARY_PATH=/home/rx32940/MATLAB/v901/runtime/glnxa64:/home/rx32940/MATLAB/v901/bin/glnxa64:/home/rx32940/MATLAB/v901/sys/os/glnxa64:/home/rx32940/MATLAB/v901/sys/opengl/lib/glnxa64\n"
+script_path="dir_path=\"/scratch/rx32940/interrogans_genome\"\n
+software_path=\"/home/rx32940/miniconda3\"\n
+fastGear_path=\"/home/rx32940/fastGEARpackageLinux64bit\"\n
+matlab_path=\"/home/rx32940/MATLAB/v901\"\n
+file_path=\"/scratch/rx32940/interrogans_genome/pirate/feature_sequences\"\n
+LD_LIBRARY_PATH=/home/rx32940/MATLAB/v901/runtime/glnxa64:/home/rx32940/MATLAB/v901/bin/glnxa64:/home/rx32940/MATLAB/v901/sys/os/glnxa64:/home/rx32940/MATLAB/v901/sys/opengl/lib/glnxa64\n"
     
-# for list in $dir_path/x*;
-# do
-#     echo "create script for $list"
-#     (
-#     echo -e 
-#     job_header="#!/bin/bash\n
-#     #PBS -q batch\n
-#     #PBS -N ${list}_fastGear\n
-#     #PBS -l nodes=1:ppn=1 -l mem=30gb\n
-#     #PBS -l walltime=200:00:00\n
-#     #PBS -M rx32940@uga.edu\n
-#     #PBS -m abe\n
-#     #PBS -o /scratch/rx32940\n
-#     #PBS -e /scratch/rx32940\n
-#     #PBS -j oe\n"
-
-#     echo -e "$job_header" > $dir_path/submit_sub_fastGear.sh
-
-#     echo -e "$script_path" >> $dir_path/submit_sub_fastGear.sh
-
-#     echo -e "cat $list | xargs -I{} \
-#     $fastGear_path/run_fastGEAR.sh $matlab_path \
-#     $file_path/{}.nucleotide.fasta \
-#     $dir_path/fastGear/{}/interrogans_{}.mat \
-#     $fastGear_path/fG_input_specs.txt" >> $dir_path/submit_sub_fastGear.sh
-
-#     qsub $dir_path/submit_sub_fastGear.sh
+for list in $dir_path/x*;
+do
+    list_name=$(basename "$list")
+    echo "create script for $list"
+    (
     
-#     echo -e "submitted script for $list"
-#     ) &
-#     echo "waiting"
-#     wait
-# done
+    echo -e "in loop"
+    job_header="#!/bin/bash 
+#SBATCH --partition=batch 
+#SBATCH --job-name=$list_name 
+#SBATCH --ntasks=1 
+#SBATCH --cpus-per-task=8 
+#SBATCH --mem=50G 
+#SBATCH --time=100:00:00
+#SBATCH --output=/scratch/rx32940/$list_name.%j.out 
+#SBATCH --error=/scratch/rx32940/$list_name.%j.out 
+#SBATCH --mail-user=rx32940@uga.edu 
+#SBATCH --mail-type=ALL"
 
-# # get genes with only one sequence per loci in genes present in all 440 interrogans isolates
+    echo -e "$job_header" > $dir_path/submit_sub_fastGear.sh
+
+    echo -e "$script_path" >> $dir_path/submit_sub_fastGear.sh
+
+    echo -e "cat $list | xargs -I{} \
+    $fastGear_path/run_fastGEAR.sh $matlab_path \
+    $file_path/{}.nucleotide.fasta \
+    $dir_path/fastGear/{}/interrogans_{}.mat \
+    $fastGear_path/fG_input_specs.txt" >> $dir_path/submit_sub_fastGear.sh
+
+    sbatch $dir_path/submit_sub_fastGear.sh
+    
+    echo -e "submitted script for $list_name"
+    ) &
+    echo "waiting"
+    wait
+done
+
+# # get genes with only one sequence per loci in genes present in all 439 interrogans isolates
 # echo "" > $dir_path/one_seq_loci.txt
 # cat $dir_path/genes_in_all_int.txt |\
 # while read gene;
@@ -109,7 +112,7 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 # # echo $gene
 # n_lineage=$(cat "$dir_path"/fastGear/"$gene"/output/lineage_information.txt | wc -l)
 # # echo $n_lineage
-# if [[ "$n_lineage" -eq 441 ]]
+# if [[ "$n_lineage" -eq 440 ]]
 # then
 # echo "in"
 # echo -e $gene >> $dir_path/one_seq_loci.txt
@@ -127,7 +130,7 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 # #    module load Anaconda3/5.0.1
 # # 
 # # 3) to add gene alignment for each gene inside corresponding fatsGear gene folder
-# # cat $dir_path/all_loci_fastGear.txt | xargs -I{} cp $dir_path/pirate/feature_sequences/{}.nucleotide.fasta $dir_path/fastGear/{}/{}.fasta 
+# # cat $dir_path/genes_in_all_int.txt | xargs -I{} cp $dir_path/pirate/feature_sequences/{}.nucleotide.fasta $dir_path/fastGear/{}/{}.fasta 
 # # 
 # # 4) reformat strain name within lineage_information.txt and recombinations_recent.txt
 # # 
