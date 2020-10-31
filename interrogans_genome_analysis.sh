@@ -168,7 +168,7 @@ done
 # cat $dir_path/snippy/core.full.aln | seqkit grep -v -p Reference > $dir_path/snippy/no_ref_core.fasta 
 
 # recall snps with snp-sites from multi-fasta alignment for snps without reference genome
-# snp-sites $dir_path/snippy/snp_sites_core.fasta -o $dir_path/snippy/snps_noref_core.fasta
+# snp-sites $dir_path/snippy/no_ref_core.fasta -o $dir_path/snippy/noref_core_snps.fasta
 
 # # remove all the "weird" characters and replace them with N
 # snippy-clean_full_aln $dir_path/snippy/snps_noref_core.fasta > $dir_path/snippy/clean.full.aln
