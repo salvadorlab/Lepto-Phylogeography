@@ -14,6 +14,7 @@ library(dplyr)
 library(ggplot2)
 library(tidyr)
 library(reshape2)
+library(plotly)
 
 
 file_path <- "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Interrogans/"
@@ -36,13 +37,16 @@ colnames(fastANI) <- col_names
 # fastANI <- rbind(col_names, fastANI)
 fastANI <- pivot_longer(fastANI,-c("Sample_Names"),names_to = "Sample_Names2",values_to = "ANI", values_drop_na=TRUE)
 
-ggplot(fastANI,aes(x=Sample_Names, y=Sample_Names2,fill=ANI))+
+ani_hm <- ggplot(fastANI,aes(x=Sample_Names, y=Sample_Names2,fill=ANI))+
   geom_tile(color="white") +
    scale_fill_gradient2(low="navy", mid="white", high="red", 
                        midpoint=93, limits=c(85,100))+
-   theme(axis.text = element_text(angle = 45, vjust = 1, 
-    size = 3, hjust = 1))+
+   theme(axis.text.x = element_text( vjust = 1, 
+    size = 2, angle=90), axis.text.y = element_text(
+    size = 2))+
  coord_fixed()
+
+ggplotly(ani_hm)
 
 ggsave(paste0(file_path,"ANI_heatmap.pdf"))
 
