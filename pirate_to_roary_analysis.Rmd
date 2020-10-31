@@ -20,7 +20,7 @@ file_path <- "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Interrogans
 
 ```{r}
 # read in pirate to roary presence/absence csv
-file <- as.data.frame(read.csv(paste0(file_path,"pirate_to_roary_PA.csv")))
+file <- as.data.frame(read.csv(paste0(file_path,"roary_presence_absence.csv")))
 head(file)
 
 ```
@@ -80,6 +80,8 @@ inter_meta_2 <- inter_meta %>% mutate(Serovar_2=ifelse( grepl("serovar",biosampl
 
 # However, if the Serovar weren't labelled specifically, we will use the one defined in the biosample name
 inter_meta_2$Serovar <- ifelse(inter_meta_2$Serovar == "NA", inter_meta_2$Serovar_2, inter_meta_2$Serovar)
+
+
 # Serovar fixed
 # write.csv(inter_meta_2,paste0(file_path,"all_interrogans_metadata_440_edited.csv"))
 
@@ -101,10 +103,11 @@ rownames(abs_pres_meta) <- abs_pres_meta$BioSample.Accession
 # ggplotly(pca_plot_complete) 
 
 # remove points with no info for the specific grouping. ex. Seovar, country, Host.Name
-pca_matrix <- abs_pres_meta %>% subset(c(Serovar_2 != "NA"))
+pca_matrix <- abs_pres_meta %>% subset(c(Serovar_2 != "NA")) %>% subset( BioSample.Accession != "SAMEA864166")
+
 
 # pca analysis
-pca_pa <- prcomp( pca_matrix[-c(1:21)]) # exclude metadata columns
+pca_pa <- prcomp(pca_matrix[-c(1:22)]) # exclude metadata columns
 
 # coordinates of each isolates project on to each PC
 #head(pca_pa$x) 
@@ -120,7 +123,7 @@ pca_pa <- prcomp( pca_matrix[-c(1:21)]) # exclude metadata columns
 get_eigenvalue(pca_pa)
 # find the contribution of each variable to vairation within PC1
 PC1_contrib <-sort(get_pca_var(pca_pa)$contrib[,"Dim.1"],decreasing=TRUE)
-max(PC1_contrib) #g01151, 0.366226
+max(PC1_contrib) #g01317, 0.3673949
 
 # get genes with top contribution to variation
 top_contrib_genes <- as.data.frame(PC1_contrib)
@@ -148,7 +151,7 @@ top_contrib_gene <- left_join(top_contrib_genes, gene_names_db, by ="Gene",all=T
 
 # find the contribution of each variable to vairation within PC1
 PC2_contrib <-sort(get_pca_var(pca_pa)$contrib[,"Dim.2"],decreasing=TRUE)
-max(PC2_contrib) #g00035_2, 0.75119330  
+max(PC2_contrib) #g00158_2, 0.75325491  
 
 # get genes with top contribution to variation
 top_contrib_genes2 <- as.data.frame(PC2_contrib)
@@ -178,9 +181,9 @@ top_contrib_gene2 <- left_join(top_contrib_genes2, gene_names_db, by ="Gene",all
 fviz_eig(pca_pa) # sree plot
 # eigenvalues <1 would mean that the component actually explains less than a single # explanatory variable we discard them
 
-pca_plot <- autoplot(pca_pa, data = pca_matrix, colour = 'Serovar_2',x=1,y=2)
+pca_plot <- autoplot(pca_pa, data = pca_matrix, colour = 'serogroups',x=1,y=2)
 
-ggplotly(pca_plot)
+ggplotly(pca_plot)s
 
 ```
 
