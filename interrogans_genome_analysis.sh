@@ -2,7 +2,7 @@
 #SBATCH --partition=batch_30d
 #SBATCH --job-name=gubbins_noref
 #SBATCH --ntasks=1                      
-#SBATCH --cpus-per-task=20            
+#SBATCH --cpus-per-task=24           
 #SBATCH --time=300:00:00
 #SBATCH --mem=100G
 #SBATCH --output=/scratch/rx32940/gubbins_noref.%j.out       
@@ -180,7 +180,7 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 
 # # gubbins to detect recombination
 cd $dir_path/gubbins_noref
-$software_path/bin/run_gubbins.py --threads 64 \
+$software_path/bin/run_gubbins.py --threads 24 \
 -v -p $dir_path/gubbins_noref/all_interrogans_gubbins_noref \
 $dir_path/snippy/clean.full.noref.aln
 
