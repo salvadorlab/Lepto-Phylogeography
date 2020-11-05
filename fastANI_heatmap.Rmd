@@ -40,7 +40,7 @@ fastANI <- pivot_longer(fastANI,-c("Sample_Names"),names_to = "Sample_Names2",va
 ani_hm <- ggplot(fastANI,aes(x=Sample_Names, y=Sample_Names2,fill=ANI))+
   geom_tile(color="white") +
    scale_fill_gradient2(low="navy", mid="white", high="red", 
-                       midpoint=93, limits=c(85,100))+
+                       midpoint=87, limits=c(75,100))+
    theme(axis.text.x = element_text( vjust = 1, 
     size = 2, angle=90), axis.text.y = element_text(
     size = 2))+
