@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --partition=batch_30d
-#SBATCH --job-name=gubbins_noref
+#SBATCH --job-name=iqtree-norecomb
 #SBATCH --ntasks=1                      
 #SBATCH --cpus-per-task=24           
 #SBATCH --time=300:00:00
 #SBATCH --mem=100G
-#SBATCH --output=/scratch/rx32940/gubbins_noref.%j.out       
-#SBATCH --error=/scratch/rx32940/gubbins_noref.%j.out        
+#SBATCH --output=/scratch/rx32940/iqtree-norecomb.%j.out       
+#SBATCH --error=/scratch/rx32940/iqtree-norecomb.%j.out        
 #SBATCH --mail-user=rx32940@uga.edu
 #SBATCH --mail-type=ALL
 
@@ -179,10 +179,20 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 # cat $dir_path/snippy/clean.full.aln | seqkit grep -v -p Reference > $dir_path/snippy/clean.full.noref.aln 
 
 # # gubbins to detect recombination
-cd $dir_path/gubbins_noref
-$software_path/bin/run_gubbins.py --threads 24 \
--v -p $dir_path/gubbins_noref/all_interrogans_gubbins_noref \
-$dir_path/snippy/clean.full.noref.aln
+# cd $dir_path/gubbins_noref
+# $software_path/bin/run_gubbins.py --threads 24 \
+# -v -p $dir_path/gubbins_noref/all_interrogans_gubbins_noref \
+# $dir_path/snippy/clean.full.noref.aln
+
+
+# get the snps from recombination free regions
+# snp-sites -c all_interrogans_gubbins_noref.filtered_polymorphic_sites.fasta > snps_after_gubbins_aln.fasta
+
+# reconstruct a phylogenetic tree with recombination free regions' SNPs
+
+module load IQ-TREE/1.6.12-intel-2019b
+iqtree -m MFP+ASC -nt AUTO -pre $dir_path/iqtree/snps_noRecom -s $dir_path/gubbins_noref/snps_after_gubbins_aln.fasta
+
 
 
 #########################################################
