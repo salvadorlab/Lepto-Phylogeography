@@ -1,12 +1,12 @@
 #!/bin/bash
-#SBATCH --partition=batch_30d
-#SBATCH --job-name=pirate_sero
+#SBATCH --partition=batch
+#SBATCH --job-name=snippy_sero
 #SBATCH --ntasks=1                      
-#SBATCH --cpus-per-task=24           
-#SBATCH --time=300:00:00
+#SBATCH --cpus-per-task=12           
+#SBATCH --time=100:00:00
 #SBATCH --mem=100G
-#SBATCH --output=/scratch/rx32940/pirate_sero.%j.out       
-#SBATCH --error=/scratch/rx32940/pirate_sero.%j.out        
+#SBATCH --output=/scratch/rx32940/snippy_sero.%j.out       
+#SBATCH --error=/scratch/rx32940/snippy_sero.%j.out        
 #SBATCH --mail-user=rx32940@uga.edu
 #SBATCH --mail-type=ALL
 
@@ -26,11 +26,11 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 
 # intra-species MCL value = 2 (default)
 # to identify core-pan genome for all interrogans isolates
-cd $dir_path/pirate_sero
-$software_path/bin/PIRATE \
--i $dir_path/pirate_sero/prokka \
--o $dir_path/pirate_sero/out \
--a -r -t 24
+# cd $dir_path/pirate_sero
+# $software_path/bin/PIRATE \
+# -i $dir_path/pirate_sero/prokka \
+# -o $dir_path/pirate_sero/out \
+# -a -r -t 24
 
 # # parse PIRATE outputs 
 # perl $software_path/tools/convert_format/PIRATE_to_roary.pl -i /scratch/rx32940/interrogans_genome/pirate/PIRATE.*.tsv -o /scratch/rx32940/interrogans_genome/pirate/roary_presence_absence
@@ -158,9 +158,10 @@ $software_path/bin/PIRATE \
 
 # run snippy- generate script
 # snippy_input.tab generation refer to github issue
-# $software_path/bin/snippy-multi $dir_path/snippy_input.tab \
-# --ref $dir_path/GCF_000092565.1_ASM9256v1_genomic.fna --cpus 64 > \
-# run_snippy.sh
+cd $dir_path/pirate_sero/gubbins/snippy
+$software_path/bin/snippy-multi $dir_path/pirate_sero/snippy_input.tab \
+--ref $dir_path/GCF_000092565.1_ASM9256v1_genomic.fna --cpus 12 > \
+run_snippy.sh
 
 # combine all whole genome alignment with all isolates with the reference genome
 # mask the phage region with PHASTER in the reference genome
