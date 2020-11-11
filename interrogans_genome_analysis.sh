@@ -1,14 +1,14 @@
 #!/bin/bash
 #SBATCH --partition=batch
-#SBATCH --job-name=scoary_sero
-#SBATCH --ntasks=1                      
-#SBATCH --cpus-per-task=1           
+#SBATCH --job-name=snippy_sero
+#SBATCH --ntasks=1                    	
+#SBATCH --cpus-per-task=12             
 #SBATCH --time=100:00:00
-#SBATCH --mem=50G
-#SBATCH --output=/scratch/rx32940/scoary_sero.%j.out       
-#SBATCH --error=/scratch/rx32940/scoary_sero.%j.out        
+#SBATCH --mem=10G
+#SBATCH --output=/scratch/rx32940/snippy_sero.%j.out       
+#SBATCH --error=/scratch/rx32940/snippy_sero.%j.out        
 #SBATCH --mail-user=rx32940@uga.edu
-#SBATCH --mail-type=ALL
+#SBATCH --mail-type=ALL   
 
 
 dir_path="/scratch/rx32940/interrogans_genome"
@@ -50,7 +50,7 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 
 ## Do Scoary GWAS analysis with presence/absence of the gene
 cd $dir_path/pirate_sero/scoary
-/home/rx32940/.local/bin/scoary -g $dir_path/pirate_sero/out/pirate_roary_pres_abs.csv -t $dir_path/pirate_sero/scoary/scoary_trait_pres_abs.csv \
+$software_path/bin/scoary -g $dir_path/pirate_sero/out/pirate_roary_pres_abs.csv -t $dir_path/pirate_sero/scoary/scoary_trait_pres_abs.csv \
 --collapse -n $dir_path/iqtree/int_sero_iqtree.newick
 
 #########################################################
