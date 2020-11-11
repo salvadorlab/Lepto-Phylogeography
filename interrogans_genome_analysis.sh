@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --partition=batch
-#SBATCH --job-name=snippy_sero
+#SBATCH --job-name=scoary_sero
 #SBATCH --ntasks=1                      
-#SBATCH --cpus-per-task=12           
+#SBATCH --cpus-per-task=1           
 #SBATCH --time=100:00:00
-#SBATCH --mem=100G
-#SBATCH --output=/scratch/rx32940/snippy_sero.%j.out       
-#SBATCH --error=/scratch/rx32940/snippy_sero.%j.out        
+#SBATCH --mem=50G
+#SBATCH --output=/scratch/rx32940/scoary_sero.%j.out       
+#SBATCH --error=/scratch/rx32940/scoary_sero.%j.out        
 #SBATCH --mail-user=rx32940@uga.edu
 #SBATCH --mail-type=ALL
 
@@ -33,7 +33,7 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 # -a -r -t 24
 
 # # parse PIRATE outputs 
-# perl $software_path/tools/convert_format/PIRATE_to_roary.pl -i /scratch/rx32940/interrogans_genome/pirate/PIRATE.*.tsv -o /scratch/rx32940/interrogans_genome/pirate/roary_presence_absence
+# perl $software_path/tools/convert_format/PIRATE_to_roary.pl -i /scratch/rx32940/interrogans_genome/pirate_sero/out/PIRATE.*.tsv -o /scratch/rx32940/interrogans_genome/pirate_sero/out/pirate_roary_pres_abs
 
 #########################################################
 #
@@ -45,9 +45,13 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 # # this will be used in python code for plot fastGear results
 # module load IQ-TREE/1.6.5-omp
 # cd $dir_path/iqtree/
-# iqtree -nt AUTO -m MFP -pre $dir_path/iqtree/int_no_lb_core \
-# -s $dir_path/pirate/core_alignment.fasta 
+# iqtree -nt AUTO -m MFP -pre $dir_path/iqtree/int_sero_iqtree \
+# -s $dir_path/pirate_sero/out/core_alignment.fasta 
 
+## Do Scoary GWAS analysis with presence/absence of the gene
+cd $dir_path/pirate_sero/scoary
+/home/rx32940/.local/bin/scoary -g $dir_path/pirate_sero/out/pirate_roary_pres_abs.csv -t $dir_path/pirate_sero/scoary/scoary_trait_pres_abs.csv \
+--collapse -n $dir_path/iqtree/int_sero_iqtree.newick
 
 #########################################################
 #
@@ -157,11 +161,11 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 ##########################################################
 
 # run snippy- generate script
-# snippy_input.tab generation refer to github issue
-cd $dir_path/pirate_sero/gubbins/snippy
-$software_path/bin/snippy-multi $dir_path/pirate_sero/snippy_input.tab \
---ref $dir_path/GCF_000092565.1_ASM9256v1_genomic.fna --cpus 12 > \
-run_snippy.sh
+# # snippy_input.tab generation refer to github issue
+# cd $dir_path/pirate_sero/gubbins/snippy
+# $software_path/bin/snippy-multi $dir_path/pirate_sero/snippy_input.tab \
+# --ref $dir_path/GCF_000092565.1_ASM9256v1_genomic.fna --cpus 12 > \
+# run_snippy.sh
 
 # combine all whole genome alignment with all isolates with the reference genome
 # mask the phage region with PHASTER in the reference genome
@@ -180,10 +184,10 @@ run_snippy.sh
 # cat $dir_path/snippy/clean.full.aln | seqkit grep -v -p Reference > $dir_path/snippy/clean.full.noref.aln 
 
 # # gubbins to detect recombination
-# cd $dir_path/gubbins_noref
+# cd $dir_path/pirate_sero/gubbins
 # $software_path/bin/run_gubbins.py --threads 24 \
-# -v -p $dir_path/gubbins_noref/all_interrogans_gubbins_noref \
-# $dir_path/snippy/clean.full.noref.aln
+# -v -p $dir_path/pirate_sero/gubbins/interrogans_sero \
+# $dir_path/pirate_sero/gubbins/snippy/clean.full.noref.aln
 
 
 # get the snps from recombination free regions
