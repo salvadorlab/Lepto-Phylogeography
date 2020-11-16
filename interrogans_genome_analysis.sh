@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --partition=batch
-#SBATCH --job-name=snippy_sero
+#SBATCH --job-name=scoary_sero
 #SBATCH --ntasks=1                    	
-#SBATCH --cpus-per-task=12             
+#SBATCH --cpus-per-task=24             
 #SBATCH --time=100:00:00
-#SBATCH --mem=10G
-#SBATCH --output=/scratch/rx32940/snippy_sero.%j.out       
-#SBATCH --error=/scratch/rx32940/snippy_sero.%j.out        
+#SBATCH --mem=100G
+#SBATCH --output=/scratch/rx32940/scoary_sero.%j.out       
+#SBATCH --error=/scratch/rx32940/scoary_sero.%j.out        
 #SBATCH --mail-user=rx32940@uga.edu
 #SBATCH --mail-type=ALL   
 
@@ -50,8 +50,10 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 
 ## Do Scoary GWAS analysis with presence/absence of the gene
 cd $dir_path/pirate_sero/scoary
-$software_path/bin/scoary -g $dir_path/pirate_sero/out/pirate_roary_pres_abs.csv -t $dir_path/pirate_sero/scoary/scoary_trait_pres_abs.csv \
---collapse -n $dir_path/iqtree/int_sero_iqtree.newick
+$software_path/bin/scoary -g $dir_path/pirate_sero/out/pirate_roary_pres_abs.csv -t $dir_path/pirate_sero/scoary/scoary_serogroup_trait.csv \
+--collapse -n $dir_path/iqtree/int_sero_iqtree.newick --threads 24 \
+-o $dir_path/pirate_sero/scoary/scoary_serogroup_result -e 10000 \
+-c I BH P -p 0.05
 
 #########################################################
 #
