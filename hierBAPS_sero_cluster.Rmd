@@ -1,0 +1,65 @@
+---
+title: "fastbaps"
+author: "Rachel Xu"
+date: "11/9/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(reshape2)
+library(plyr)
+library(plotly)
+library(fastbaps)
+library(ape)
+library(phytools)
+library(ggtree)
+```
+
+
+# use recombination free msa for baps clustering (Gubbins) 
+```{r}
+
+file_path <- "/Users/rachel/Desktop/"
+
+sparse.data <- import_fasta_sparse_nt(paste0(file_path,"interrogans_sero.filtered_polymorphic_sites.fasta"))
+sparse.data <- optimise_prior(sparse.data, type = "baps")
+baps.hc <- fast_baps(sparse.data)
+best.partition <- best_baps_partition(sparse.data, baps.hc)
+iqtree <- read.newick(paste0(file_path, "interrogans_sero.final_tree.newick"))
+plot.df <- data.frame(id = colnames(sparse.data$snp.matrix), fastbaps = best.partition, 
+    stringsAsFactors = FALSE)
+gg <- ggtree(iqtree)
+f2 <- facet_plot(gg, panel = "fastbaps", data = plot.df, geom = geom_tile, aes(x = fastbaps), 
+    color = "blue")
+f2
+```
+# use core gene concatenation alignment for baps clusering
+```{r}
+
+
+sparse.data <- import_fasta_sparse_nt(paste0(file_path,"core_alignment.fasta"))
+sparse.data <- optimise_prior(sparse.data, type = "baps")
+
+best.partition <- best_baps_partition(sparse.data, baps.hc)
+iqtree <- read.newick(paste0(file_path, "int_sero_iqtree.newick"))
+plot.df <- data.frame(id = colnames(sparse.data$snp.matrix), fastbaps = best.partition, 
+    stringsAsFactors = FALSE)
+gg <- ggtree(iqtree)
+f2 <- facet_plot(gg, panel = "fastbaps", data = plot.df, geom = geom_tile, aes(x = fastbaps), 
+    color = "blue")
+f2
+
+```
+
+# combine baps clustering to metadata
+```{r}
+dropbox_path <- "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Interrogans/"
+metadata <- read.csv(paste0(dropbox_path, "all_interrogans_metadata_440_edited.csv"))
+
+baps_gubbins <- data.frame(best.partition) %>% mutate(BioSample.Accession = rownames(.)) %>% rename(gubbins_baps = best.partition )
+
+join(metadata, baps_gubbins) %>% subset(serogroups != "NA" & BioSample.Accession != "SAMEA864166")
+
+```

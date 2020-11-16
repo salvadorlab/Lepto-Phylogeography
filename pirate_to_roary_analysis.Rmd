@@ -14,13 +14,18 @@ library(dplyr)
 library(reshape2)
 library(plyr)
 library(plotly)
+library(ggfortify)
+library(factoextra)
+library(tidyverse)
 
-file_path <- "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Interrogans/"
+
+# file_path <- "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Interrogans/"
+file_path <- "/Users/rachel/Desktop/"
 ```
 
 ```{r}
 # read in pirate to roary presence/absence csv
-file <- as.data.frame(read.csv(paste0(file_path,"roary_presence_absence.csv")))
+file <- as.data.frame(read.csv(paste0(file_path,"pirate_roary_pres_abs.csv")))
 head(file)
 
 ```
@@ -57,8 +62,7 @@ dev.off()
 
 ```{r}
 # # clean up the metadata files
-# library(ggfortify)
-# library(factoextra)
+
 # 
 # 
 # # read metadata for all samples
@@ -90,12 +94,14 @@ dev.off()
 ```
 ### Merge metadata of the isolates with gene presence/absence profile
 ```{r}
-inter_meta_2 <- read.csv(paste0(file_path,"all_interrogans_metadata_440_edited.csv"))
+inter_meta_2 <- read.csv("/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Interrogans/all_interrogans_metadata_440_edited.csv")
 
 # merge matrix with the metadata
 reversed_ap_1 <- as.data.frame(reversed_ap) # reversed_ap were matrix, now to df
+write.csv(reversed_ap_1, paste0(file_path,"scoary_trait_pres_abs.csv"), sep=",", quote = FALSE)
+
 reversed_ap_1$BioSample.Accession <- rownames(reversed_ap)
-abs_pres_meta <- join(inter_meta_2, reversed_ap_1, by="BioSample.Accession")
+abs_pres_meta <- right_join(inter_meta_2, reversed_ap_1, by="BioSample.Accession")
 rownames(abs_pres_meta) <- abs_pres_meta$BioSample.Accession
 ```
 ### PCA ANAlYSIS
@@ -110,13 +116,17 @@ rownames(abs_pres_meta) <- abs_pres_meta$BioSample.Accession
 # remove points with no info for the specific grouping. ex. Seovar, country, Host.Name
 pca_matrix <- abs_pres_meta %>% subset(c(serogroups != "NA")) %>% subset( BioSample.Accession != "SAMEA864166")
 
+# write.csv(pca_matrix$BioSample.Accession,paste0(file_path,"sero_avail_isolates.txt",sep="\n"), quote = FALSE, row.names = FALSE, col.names = FALSE)
 
 # pca analysis
 pca_pa <- prcomp(pca_matrix[-c(1:22)]) # exclude metadata columns
 
+# get the metadata
+metadata <- factor(pca_matrix$serogroups)
+
 # coordinates of each isolates project on to each PC
 #head(pca_pa$x) 
-
+unique(metadata)
 
 ```
 ### identify the gene contribute most variation 
@@ -191,8 +201,26 @@ pca_plot <- autoplot(pca_pa, data = pca_matrix, colour = 'serogroups',x=1,y=3)+
 pca_plot
 ggplotly(pca_plot)
 
+# 3d plots
+pca_coord <- as.data.frame(pca_pa$x)
+
+plot_ly(pca_coord,x=pca_coord$PC1,y=pca_coord$PC2,z=pca_coord$PC3,color = pca_matrix$serogroups)
+
+pca_matrix$serogroups
 ```
 
+### organzing serogroups into trait table for SCOARY
+```{r}
+
+serogroup_trait <- inter_meta_2 %>% select(c("BioSample.Accession", "serogroups")) %>% subset(serogroups != "NA" & BioSample.Accession != "SAMEA864166") %>% mutate(values= 1) %>% 
+  pivot_wider(BioSample.Accession, names_from = serogroups, values_from = values)
+
+serogroup_trait[is.na(serogroup_trait)] <- 0
+
+
+
+write.csv(serogroup_trait, paste0(file_path, "scoary_serogroup_trait.csv"), sep = ",", row.names = FALSE)
+```
 
 ```{r}
 # number of total genomes
