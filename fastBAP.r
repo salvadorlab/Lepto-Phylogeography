@@ -11,7 +11,7 @@ setwd("/scratch/rx32940/interrogans_genome/pirate_sero/")
 
 sparse.data <- import_fasta_sparse_nt("out/core_alignment.fasta")
 sparse.data <- optimise_prior(sparse.data, type = "baps")
-
+baps.hc <- fast_baps(sparse.data)
 best.partition <- best_baps_partition(sparse.data, baps.hc)
 iqtree <- read.newick( "../iqtree/int_sero_iqtree.newick")
 plot.df <- data.frame(id = colnames(sparse.data$snp.matrix), fastbaps = best.partition, 
