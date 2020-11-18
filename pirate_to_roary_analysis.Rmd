@@ -20,7 +20,7 @@ library(tidyverse)
 
 
 # file_path <- "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Interrogans/"
-file_path <- "/Users/rachel/Desktop/"
+file_path <- "/Users/rachel/Desktop/workdir/"
 ```
 
 ```{r}
@@ -119,7 +119,7 @@ pca_matrix <- abs_pres_meta %>% subset(c(serogroups != "NA")) %>% subset( BioSam
 # write.csv(pca_matrix$BioSample.Accession,paste0(file_path,"sero_avail_isolates.txt",sep="\n"), quote = FALSE, row.names = FALSE, col.names = FALSE)
 
 # pca analysis
-pca_pa <- prcomp(pca_matrix[-c(1:22)]) # exclude metadata columns
+pca_pa <- prcomp(pca_matrix[-c(1:25)]) # exclude metadata columns
 
 # get the metadata
 metadata <- factor(pca_matrix$serogroups)
@@ -219,7 +219,7 @@ serogroup_trait[is.na(serogroup_trait)] <- 0
 
 
 
-write.csv(serogroup_trait, paste0(file_path, "scoary_serogroup_trait.csv"), sep = ",", row.names = FALSE)
+# write.csv(serogroup_trait, paste0(file_path, "scoary_serogroup_trait.csv"), sep = ",", row.names = FALSE)
 ```
 
 ```{r}
@@ -259,6 +259,7 @@ melt_summary_table <- melt(summary_table)
 melt_summary_table <- melt_summary_table[order(melt_summary_table$value),]
 ```
 
+# Plot Total gene statistics
 ```{r}
 
 # plot summary table
@@ -268,5 +269,56 @@ p1 <- ggplot(melt_summary_table, aes(x = reorder(Var2, value), y = value)) +
           xlab("Genomes") +
           ylab("Count") +
           coord_flip()
-ggsave(paste0(file_path, "all_lepto_genome_stat.pdf"),p1)
+p1
+
+
+# ggsave(paste0(file_path, "all_lepto_genome_stat.pdf"),p1)
+```
+
+# plot group by serotypes to observe gene reduction and core gene counts
+```{r}
+
+# Plot Number of total genes statistics 
+Total_genes <- melt_summary_table %>% subset(c(Var1 == "Total_genes")) %>% select(-c(Var1))
+sero_metadata <- inter_meta_2 %>% select(c(BioSample.Accession, Serovar_2, serogroups, Gubbins_BAPS)) %>% subset(serogroups != "NA" & BioSample.Accession != "SAMEA864166") %>% rename(Var2 = BioSample.Accession)
+
+Total_genes <- left_join(sero_metadata, Total_genes)
+
+p2 <- ggplot(Total_genes, aes(x = as.factor(serogroups), y = value)) +
+          geom_boxplot() + 
+          xlab("Genomes") +
+          ylab("Count") +
+          coord_flip()
+          
+p2
+
+
+# Plot Number of cores genes statistics 
+Total_genes <- melt_summary_table %>% subset(c(Var1 == "Core_genes")) %>% select(-c(Var1))
+sero_metadata <- inter_meta_2 %>% select(c(BioSample.Accession, Serovar_2, serogroups, Gubbins_BAPS)) %>% subset(serogroups != "NA" & BioSample.Accession != "SAMEA864166") %>% rename(Var2 = BioSample.Accession)
+
+core_genes <- left_join(sero_metadata, Total_genes)
+
+p3 <- ggplot(core_genes, aes(x = as.factor(serogroups), y = value)) +
+          geom_boxplot() + 
+          xlab("Genomes") +
+          ylab("Count") +
+          coord_flip()
+          
+p3
+
+# Plot Number of cores genes statistics 
+Total_genes <- melt_summary_table %>% subset(c(Var1 == "Unique_genes")) %>% select(-c(Var1))
+sero_metadata <- inter_meta_2 %>% select(c(BioSample.Accession, Serovar_2, serogroups, Gubbins_BAPS)) %>% subset(serogroups != "NA" & BioSample.Accession != "SAMEA864166") %>% rename(Var2 = BioSample.Accession)
+
+unique_genes <- left_join(sero_metadata, Total_genes)
+
+p4 <- ggplot(unique_genes, aes(x = as.factor(Gubbins_BAPS), y = value)) +
+          geom_boxplot() + 
+          xlab("Genomes") +
+          ylab("Count") +
+          coord_flip()
+          
+p4
+
 ```

@@ -21,34 +21,38 @@ library(ggtree)
 # use recombination free msa for baps clustering (Gubbins) 
 ```{r}
 
-file_path <- "/Users/rachel/Desktop/"
+file_path <- "/Users/rachel/Desktop/workdir/"
 
 sparse.data <- import_fasta_sparse_nt(paste0(file_path,"interrogans_sero.filtered_polymorphic_sites.fasta"))
 sparse.data <- optimise_prior(sparse.data, type = "baps")
 baps.hc <- fast_baps(sparse.data)
 best.partition <- best_baps_partition(sparse.data, baps.hc)
-iqtree <- read.newick(paste0(file_path, "interrogans_sero.final_tree.newick"))
-plot.df <- data.frame(id = colnames(sparse.data$snp.matrix), fastbaps = best.partition, 
-    stringsAsFactors = FALSE)
+iqtree <- read.newick(paste0(file_path, "int_sero_iqtree.newick"))
+plot.df <- data.frame(id = colnames(sparse.data$snp.matrix), fastbaps = best.partition, stringsAsFactors = FALSE)
 gg <- ggtree(iqtree)
-f2 <- facet_plot(gg, panel = "fastbaps", data = plot.df, geom = geom_tile, aes(x = fastbaps), 
-    color = "blue")
+f2 <- facet_plot(gg, panel = "Gubbins", data = plot.df, geom = geom_tile, aes(x = fastbaps), color = "blue")
 f2
+
 ```
 # use core gene concatenation alignment for baps clusering
 ```{r}
 
 
-sparse.data <- import_fasta_sparse_nt(paste0(file_path,"core_alignment.fasta"))
-sparse.data <- optimise_prior(sparse.data, type = "baps")
-baps.hc <- fast_baps(sparse.data)
-best.partition <- best_baps_partition(sparse.data, baps.hc)
-iqtree <- read.newick(paste0(file_path, "int_sero_iqtree.newick"))
-plot.df <- data.frame(id = colnames(sparse.data$snp.matrix), fastbaps = best.partition, 
-    stringsAsFactors = FALSE)
-gg <- ggtree(iqtree)
-f2 <- facet_plot(gg, panel = "fastbaps", data = plot.df, geom = geom_tile, aes(x = fastbaps), 
-    color = "blue")
+# read pirate baps result from sapelo2, alignment too big to run locally
+best.partition_pirate <- read.csv(paste0(file_path, "pirate_baps_for_each_acc.csv")) %>% select(-c("X"))
+# renumber the cluster so the Gubbins clusters and PIRATE clusters are consistent 
+best.partition_pirate$gubbins_baps[best.partition_pirate$gubbins_baps== 3] <- 7
+best.partition_pirate$gubbins_baps[best.partition_pirate$gubbins_baps== 2] <- 3
+best.partition_pirate$gubbins_baps[best.partition_pirate$gubbins_baps== 1] <- 2
+best.partition_pirate$gubbins_baps[best.partition_pirate$gubbins_baps== 7] <- 1
+best.partition_pirate$gubbins_baps[best.partition_pirate$gubbins_baps== 6] <- 7
+best.partition_pirate$gubbins_baps[best.partition_pirate$gubbins_baps== 5] <- 6
+best.partition_pirate$gubbins_baps[best.partition_pirate$gubbins_baps== 7] <- 5
+
+plot.df <- plot.df %>% mutate(fastbaps2=best.partition_pirate$gubbins_baps)
+
+f2 <- facet_plot(f2, panel = "PIRATE", data = plot.df, geom = geom_tile, 
+    aes(x = fastbaps2), color = "green")
 f2
 
 ```
@@ -58,8 +62,42 @@ f2
 dropbox_path <- "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Interrogans/"
 metadata <- read.csv(paste0(dropbox_path, "all_interrogans_metadata_440_edited.csv"))
 
-baps_gubbins <- data.frame(best.partition) %>% mutate(BioSample.Accession = rownames(.)) %>% rename(gubbins_baps = best.partition )
+baps_cluster <- plot.df %>% rename(Gubbins_BAPS = fastbaps, PIRATE_BAPS = fastbaps2,BioSample.Accession =id )
+combined <- join(metadata, baps_cluster) #%>% subset(serogroups != "NA" & BioSample.Accession != "SAMEA864166")
+combined
+# write.csv(combined, paste0(dropbox_path,"all_interrogans_metadata_440_edited.csv" ))
 
-join(metadata, baps_gubbins) %>% subset(serogroups != "NA" & BioSample.Accession != "SAMEA864166")
+```
+
+# identify serogroups within ithe BAP clusters
+```{r}
+print("BAP 1: ")
+table(combined %>% subset(Gubbins_BAPS == 1) %>% select(c("serogroups"))) # Icterohaemorrhagiae 93/ Canicola 1
+print("BAP 2: ")
+table(combined %>% subset(Gubbins_BAPS == 2) %>% select(c("serogroups"))) # Australis 3 (Oceania endmic serovars)
+print("BAP 3: ")
+table(combined %>% subset(Gubbins_BAPS == 3) %>% select(c("serogroups"))) # Autumanalis 74 T34 Thailand outbreak
+print("BAP 4: ")
+table(combined %>% subset(Gubbins_BAPS == 4) %>% select(c("serogroups"))) # Pomona 24/ Canicola 13/ Hebdomanis 6/ Autumanlis & Icterohaemorrhagiae 1
+print("BAP 5: ")
+table(combined %>% subset(Gubbins_BAPS == 5) %>% select(c("serogroups"))) # Canicola 10/ Grippotyphosa 5
+print("BAP 6: ")
+table(combined %>% subset(Gubbins_BAPS == 6) %>% select(c("serogroups"))) # Grippotyphosa 16/ Australis 16/ pyrogenes 12/ Sejroe 7/ Bataviae 6/ Autumnalis 4/ Icterhaemorrhagiae 3/ Djasiman 2/ Canicola 1
+```
+
+# identify serovars within the BAP clusters
+```{r}
+print("BAP 1: ")
+table(combined %>% subset(Gubbins_BAPS == 1) %>% select(c("Serovar_2")))
+print("BAP 2: ")
+table(combined %>% subset(Gubbins_BAPS == 2) %>% select(c("Serovar_2")))
+print("BAP 3: ")
+table(combined %>% subset(Gubbins_BAPS == 3) %>% select(c("Serovar_2")))
+print("BAP 4: ")
+table(combined %>% subset(Gubbins_BAPS == 4) %>% select(c("Serovar_2")))
+print("BAP 5: ")
+table(combined %>% subset(Gubbins_BAPS == 5) %>% select(c("Serovar_2")))
+print("BAP 6: ")
+table(combined %>% subset(Gubbins_BAPS == 6) %>% select(c("Serovar_2")))
 
 ```
