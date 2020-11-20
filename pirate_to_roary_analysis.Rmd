@@ -1,6 +1,8 @@
 ---
 title: "Parse_roary_pre/abs"
-output: pdf_document
+author: "Rachel Xu"
+date: "10/30/2020"
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -17,6 +19,8 @@ library(plotly)
 library(ggfortify)
 library(factoextra)
 library(tidyverse)
+library(rstatix)
+library(magrittr)
 
 
 # file_path <- "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Interrogans/"
@@ -26,7 +30,7 @@ file_path <- "/Users/rachel/Desktop/workdir/"
 ```{r}
 # read in pirate to roary presence/absence csv
 file <- as.data.frame(read.csv(paste0(file_path,"pirate_roary_pres_abs.csv")))
-head(file)
+# head(file)
 
 ```
 
@@ -135,7 +139,7 @@ unique(metadata)
 ##### in PC1 ###################
 
 # An eigenvalue is a number, telling you how much variance there is in the data in that direction. The eigenvector with the highest eigenvalue is therefore the principal component
-get_eigenvalue(pca_pa)
+# get_eigenvalue(pca_pa)
 # find the contribution of each variable to vairation within PC1
 PC1_contrib <-sort(get_pca_var(pca_pa)$contrib[,"Dim.1"],decreasing=TRUE)
 max(PC1_contrib) #g01317, 0.3673949
@@ -206,7 +210,7 @@ pca_coord <- as.data.frame(pca_pa$x)
 
 plot_ly(pca_coord,x=pca_coord$PC1,y=pca_coord$PC2,z=pca_coord$PC3,color = pca_matrix$serogroups)
 
-pca_matrix$serogroups
+# pca_matrix$serogroups
 ```
 
 ### organzing serogroups into trait table for SCOARY
@@ -222,6 +226,8 @@ serogroup_trait[is.na(serogroup_trait)] <- 0
 # write.csv(serogroup_trait, paste0(file_path, "scoary_serogroup_trait.csv"), sep = ",", row.names = FALSE)
 ```
 
+
+# Summary gene staistics for each isolates
 ```{r}
 # number of total genomes
 genomes_count <- length(colnames(a_p_matrix))
@@ -261,17 +267,19 @@ melt_summary_table <- melt_summary_table[order(melt_summary_table$value),]
 
 # Plot Total gene statistics
 ```{r}
-
+sero_metadata <- inter_meta_2 %>% select(c(BioSample.Accession, Serovar_2, serogroups, Gubbins_BAPS)) %>% subset(serogroups != "NA" & BioSample.Accession != "SAMEA864166") %>% rename(Var2 = BioSample.Accession)
+melt_summary_table <- right_join(sero_metadata, melt_summary_table)
 # plot summary table
-p1 <- ggplot(melt_summary_table, aes(x = reorder(Var2, value), y = value)) + 
+p1 <- ggplot(melt_summary_table, aes(x = reorder(Var2,value), y = value, fill=serogroups, group=serogroups)) + 
           geom_bar( stat = 'identity') + 
           facet_grid(. ~ Var1, scales = "free_x") + 
           xlab("Genomes") +
           ylab("Count") +
-          coord_flip()
+          coord_flip()+
+  theme(axis.text.y=element_text(size=6), axis.text.x=element_text(angle=90))
 p1
-
-
+# melt_summary_table
+# ggplotly(p1)
 # ggsave(paste0(file_path, "all_lepto_genome_stat.pdf"),p1)
 ```
 
@@ -279,8 +287,9 @@ p1
 ```{r}
 
 # Plot Number of total genes statistics 
+# change different grouping in ggplot
 Total_genes <- melt_summary_table %>% subset(c(Var1 == "Total_genes")) %>% select(-c(Var1))
-sero_metadata <- inter_meta_2 %>% select(c(BioSample.Accession, Serovar_2, serogroups, Gubbins_BAPS)) %>% subset(serogroups != "NA" & BioSample.Accession != "SAMEA864166") %>% rename(Var2 = BioSample.Accession)
+
 
 Total_genes <- left_join(sero_metadata, Total_genes)
 
@@ -294,10 +303,10 @@ p2
 
 
 # Plot Number of cores genes statistics 
-Total_genes <- melt_summary_table %>% subset(c(Var1 == "Core_genes")) %>% select(-c(Var1))
+core_genes <- melt_summary_table %>% subset(c(Var1 == "Core_genes")) %>% select(-c(Var1))
 sero_metadata <- inter_meta_2 %>% select(c(BioSample.Accession, Serovar_2, serogroups, Gubbins_BAPS)) %>% subset(serogroups != "NA" & BioSample.Accession != "SAMEA864166") %>% rename(Var2 = BioSample.Accession)
 
-core_genes <- left_join(sero_metadata, Total_genes)
+core_genes <- left_join(sero_metadata, core_genes)
 
 p3 <- ggplot(core_genes, aes(x = as.factor(serogroups), y = value)) +
           geom_boxplot() + 
@@ -307,18 +316,154 @@ p3 <- ggplot(core_genes, aes(x = as.factor(serogroups), y = value)) +
           
 p3
 
-# Plot Number of cores genes statistics 
-Total_genes <- melt_summary_table %>% subset(c(Var1 == "Unique_genes")) %>% select(-c(Var1))
+# Plot Number of unique genes statistics 
+unique_genes <- melt_summary_table %>% subset(c(Var1 == "Unique_genes")) %>% select(-c(Var1))
 sero_metadata <- inter_meta_2 %>% select(c(BioSample.Accession, Serovar_2, serogroups, Gubbins_BAPS)) %>% subset(serogroups != "NA" & BioSample.Accession != "SAMEA864166") %>% rename(Var2 = BioSample.Accession)
 
-unique_genes <- left_join(sero_metadata, Total_genes)
+unique_genes <- left_join(sero_metadata, unique_genes)
 
-p4 <- ggplot(unique_genes, aes(x = as.factor(Gubbins_BAPS), y = value)) +
+p4 <- ggplot(unique_genes, aes(x = as.factor(serogroups), y = value)) +
           geom_boxplot() + 
           xlab("Genomes") +
           ylab("Count") +
           coord_flip()
           
 p4
+
+
+```
+
+
+# Test for significant differences between each groups
+
+I. Only shows at least two groups are significantly different, but won't show which groups are different from each other
+
+   1) Parametric **(ANOVA)** 
+   
+     i. parametric assumes normal distribution
+     ii. and homogenity of vairance (**Levene's test**)
+     iii. **outliers strongly bias** the result to reject null hypothesis
+     iv. individuals within each group need to be independent
+     
+  2) VS. UnParamatric **(kruskal.test)** Test
+   
+     i do not assumes normal distribution
+     ii. not as strongly biased by outliers
+     
+II. **Dunn's test** tells you what **pairwise** multiple comparisons of the ranked data.
+
+    - **post-hoc** test after Kruskal-Wallis test and ANOVA
+    - use with **Benjamini-Hochberg (BH)** correction. (https://www.researchgate.net/post/What_is_your_prefered_p-value_correction_for_multiple_tests#:~:text=1)%20Bonferroni%20%22punishes%22%20all,values%20accordingly%20to%20their%20ranking.&text=In%20this%20case%20Bonferroni%20will,usually%20I%20use%20Benjamini%2DHochberg.)
+     
+### Conclusion:
+
+I. Total Gene significant differences: caused by core or unique genes?
+
+    1) Number of Total Genes are **significanly different** with all three tests (kruskal, anova w/outlier & anova w/o outlier)
+    2) Number of Unique Genes are **significanly different** with all three tests (kruskal, anova w/outlier & anova w/o outlier)
+    3) Number of Core Genes are **significanly different** with all three tests (kruskal, anova w/outlier & anova w/o outlier)
+
+II. Dunn' Test after Kruskal-Wallis test Pairwise comparison between serogroups
+**Total Genes:**
+
+    i. Autumnalis(79): 3/10 
+    ii. Bataviae(6): 2/10 
+    iii. Canicola(25): 4/10 
+    iv. Grippotyphosa(21): 2/10 
+    v. **Icterohaemorrhagiae(97): 8/10** * (taking out serovar isolates (Oceania) didn't change the reuslts)
+    vi. **Pomona (24): 8/10** *Pomona has more differences in unique genes 
+    vii. Hebdomanis (6): 2/10
+    iix. Pyrogenes (12): 4/10
+    ix. Australis(19): 2/10
+    x. Djasiman(2): 0/10 
+
+**Core Genes:**
+
+    i. **Autumnalis(79): 9/10** *Autumalis has more differences in core genes
+    ii. Bataviae(6): 2/10 
+    iii. Canicola(25): 2/10 
+    iv. Grippotyphosa(21): 3/10 * (**** significance with Autumnalis, rest were only *)
+    v. **Icterohaemorrhagiae(97): 9/10** * (taking out serovar isolates (Oceania) didn't change the reuslts)
+    vi. Pomona (24): 3/10 
+    vii. Hebdomanis (6): 3/10
+    iix. Pyrogenes (12): 2/10
+    ix. Australis(19): 4/10
+    x. Djasiman(2): 0/10 
+    
+**Unique Genes:**
+
+    i. Autumnalis(79): 7/10 *Autumalis has more differences in core genes
+    ii. Bataviae(6): 2/10 
+    iii. Canicola(25): 2/10 
+    iv. Grippotyphosa(21): 2/10 
+    v. **Icterohaemorrhagiae(97): 7/10** * (taking out serovar isolates (Oceania) didn't change the reuslts)
+    vi. **Pomona (24): 2/10** 
+    vii. Hebdomanis (6): 0/10
+    iix. Pyrogenes (12): 2/10
+    ix. Australis(19): 2/10
+    x. Djasiman(2): 0/10 
+
+    
+### Kruskal-Wallis test
+```{r, echo=FALSE}
+current_genes <- Total_genes #%>% subset(c(serogroups !="Hawain"))%>% subset(serogroups !="Australis")
+
+# unparametric difference significance test
+#  - presence of outliers
+current_genes %>% kruskal_test(value ~ serogroups)
+
+# normal distribution assumed significance difference test
+  # - F-statistics
+
+# post-hoc Dunn's test for specific pairwise comparison contribute to the differences between each serogroups
+current_genes %>% dunn_test(value ~ serogroups, p.adjust.method = "BH")  %>% subset(group1 == "Autumnalis" | group2 == "Autumnalis")
+
+```
+
+### ANOVA Test
+```{r}
+
+
+# Levene's test for homogenity of variance, one presumption of anova
+current_genes %>% levene_test(value ~serogroups)
+
+# ignore outlier ANOVA
+current_genes %>% anova_test(value~ serogroups)
+
+
+# remove outliers from each group
+serogroup <- levels(as.factor(current_genes$serogroups))
+
+wo_outliers <- data.frame(serogroup=character(), value=numeric())
+for(grp in serogroup){
+  serogroup_value <- current_genes %>% subset(serogroup == grp) %>% select(value)
+  outliers <- boxplot(serogroup_value,plot=FALSE)$out
+  if(length(outliers) != 0){
+    no_outlier <- serogroup_value[-c(which((serogroup_value$value %in% outliers ))),]
+  grp_value_no_outlier <- data.frame(serogroup = grp, value=no_outlier)
+  # print(grp_value_no_outlier)
+  wo_outliers <- rbind(wo_outliers,grp_value_no_outlier)
+
+  }else{
+    serogroup_value_1 <- data.frame(serogroup = grp, value=serogroup_value$value)
+    # boxplot(value~serogroup, serogroup_value_1)
+    wo_outliers <- rbind(wo_outliers,serogroup_value_1)
+  }
+}
+
+print("ANOVA TEST W/O outliers:")
+# ANOVA Test with outlier for each serogroup removed
+wo_outliers %>% anova_test(value~ serogroup)
+
+ggplot(current_genes, aes(x=serogroups, y=value))+
+  geom_boxplot()+
+  theme(axis.text.x=element_text(size=8))+
+  coord_flip()
+ggplot(wo_outliers, aes(x=serogroup, y=value))+
+  geom_boxplot()+
+  theme(axis.text.x=element_text(size=8))+
+  coord_flip()
+  
+
 
 ```
