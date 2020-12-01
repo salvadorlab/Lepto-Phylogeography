@@ -21,5 +21,5 @@ f2 <- facet_plot(gg, panel = "fastbaps", data = plot.df, geom = geom_tile, aes(x
     color = "blue")
 ggsave("core_genome_fastbaps.pdf")
 
-baps_pirate <- data.frame(best.partition) %>% mutate(BioSample.Accession = rownames(.)) %>% rename(gubbins_baps = best.partition )
+baps_pirate <- data.frame(best.partition) %>% mutate(BioSample.Accession = rownames(.)) %>% rename(pirate_baps = best.partition )
 write.csv(baps_pirate, "pirate_baps_for_each_acc.csv")
