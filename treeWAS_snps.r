@@ -44,6 +44,6 @@ temp <- cbind(temp, current_column)
 }
 
 temp <- temp %>% select(-c("BioAccession"))
-write.csv(paste0(file_path, "treeWAS/snps_binary_sero.csv"))
+write.csv(temp,paste0(file_path, "treeWAS/snps_binary_sero.csv",row.names = FALSE))
 
 
