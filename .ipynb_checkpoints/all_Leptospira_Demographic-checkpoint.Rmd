@@ -1,0 +1,68 @@
+---
+title: "all_Leptospira_Demographic.Rmd"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+all_path="/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Lepto_assemblies_V2/"
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = all_path)
+```
+
+### Read in required libraries for analysis
+```{r}
+library(dplyr)
+library(magrittr)
+library(ggplot2)
+library(plotly)
+```
+
+### All Leptopsira Assemblies after filtering 
+- filtering procedures and script can find in: https://github.com/rx32940/Lepto-Phylogeography/issues/4#issuecomment-602252560
+```{r}
+all_973 <- read.csv(paste(all_path,"ncbi+self_973.csv",sep=""))
+
+# unidentified sp. isolates show as individual species, convert them into one species
+all_973 %<>% mutate(Species=as.character(lapply(as.character(species), function(x){
+  unlist(strsplit(x ," ", fixed = TRUE))[2]
+})))
+
+# number of unique species, 69 species including "sp."
+unique_species <- unique(all_973$Species)
+
+```
+
+### plot the number of isolates each species has
+
+```{r}
+distribution <- ggplot(all_973, aes(x=Species)) +
+  geom_bar() +
+  theme(axis.text.x=element_text(angle = 90))
+
+ggplotly(distribution)
+
+```
+### Select All Leptospira Interrogans isolates
+```{r}
+interrogans_path <- "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Interrogans/"
+all_interrogans <- all_973 %>% subset(species %in% "Leptospira interrogans")
+# write.csv(all_interrogans, paste0(interrogans_path,"all_interrogans_440.csv"))
+
+interrogans_acc <- all_interrogans$Sample
+write.table(interrogans_acc,paste0(interrogans_path,"interrogans_acc_440.txt"), row.names = FALSE, col.names = FALSE, quote = FALSE, sep="\n")
+```
+
+
+### Downsample each species by 10
+```{r}
+isolate_needed <- all_973 %>% group_by(Species) %>% count %>%
+  mutate(isolated_needed=ceiling(n/20)) 
+
+colnames(isolate_needed) <- c("Species", "NumberOfIsolates", "Downsampled_Number")
+
+sum(isolate_needed$Downsampled_Number) # total number of isolates need
+
+# write.csv(isolate_needed, paste(all_path,"all_lepto_asm_downsample_by_20.csv",sep=""),row.names = FALSE)
+isolate_needed
+```

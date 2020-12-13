@@ -205,11 +205,13 @@ write.csv(top_contrib_gene2, paste0(file_path,"gene_contrib_PC2.csv"),row.names 
 # plot pca
 # https://cran.r-project.org/web/packages/ggfortify/vignettes/plot_pca.html
 
-fviz_eig(pca_pa) # sree plot
+fviz_eig(pca_pa, addlabels = TRUE,ggtheme = theme_bw()) # sree plot
 # eigenvalues <1 would mean that the component actually explains less than a single # explanatory variable we discard them
 
+pca_pa$x
 pca_plot <- autoplot(pca_pa, data = pca_matrix, colour = 'serogroups',x=1,y=3)+
-  theme_bw()
+  theme_bw() +
+  theme(legend.text = element_text(size=10))
 pca_plot
 ggplotly(pca_plot)
 
@@ -224,12 +226,13 @@ plot_ly(pca_coord,x=pca_coord$PC1,y=pca_coord$PC2,z=pca_coord$PC3,color = pca_ma
 ### organzing serogroups into trait table for SCOARY
 ```{r}
 
-serogroup_trait <- inter_meta_2 %>% select(c("BioSample.Accession", "serogroups")) %>% subset(serogroups != "NA" & BioSample.Accession != "SAMEA864166") %>% mutate(values= 1) %>% 
+serogroup_trait <- inter_meta_2  %>% subset(serogroups != "NA" & BioSample.Accession != "SAMEA864166") %>% select(c("BioSample.Accession", "serogroups")) %>% mutate(values= 1) %>% 
   pivot_wider(BioSample.Accession, names_from = serogroups, values_from = values)
 
 serogroup_trait[is.na(serogroup_trait)] <- 0
+serogroup_trait %>% subset(Serovar_2 == "Copenhageni/Icterohaemorrhagiae")
 
-
+unique(serogroup_trait$serogroups)
 
 # write.csv(serogroup_trait, paste0(file_path, "scoary_serogroup_trait.csv"), sep = ",", row.names = FALSE)
 ```
@@ -286,6 +289,9 @@ p1 <- ggplot(melt_summary_table, aes(x = reorder(Var2,value), y = value, fill=se
           coord_flip()+
   theme(axis.text.y=element_text(size=6), axis.text.x=element_text(angle=90))
 p1
+
+melt_summary_table %>% subset(serogroups=="Djasiman")
+
 # melt_summary_table
 # ggplotly(p1)
 # ggsave(paste0(file_path, "all_lepto_genome_stat.pdf"),p1)
@@ -305,7 +311,8 @@ p2 <- ggplot(Total_genes, aes(x = as.factor(serogroups), y = value)) +
           geom_boxplot() + 
           xlab("Genomes") +
           ylab("Count") +
-          coord_flip()
+          coord_flip() +
+          theme_bw()
           
 p2
 
@@ -320,7 +327,8 @@ p3 <- ggplot(core_genes, aes(x = as.factor(serogroups), y = value)) +
           geom_boxplot() + 
           xlab("Genomes") +
           ylab("Count") +
-          coord_flip()
+          coord_flip() +
+          theme_bw()
           
 p3
 
@@ -334,11 +342,12 @@ p4 <- ggplot(unique_genes, aes(x = as.factor(serogroups), y = value)) +
           geom_boxplot() + 
           xlab("Genomes") +
           ylab("Count") +
-          coord_flip()
+          coord_flip() +
+          theme_bw()
           
 p4
 
-
+unique_genes %>% subset(serogroups=="Djasiman")
 ```
 
 
@@ -425,11 +434,11 @@ current_genes %>% kruskal_test(value ~ serogroups)
   # - F-statistics
 
 # post-hoc Dunn's test for specific pairwise comparison contribute to the differences between each serogroups
-current_genes %>% dunn_test(value ~ serogroups, p.adjust.method = "BH")  %>% subset(group1 == "Autumnalis" | group2 == "Autumnalis")
+current_genes %>% dunn_test(value ~ serogroups, p.adjust.method = "BH")  %>% subset(group1 == "Icterohaemorrhagiae" | group2 == "Icterohaemorrhagiae")
 
 ```
 
-### ANOVA Test
+### ANOVA Test without outliers
 ```{r}
 
 
@@ -445,8 +454,10 @@ serogroup <- levels(as.factor(current_genes$serogroups))
 
 wo_outliers <- data.frame(serogroup=character(), value=numeric())
 for(grp in serogroup){
-  serogroup_value <- current_genes %>% subset(serogroup == grp) %>% select(value)
+  serogroup_value <- current_genes %>% subset(serogroups == grp) %>% select(value)
+  # print(paste0(grp,serogroup_value))
   outliers <- boxplot(serogroup_value,plot=FALSE)$out
+  print(paste0(grp,length(outliers)))
   if(length(outliers) != 0){
     no_outlier <- serogroup_value[-c(which((serogroup_value$value %in% outliers ))),]
   grp_value_no_outlier <- data.frame(serogroup = grp, value=no_outlier)
@@ -464,10 +475,13 @@ print("ANOVA TEST W/O outliers:")
 # ANOVA Test with outlier for each serogroup removed
 wo_outliers %>% anova_test(value~ serogroup)
 
+# with outlier plot
 ggplot(current_genes, aes(x=serogroups, y=value))+
   geom_boxplot()+
   theme(axis.text.x=element_text(size=8))+
   coord_flip()
+
+# without outliers plot
 ggplot(wo_outliers, aes(x=serogroup, y=value))+
   geom_boxplot()+
   theme(axis.text.x=element_text(size=8))+

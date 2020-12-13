@@ -1,0 +1,85 @@
+---
+title: "PATRIC_Wrangling"
+author: "Rachel Xu"
+date: "12/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+path <- "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/SeroAll/"
+
+
+```
+
+
+```{r}
+
+all_data_table <- read.csv(paste0(path, "PATRIC_genome_all_732.csv")) %>% select(c("Genome.ID", "Genome.Name", "Organism.Name", "Serovar", "BioProject.Accession", "BioSample.Accession", "Assembly.Accession", "SRA.Accession", "GenBank.Accessions", "Sequencing.Centers", "Sequencing.Platform", "Sequencing.Depth", "PATRIC.CDS", "GC.Content", "Isolation.Source","Isolation.Country", "Geographic.Location", "Host.Name", "Collection.Date"))
+
+
+pathogenic <- c("interrogans","mayottensis","santarosai","borgpetersenii","dzianensis","alstonii", "adleri","noguchii", "kirschneri", "barantonii", "weilii","putramalaysiae","alexanderi","gomenensis","kmetyi","yasudae","elllisii","adleri","stimsonii","kmetyi", "alstoni")
+
+intermediate <- c("andrefontaineae","wolffii","sarikeiensis","fainei","selangorensis","inadai","dzoumogneensis","fluminis","licerasiae","koniamboensis","fletcheri","langatensis","semungkisensis","perolatii","neocaledonica","haakeii","saintgironsiae","hartskeerlii","johnsonii","venezuelensis", "broomii")
+
+saprophytic <- c("meyeri", "idonii", "wolbachii","biflexa", "levettii", "brenneri", "ilyithenensis", "bandrabouensis", "bouyouniensis", "mtsangambouensis", "jelokensis", "congkakensis", "kemamanensis", "ognonensis", "perdikensis", "montravelensis", "bourretii", "noumeaensis", "kanakyensis", "vanthielii")
+   
+# label all lepto genomes from PATRIC with phylogenetic group              
+all_data_table <- all_data_table %>% 
+  mutate(species = unlist(lapply(strsplit(Genome.Name, " "),function(item) {unlist(item)[2]}))) %>%
+  subset(species != "illini") %>% 
+  mutate(group=ifelse(species %in% pathogenic, "pathogenic", 
+                      ifelse(species %in% intermediate, "intermediate", 
+                             ifelse(species %in% saprophytic, "saprophytic", "unknown")))) %>%
+  subset(group == "pathogenic") 
+
+# get all isolates with serotype metadata available 
+patric_sero <- all_data_table %>% 
+  subset(Serovar != "" & Serovar != "serovar undetermined" & Serovar != "serovar s" & Serovar != "Room22") %>%
+  mutate(Serovar_2 = ifelse(grepl("serovar",Serovar,fixed = TRUE), unlist(lapply(Serovar,function(x) {unlist(strsplit(x," "))[match("serovar", unlist(strsplit(x," ")))+1]})), Serovar)) %>% 
+  select(c("Genome.Name", "BioProject.Accession" , "BioSample.Accession", "Sequencing.Centers", "Host.Name", "Isolation.Country", "Geographic.Location", "species", "Serovar_2","Collection.Date"))
+
+
+```
+
+## To select all pathogenic isolates from NCBI+Self assembled genomes
+   - add metadata to those genomes with python script **all_lepto_metadata.ipynb**
+   - keep working after read in the metadata file
+```{r}
+# 
+# # get all pathogenic isolates from self-assembled + NCBI biosamples
+# NCBI_Self <- read.csv("/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Lepto_assemblies_V2/ncbi+self_973.csv") %>% 
+#   subset(unlist(lapply(strsplit(species, " "),function(item) {unlist(item)[2]})) %in% pathogenic)
+# # write.csv(NCBI_Self, paste0(path,"self_assembled_pathogenic_782.csv"), sep=",", row.names = FALSE)
+
+# to get metadata for all pagthogenic lepto 
+# with python script all_lepto_metadata.ipynb
+ncbi_self_sero <- read.csv(paste0(path, "ncbiself_metadata_pathogenic_782.csv")) %>%
+  mutate(species = unlist(lapply(biosample_name, function(item){unlist(strsplit(item, " "))[2]}))) %>%
+  mutate(Serovar_2=ifelse(grepl("serovar",biosample_name,fixed = TRUE), unlist(lapply(biosample_name,function(x) {unlist(strsplit(x," "))[match("serovar", unlist(strsplit(x," ")))+1]})), Serovar))  %>%
+  subset(Serovar_2 != "" & Serovar_2 != "Unknown") %>%
+  select(c("BioSample.Accession", "biosample_name", "institute", "Bioproject", "Collection.Date","Host.Name", "Geographic.Location","country", "Serovar_2", "species" ))
+
+colnames(ncbi_self_sero) <- c("BioSample.Accession","Genome.Name", "Sequencing.Centers", "BioProject.Accession","Collection.Date", "Host.Name", "Geographic.Location", "Isolation.Country", "Serovar_2", "species" )
+
+# all serovar to lower case
+ncbi_self_sero$Serovar_2 <- tolower(ncbi_self_sero$Serovar_2)
+
+all_pathogenic_sero <- full_join(ncbi_self_sero, patric_sero, by="BioSample.Accession")# %>% select(c("BioSample.Accession"))
+# write.csv(all_pathogenic_sero, paste0(path, "all_pathogenic_sero.csv"))
+# "all_pathogenic_sero.csv" is manually fixed by combining metadata for both database
+
+
+```
+
+
+#Analyze all pathogenic Lepto with sero metadata
+```{r}
+
+read.csv(paste0(path, "all_pathogenic_sero.csv"))
+
+```
