@@ -1,17 +1,17 @@
 #!/bin/bash
 #SBATCH --partition=batch
-#SBATCH --job-name=scoary_sero
+#SBATCH --job-name=pirate_pathogenic_sero
 #SBATCH --ntasks=1                    	
 #SBATCH --cpus-per-task=24             
 #SBATCH --time=100:00:00
 #SBATCH --mem=100G
-#SBATCH --output=/scratch/rx32940/scoary_sero.%j.out       
-#SBATCH --error=/scratch/rx32940/scoary_sero.%j.out        
+#SBATCH --output=/scratch/rx32940/pirate_pathogenic_sero.%j.out       
+#SBATCH --error=/scratch/rx32940/pirate_pathogenic_sero.%j.out        
 #SBATCH --mail-user=rx32940@uga.edu
 #SBATCH --mail-type=ALL   
 
 
-dir_path="/scratch/rx32940/interrogans_genome"
+dir_path="/scratch/rx32940/pathogenic_sero"
 software_path="/home/rx32940/miniconda3"
 fastGear_path="/home/rx32940/fastGEARpackageLinux64bit"
 matlab_path="/home/rx32940/MATLAB/v901" 
@@ -25,12 +25,14 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 ##########################################################
 
 # intra-species MCL value = 2 (default)
+# inter-species MCL value = 6
 # to identify core-pan genome for all interrogans isolates
-# cd $dir_path/pirate_sero
-# $software_path/bin/PIRATE \
-# -i $dir_path/pirate_sero/prokka \
-# -o $dir_path/pirate_sero/out \
-# -a -r -t 24
+cd $dir_path/
+$software_path/bin/PIRATE \
+-i $dir_path/prokka_gff \
+-o $dir_path/pirate \
+-a -r -t 24 \
+-pan-opt "-f 6"
 
 # # parse PIRATE outputs 
 # perl $software_path/tools/convert_format/PIRATE_to_roary.pl -i /scratch/rx32940/interrogans_genome/pirate_sero/out/PIRATE.*.tsv -o /scratch/rx32940/interrogans_genome/pirate_sero/out/pirate_roary_pres_abs
@@ -49,11 +51,11 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 # -s $dir_path/pirate_sero/out/core_alignment.fasta 
 
 ## Do Scoary GWAS analysis with presence/absence of the gene
-cd $dir_path/pirate_sero/scoary
-$software_path/bin/scoary -g $dir_path/pirate_sero/out/pirate_roary_pres_abs.csv -t $dir_path/pirate_sero/scoary/scoary_serogroup_trait.csv \
---collapse -n $dir_path/iqtree/int_sero_iqtree.newick --threads 24 \
--o $dir_path/pirate_sero/scoary/scoary_serogroup_result -e 10000 \
--c I BH P -p 0.05
+# cd $dir_path/pirate_sero/scoary
+# $software_path/bin/scoary -g $dir_path/pirate_sero/out/pirate_roary_pres_abs.csv -t $dir_path/pirate_sero/scoary/scoary_serogroup_trait.csv \
+# --collapse -n $dir_path/iqtree/int_sero_iqtree.newick --threads 24 \
+# -o $dir_path/pirate_sero/scoary/scoary_serogroup_result -e 10000 \
+# -c I BH P -p 0.05
 
 #########################################################
 #
