@@ -80,6 +80,6 @@ all_pathogenic_sero <- full_join(ncbi_self_sero, patric_sero, by="BioSample.Acce
 #Analyze all pathogenic Lepto with sero metadata
 ```{r}
 
-read.csv(paste0(path, "all_pathogenic_sero.csv"))
+read.csv(paste0(path, "all_pathogenic_sero_601.csv"))
 
 ```
