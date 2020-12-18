@@ -152,6 +152,9 @@ for(item in serovars){
 
 length(serogroups)
 # serovars
+pathogenic_sero_db$Serovar_2.x <- unlist(lapply(pathogenic_sero_db$Serovar_2.x, function(x){
+  ifelse(x=="Hardjobovis","hardjo-bovis",x)
+}[1]))
 pathogenic_sero_db$serogroups <-serogroups
 # serogroups <- for(pathogenic_sero_db$Serovar_2.x function(x){
 #   i=0
