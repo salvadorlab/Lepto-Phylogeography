@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --partition=batch_30d
+#SBATCH --partition=highmem_30d_p
 #SBATCH --job-name=iqtree_pathogenic_sero
 #SBATCH --ntasks=1                    	
 #SBATCH --cpus-per-task=24             
 #SBATCH --time=500:00:00
-#SBATCH --mem=100G
+#SBATCH --mem=400G
 #SBATCH --output=/scratch/rx32940/iqtree_pathogenic_sero.%j.out       
 #SBATCH --error=/scratch/rx32940/iqtree_pathogenic_sero.%j.out        
 #SBATCH --mail-user=rx32940@uga.edu
