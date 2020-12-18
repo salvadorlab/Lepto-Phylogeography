@@ -1,12 +1,12 @@
 #!/bin/bash
-#SBATCH --partition=batch
-#SBATCH --job-name=pirate_pathogenic_sero
+#SBATCH --partition=batch_30d
+#SBATCH --job-name=iqtree_pathogenic_sero
 #SBATCH --ntasks=1                    	
 #SBATCH --cpus-per-task=24             
-#SBATCH --time=100:00:00
+#SBATCH --time=500:00:00
 #SBATCH --mem=100G
-#SBATCH --output=/scratch/rx32940/pirate_pathogenic_sero.%j.out       
-#SBATCH --error=/scratch/rx32940/pirate_pathogenic_sero.%j.out        
+#SBATCH --output=/scratch/rx32940/iqtree_pathogenic_sero.%j.out       
+#SBATCH --error=/scratch/rx32940/iqtree_pathogenic_sero.%j.out        
 #SBATCH --mail-user=rx32940@uga.edu
 #SBATCH --mail-type=ALL   
 
@@ -27,15 +27,15 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 # intra-species MCL value = 2 (default)
 # inter-species MCL value = 6
 # to identify core-pan genome for all interrogans isolates
-cd $dir_path/
-$software_path/bin/PIRATE \
--i $dir_path/prokka_gff \
--o $dir_path/pirate \
--a -r -t 24 \
--pan-opt "-f 6"
+# cd $dir_path/
+# $software_path/bin/PIRATE \
+# -i $dir_path/prokka_gff \
+# -o $dir_path/pirate \
+# -a -r -t 24 \
+# -pan-opt "-f 6"
 
 # # parse PIRATE outputs 
-# perl $software_path/tools/convert_format/PIRATE_to_roary.pl -i /scratch/rx32940/interrogans_genome/pirate_sero/out/PIRATE.*.tsv -o /scratch/rx32940/interrogans_genome/pirate_sero/out/pirate_roary_pres_abs
+# perl $software_path/tools/convert_format/PIRATE_to_roary.pl -i $dir_path/pirate/PIRATE.*.tsv -o $dir_path/pirate/pirate_roary_pres_abs.csv
 
 #########################################################
 #
@@ -45,10 +45,10 @@ $software_path/bin/PIRATE \
 
 # # recontruct the ML tree with core genome concatenation produced by PIRATE
 # # this will be used in python code for plot fastGear results
-# module load IQ-TREE/1.6.5-omp
-# cd $dir_path/iqtree/
-# iqtree -nt AUTO -m MFP -pre $dir_path/iqtree/int_sero_iqtree \
-# -s $dir_path/pirate_sero/out/core_alignment.fasta 
+module load IQ-TREE/1.6.5-omp
+cd $dir_path/core_iqtree/
+iqtree -nt AUTO -m MFP -pre $dir_path/core_iqtree/core_patho_sero_iqtree \
+-s $dir_path/pirate/core_alignment.fasta 
 
 ## Do Scoary GWAS analysis with presence/absence of the gene
 # cd $dir_path/pirate_sero/scoary
