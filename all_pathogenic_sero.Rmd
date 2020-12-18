@@ -76,10 +76,100 @@ all_pathogenic_sero <- full_join(ncbi_self_sero, patric_sero, by="BioSample.Acce
 
 ```
 
+# Serovar to serogroup dict
+```{r}
+Anarum <- c("Pingchang")
+Andaman <- c("Andamana")
+Australis <- c("Australis","Bajan","Bangkok","Bratislava","Fugis","Hawain","Jalna","Lora","Muenchen","Nicaragua","Peruviana","Pina","Ramisi","Rushan","Soteropolitana")
+Autumnalis <- c("Alice","Autumnalis","Bangkinang","Bim","Bulgarica","Butembo","Carlos","Erinaceiauriti","Fortbragg","Lambwe","Mooris","Mujunkumi","Nanla","Rachmati","Srebarna","Sumatrana","Weerasinghe")
+Ballum <- c("Aroborea","Ballum","Castellonis","Guangdong","Kenya","Peru","Sichuan")
+Bataviae <- c("Argentiniensis","Balboa","Bataviae","Brasiliensis","Claytoni","Djatzi","Kobbe","Losbanos","Paidjan","Rioja","Santarosa","Waimea")
+Canicola <- c("Bafani","Benjamini","Bindjei","Broomi","Canicola","Galtoni","Jonsis","Kamituga","Kuwait","Malaya","Manilae","Portlandvere","Qunjian","Schueffneri","Sumneri")
+Celledoni <- c("Anhoa","Celledoni","Cynopteri","Hainan","Mengdeng","Whitcombi")
+Codice<- c("Codice")
+Cynopteri <- c("Cynopteri","Tingomaria")
+Djasiman <- c("Agogo","Buenos Aires","Djasiman","Gurungi","Huallaga","Sentot")
+Grippotyphosa <- c("Bananal","Canalzonae","Dadas","Grippotyphosa","Grippotyphosa Type Duyster","Grippotyphosa Type Moskva","Honghe","Huanuco","Liangguang","Linhai","Muelleri","Ratnapura","Valbuzzi","Vanderhoedeni")
+Hebdomanis <- c("Borincana","Goiano","Hebdomadis","Jules","Kabura","Kambale","Kremastos","Manzhuang","Maru","Medanensis","Nanding","Nona","Sanmartini","Worsfoldi")
+Holland <- c("Holland")
+Hurstbridge <- c("Hurstbridge","Hurstbridge type HB6")
+Icterohaemorrhagiae <- c("Birkini","Bogvere","Copenhageni","Dakota","Gem","Hongchon","Honghe","Hualin","Icterohaemorrhagiae","Lai","Lai Type Langkawi","Liangshan","Mankarso","Monymusk","Mwogolo","Naam","Nanxi","Ndahambukuje","Ndambari","Smithi","Sokoine","Tonkini","Yeoncheon", "copenhageni/icterohaemorrhagiae")
+Iquitos <- c("Varillal")
+Javanica <- c("Arenal","Ceylonica","Coxi","Dehong","Fluminense","Javanica","Kalimantani","Mengla","Mengma","Mengrum","Menoni","Menrun","Poi","Sofia","Sorexjalna","Vargonicas","Yaan","Zhenkang")
+Louisiana <- c("Lanka","Louisiana","Orleans")
+Lyme <- c("Lyme")
+Manhao <- c("Lichuan","Lincang","Lushui","Manhao","Qingshui")
+Mini <- c("Beye","Georgia","Hekou","Mini","Perameles","Ruparupae","Swajizak","Tabaquite","Yunnan")
+Panama <- c("Cristobali","Mangus","Panama")
+Pomona <- c("Altodouro","Kennewicki","Kunming","Mozdok","Pomona","Proechimys","Tropica","Tsaratsovo")
+Pyrogenes <- c("Abramis","Alexi","Biggis","Camlo","Costa Rica","Guaratuba","Hamptoni","Kwale","Manilae","Menglian","Myocastoris","Nigeria","Princestown","Pyrogenes","Robinsoni","Varela","Zanoni")
+Ranarum <- c("Evansi","Pingchang","Ranarum")
+Sarmin <- c("Cuica","Machiguenga","Rio","Sarmin","Waskurin","Weaveri")
+Sehgali <- c("Portblairi")
+Sejroe <- c("Balcanica","Caribe","Dikkeni","Geyaweera","Gorgas","Guaricura","Haemolytica","Hardjo","Hardjo type Bovis","Hardjo type Prajitno",
+            "hardjo-bovis",
+            "Hardjobovis",
+            "hardjo-prajitno","Istrica","Jin","Medanensis","Nyanza","Polonica","Recreo","Ricardi","Roumanica","Saxkoebing","Sejroe","Trinidad","Unipertama","Wolffi")
+Semaranga <- c("Patoc","Semaranga","Saopaulo")
+Shermani <- c("Aguaruna","Badudieri","Carimagua","Luis","Shermani")
+Tarassovi <- c("Atchafalaya","Atlantae","Bakeri","Banna"," Bravo","Chagres","Corredores","Darien","Gatuni","Gengma","Guidae","Kanana","Kaup","Kisuba","Langati","Malaysia","Mengpeng","Mogden","Moldaviae","Navet","Ningxia","Rama","Sulzerae","Tarassovi","Topaz","Tunis","Vughia","Yunxian")
+Szwajizak <- c("szwajizak")
+Arborea <- c("Arborea")
+Heyan <- c("heyan")
+
+serogroup_dict <- list(Anarum = Anarum,Andaman=Andaman, Australis=Australis,Autumnalis=Autumnalis,Ballum=Ballum,Bataviae=Bataviae, Canicola=Canicola,Celledoni=Celledoni,Codice=Codice,Cynopteri=Cynopteri,Djasiman=Djasiman,Grippotyphosa=Grippotyphosa,Hebdomanis=Hebdomanis,Holland=Holland,Hurstbridge=Hurstbridge,Icterohaemorrhagiae=Icterohaemorrhagiae,Iquitos=Iquitos,Javanica=Javanica,Louisiana=Louisiana,Lyme=Lyme,Manhao=Manhao,Mini=Mini,Panama=Panama,Pomona=Pomona,Pyrogenes=Pyrogenes,Ranarum=Ranarum,Sarmin=Sarmin,Sehgali=Sehgali,Sejroe=Sejroe,Semaranga=Semaranga,Shermani=Shermani,Tarassovi=Tarassovi,Szwajizak=Szwajizak, Arborea=Arborea,  Heyan = Heyan)
+serogroup_dict <- lapply(serogroup_dict, tolower)
+```
+
+# add serogroup to metadata 
+```{r}
+
+pathogenic_sero_db <- read.csv(paste0(path, "all_pathogenic_sero_597.csv"))
+serovars <- pathogenic_sero_db$Serovar_2.x
+
+serogroups <- c()
+j = 0
+for(item in serovars){
+  j=j+1
+  i=0
+  in_dict <- 0
+  item <- tolower(item)
+  # print(paste0("serovar: ",item))
+  for(serogroup in serogroup_dict){
+    i=i+1
+    if(item %in% serogroup){
+      in_dict <- 1
+      # print(paste0("serogroup: ",names(serogroup_dict)[i]))
+      serogroups <- c(serogroups,names(serogroup_dict)[i])
+      break
+    }
+  }
+  if(in_dict == 0){
+    # print("not_in_dict")
+    serogroups <- c(serogroups,"not_in_dict")
+  }
+}
+
+length(serogroups)
+# serovars
+pathogenic_sero_db$serogroups <-serogroups
+# serogroups <- for(pathogenic_sero_db$Serovar_2.x function(x){
+#   i=0
+#   for (item in serogroup_dict){
+#     i=i+1
+#     if(x %in% item){
+#       return(names(serogroup_dict)[i])
+#     }
+#   }
+# })
+# serogroups
+# pathogenic_sero_db$Serovar_2.x
+```
 
 #Analyze all pathogenic Lepto with sero metadata
 ```{r}
 
-read.csv(paste0(path, "all_pathogenic_sero_601.csv"))
+
+unique(pathogenic_sero_db$Serovar_2.x)
 
 ```
