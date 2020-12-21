@@ -153,21 +153,36 @@ for(item in serovars){
 length(serogroups)
 # serovars
 pathogenic_sero_db$Serovar_2.x <- unlist(lapply(pathogenic_sero_db$Serovar_2.x, function(x){
-  ifelse(x=="Hardjobovis","hardjo-bovis",x)
+  ifelse(x=="Hardjobovis","hardjo-bovis",ifelse(x=="copenhageni/icterohaemorrhagiae","copenhageni",tolower(x)))
 }[1]))
 pathogenic_sero_db$serogroups <-serogroups
-# serogroups <- for(pathogenic_sero_db$Serovar_2.x function(x){
-#   i=0
-#   for (item in serogroup_dict){
-#     i=i+1
-#     if(x %in% item){
-#       return(names(serogroup_dict)[i])
-#     }
-#   }
-# })
-# serogroups
-# pathogenic_sero_db$Serovar_2.x
+
+# write.csv(pathogenic_sero_db,paste0(path,"all_pathogenic_sero_597.csv"))
 ```
+
+# make the host names consistent
+```{r}
+
+pathogenic_sero_db <- read.csv(paste0(path,"all_pathogenic_sero_597.csv"))
+
+
+
+pathogenic_sero_db_2 <-pathogenic_sero_db %>% mutate(Host_2 = unlist(lapply(Host.Name.x, function(x){
+  ifelse(grepl(",",x), unlist(strsplit(x,", ", fixed = TRUE))[2],
+         ifelse(x=="",NA,ifelse(x=="Unknown",NA,
+                ifelse(x=="dog", "Canis lupus familiaris", 
+                       ifelse(x=="rat", "Rattus sp.", 
+                              ifelse(x=="rodent","Rodentia",
+                                     ifelse(grepl("caballus",x), "Equus ferus caballus", 
+                                            ifelse(tolower(x)=="frog", "Anura", 
+                                                   ifelse(x=="fox", "Vulpes sp.",x)))))))))
+})))
+
+unique(pathogenic_sero_db_2$Host_2)
+
+write.csv(pathogenic_sero_db_2,paste0(path,"all_pathogenic_sero_597.csv"),row.names = FALSE)
+```
+
 
 #Analyze all pathogenic Lepto with sero metadata
 ```{r}

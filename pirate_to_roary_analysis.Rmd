@@ -30,7 +30,7 @@ file_path <- "/Users/rachel/Desktop/workdir/"
 
 ```{r}
 # read in pirate to roary presence/absence csv
-file <- as.data.frame(read.csv(paste0(file_path,"pirate_roary_pres_abs.csv")))
+file <- as.data.frame(read.csv(paste0(file_path,"pirate_roary_pres_abs_accessory.csv")))
 # head(file)
 
 ```
@@ -99,11 +99,11 @@ reversed_ap <- t(a_p_matrix)
 ```
 ### Merge metadata of the isolates with gene presence/absence profile
 ```{r}
-inter_meta_2 <- read.csv("/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Interrogans/all_interrogans_metadata_440_edited.csv")
+inter_meta_2 <- read.csv("/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/SeroAll/all_pathogenic_sero_597.csv")
 
 # merge matrix with the metadata
 reversed_ap_1 <- as.data.frame(reversed_ap) # reversed_ap were matrix, now to df
-write.csv(reversed_ap_1, paste0(file_path,"scoary_trait_pres_abs.csv"), sep=",", quote = FALSE)
+# write.csv(reversed_ap_1, paste0(file_path,"scoary_trait_pres_abs.csv"), sep=",", quote = FALSE)
 
 reversed_ap_1$BioSample.Accession <- rownames(reversed_ap)
 abs_pres_meta <- right_join(inter_meta_2, reversed_ap_1, by="BioSample.Accession")
@@ -122,12 +122,12 @@ rownames(abs_pres_meta) <- abs_pres_meta$BioSample.Accession
 # ggplotly(pca_plot_complete) 
 
 # remove points with no info for the specific grouping. ex. Seovar, country, Host.Name
-pca_matrix <- abs_pres_meta %>% subset(c(serogroups != "NA")) %>% subset( BioSample.Accession != "SAMEA864166")
+pca_matrix <- abs_pres_meta %>% subset(c(Serovar_2.x != "NA")) #%>% subset( BioSample.Accession != "SAMEA864166")
 
 # write.csv(pca_matrix$BioSample.Accession,paste0(file_path,"sero_avail_isolates.txt",sep="\n"), quote = FALSE, row.names = FALSE, col.names = FALSE)
 
 # pca analysis
-pca_pa <- prcomp(pca_matrix[-c(1:25)]) # exclude metadata columns
+pca_pa <- prcomp(pca_matrix[-c(1:12)]) # exclude metadata columns
 
 # get the metadata
 metadata <- factor(pca_matrix$serogroups)
@@ -136,7 +136,7 @@ metadata <- factor(pca_matrix$serogroups)
 #head(pca_pa$x) 
 unique(metadata)
 
-ggplot(pca_matrix, aes(x=Serovar_2))+
+ggplot(pca_matrix, aes(x=Serovar_2.x))+
   geom_bar()+
   theme_bw()+
   theme(axis.text.x = element_text(angle=90))
@@ -208,8 +208,9 @@ write.csv(top_contrib_gene2, paste0(file_path,"gene_contrib_PC2.csv"),row.names 
 fviz_eig(pca_pa, addlabels = TRUE,ggtheme = theme_bw()) # sree plot
 # eigenvalues <1 would mean that the component actually explains less than a single # explanatory variable we discard them
 
+
 pca_pa$x
-pca_plot <- autoplot(pca_pa, data = pca_matrix, colour = 'serogroups',x=1,y=3)+
+pca_plot <- autoplot(pca_pa, data = pca_matrix, colour = 'Isolation.Country.x',x=2,y=3)+
   theme_bw() +
   theme(legend.text = element_text(size=10))
 pca_plot
@@ -218,7 +219,7 @@ ggplotly(pca_plot)
 # 3d plots
 pca_coord <- as.data.frame(pca_pa$x)
 
-plot_ly(pca_coord,x=pca_coord$PC1,y=pca_coord$PC2,z=pca_coord$PC3,color = pca_matrix$serogroups)
+plot_ly(pca_coord,x=pca_coord$PC2,y=pca_coord$PC3,z=pca_coord$PC4,color = pca_matrix$serogroups)
 
 # pca_matrix$serogroups
 ```
