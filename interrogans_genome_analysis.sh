@@ -45,10 +45,10 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 
 # # recontruct the ML tree with core genome concatenation produced by PIRATE
 # # this will be used in python code for plot fastGear results
-module load IQ-TREE/1.6.5-omp
-cd $dir_path/core_iqtree/
-iqtree -nt AUTO -m MFP -pre $dir_path/core_iqtree/core_patho_sero_iqtree \
--s $dir_path/pirate/core_alignment.fasta 
+# module load IQ-TREE/1.6.5-omp
+# cd $dir_path/core_iqtree/
+# iqtree -nt AUTO -m MFP -pre $dir_path/core_iqtree/core_patho_sero_iqtree \
+# -s $dir_path/pirate/core_alignment.fasta 
 
 ## Do Scoary GWAS analysis with presence/absence of the gene
 # cd $dir_path/pirate_sero/scoary
@@ -167,9 +167,9 @@ iqtree -nt AUTO -m MFP -pre $dir_path/core_iqtree/core_patho_sero_iqtree \
 # run snippy- generate script
 # # snippy_input.tab generation refer to github issue
 # cd $dir_path/pirate_sero/gubbins/snippy
-# $software_path/bin/snippy-multi $dir_path/pirate_sero/snippy_input.tab \
-# --ref $dir_path/GCF_000092565.1_ASM9256v1_genomic.fna --cpus 12 > \
-# run_snippy.sh
+$software_path/bin/snippy-multi $dir_path/snippy_input.tab \
+--ref $dir_path/GCF_000092565.1_ASM9256v1_genomic.fna --cpus 12 > \
+run_snippy.sh
 
 # combine all whole genome alignment with all isolates with the reference genome
 # mask the phage region with PHASTER in the reference genome
