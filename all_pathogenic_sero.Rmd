@@ -43,7 +43,7 @@ patric_sero <- all_data_table %>%
   mutate(Serovar_2 = ifelse(grepl("serovar",Serovar,fixed = TRUE), unlist(lapply(Serovar,function(x) {unlist(strsplit(x," "))[match("serovar", unlist(strsplit(x," ")))+1]})), Serovar)) %>% 
   select(c("Genome.Name", "BioProject.Accession" , "BioSample.Accession", "Sequencing.Centers", "Host.Name", "Isolation.Country", "Geographic.Location", "species", "Serovar_2","Collection.Date"))
 
-
+patric_sero
 ```
 
 ## To select all pathogenic isolates from NCBI+Self assembled genomes
@@ -180,14 +180,28 @@ pathogenic_sero_db_2 <-pathogenic_sero_db %>% mutate(Host_2 = unlist(lapply(Host
 
 unique(pathogenic_sero_db_2$Host_2)
 
-write.csv(pathogenic_sero_db_2,paste0(path,"all_pathogenic_sero_597.csv"),row.names = FALSE)
+# write.csv(pathogenic_sero_db_2,paste0(path,"all_pathogenic_sero_597.csv"),row.names = FALSE)
 ```
 
 
 #Analyze all pathogenic Lepto with sero metadata
 ```{r}
 
+library(ggplot2)
 
-unique(pathogenic_sero_db$Serovar_2.x)
+sero_pathogenic <- read.csv(paste0(path,"all_pathogenic_sero_597.csv"))
 
+length(unique(sero_pathogenic$Serovar_2.x))
+ggplot(sero_pathogenic, aes(x=Serovar_2.x)) +
+  geom_bar() +
+  theme(axis.text.x= element_text(angle=90))
+
+length(unique(sero_pathogenic$serogroups))
+ggplot(sero_pathogenic, aes(x=serogroups)) +
+  geom_bar() +
+  theme_bw() +
+  theme(axis.text.x= element_text(angle=90)) 
+
+length(unique(sero_pathogenic$Host.Name.x))
+unique(sero_pathogenic$Isolation.Country.x)
 ```
