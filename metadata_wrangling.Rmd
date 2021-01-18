@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(dplyr)
+library(magrittr)
 path <- "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Lepto_information_V3/assemblies/"
 
 ```
@@ -73,7 +74,7 @@ pathogenic <- c("interrogans","mayottensis","santarosai","borgpetersenii","dzian
 
 intermediate <- c("andrefontaineae","wolffii","sarikeiensis","fainei","selangorensis","inadai","dzoumogneensis","fluminis","licerasiae","koniamboensis","fletcheri","langatensis","semungkisensis","perolatii","neocaledonica","haakeii","saintgironsiae","hartskeerlii","johnsonii","venezuelensis", "broomii")
 
-saprophytic <- c("meyeri", "idonii", "wolbachii","biflexa", "levettii", "brenneri", "ilyithenensis", "bandrabouensis", "bouyouniensis", "mtsangambouensis", "jelokensis", "congkakensis", "kemamanensis", "ognonensis", "perdikensis", "montravelensis", "bourretii", "noumeaensis", "kanakyensis", "vanthielii")
+saprophytic <- c("meyeri", "idonii", "wolbachii","biflexa", "levettii", "brenneri", "ilyithenensis", "bandrabouensis", "bouyouniensis", "mtsangambouensis", "jelokensis", "congkakensis", "kemamanensis", "ognonensis", "perdikensis", "montravelensis", "bourretii", "noumeaensis", "kanakyensis", "vanthielii","ellinghausenii", "kobayashii", "harrisiae", "ryugenii")
 
 # label all lepto genomes from PATRIC with phylogenetic group              
 all_asm_meta <- all_asm_meta %>% 
@@ -81,6 +82,9 @@ all_asm_meta <- all_asm_meta %>%
   mutate(group=ifelse(species %in% pathogenic, "pathogenic", 
                       ifelse(species %in% intermediate, "intermediate", 
                              ifelse(species %in% saprophytic, "saprophytic", "unknown")))) 
+
+
+# all_asm_meta %>% subset(group == "unknown")
 
 ```
 
@@ -90,6 +94,8 @@ all_asm_meta <- all_asm_meta %>%
 
 all_asm_meta <- all_asm_meta %>%
   mutate(Serovar=tolower(ifelse(grepl("serovar",Genome.Name.x,fixed = TRUE), unlist(lapply(Genome.Name.x,function(x) {unlist(strsplit(x," "))[match("serovar", unlist(strsplit(x," ")))+1]})), Serovar.x)))  
+
+all_asm_meta <- all_asm_meta %>% select(-c("Serovar.x"))
 
 ```
 
@@ -169,11 +175,109 @@ for(item in serovars){
 }
 
 length(serogroups)
-# serovars
-all_asm_meta$Serovar_2.x <- unlist(lapply(pathogenic_sero_db$Serovar_2.x, function(x){
-  ifelse(x=="Hardjobovis","hardjo-bovis",ifelse(x=="copenhageni/icterohaemorrhagiae","copenhageni",tolower(x)))
-}[1]))
+
+
 all_asm_meta$serogroups <-serogroups
 
+all_asm_meta %<>% subset(BioSample.Accession != "SAMN09220899" & BioSample.Accession != "")
 
+
+```
+
+# 4) Parse Country
+```{r}
+
+all_asm_meta$Geographic.Location.x[is.na(all_asm_meta$Geographic.Location.x)] <- "NA"
+
+location <- all_asm_meta$Geographic.Location.x
+
+# take country info form format with "country : region" in location
+country <- unlist(lapply(location, function(x) {
+  ifelse(grepl(":", x, fixed = TRUE),
+         unlist(strsplit(x, ":"))[1], x)
+  }))
+
+# take country info form format with "region , country" in location
+country <- unlist(lapply(country, function(x) {
+  ifelse(grepl(",", x, fixed = TRUE),
+         unlist(strsplit(x, ","))[2], x)
+  }))
+
+country <- lapply(country, function(x){
+if(x == "Pancas Portugal" | x == "Salvador Brazil" | x == "Mwembesongo Tanzania" | x == "Hawaii USA"){
+  unlist(strsplit(x, " "))[2]
+  }else if(x == "Elst Gelderland" | x== "Nieuwegein"){
+    "Netherlands"
+  }else if(x == "Belgian Congo" | x == "Zaire"){
+    "Congo"
+  }else if(x == "Linhai Zhejiang"){
+    "China"
+  }else if(x == "The Netherlands" | x == "Th eNetherlands"){
+    "Netherlands"
+  }else if(x == "NA" | x== "missing" | x == ""){
+    "NA"
+  }else{
+    x
+  }
+})
+
+# trim white space
+country <- trimws(country)
+
+all_asm_meta$country <- country
+# DONT OVERRIDE, species, serovar, serogroup extracted
+# write.csv(all_asm_meta, paste0(path, "NCBI_patric_all_wgs_metadata_2.csv"))
+```
+
+# 5) Overall parsing
+
+
+```{r}
+all_db <- read.csv(paste0(path,"NCBI_patric_all_wgs_metadata_2.csv"))
+
+unique(all_db$serogroups)
+unique(all_db$Collection.Date.x)
+
+all_db$serogroups[all_db$serogroups == "not_in_dict"] <- "NA"
+all_db$Collection.Date.x[all_db$Collection.Date.x == "" | all_db$Collection.Date.x == "missing"] <- "NA"
+
+all_db %>% subset(serogroups != "NA")
+
+all_db %>% subset(group == "unknown")
+
+```
+
+## 5.1) plot groups
+```{r}
+
+library(ggplot2)
+
+# number of isolates in each group
+ggplot(all_db, aes(x=group)) +
+  geom_bar() +
+  geom_text(stat="count",aes(label=..count..,vjust=-0.5,degree=25),size = 4) + 
+  theme_bw() +
+  labs(title = "Number of Leptospira in Each Group")+
+  theme(axis.text = element_text(size=12), axis.title = element_text(size = 12))
+
+# Number of pathogenic isolates with serotype metadata
+path_sero <- all_db %>% subset(group == "pathogenic") %>% subset(serogroups != "NA")
+length(unique(path_sero$Serovar))
+ggplot(path_sero, aes(x=serogroups)) +
+  geom_bar() +
+  geom_text(stat="count",aes(label=..count..,vjust=-0.5,degree=25),size = 4) + 
+  theme_bw() +
+  labs(title = "Number of Pathogenic Leptospira with Serotypes")+
+  theme(axis.text = element_text(size=12, angle = 90), axis.title = element_text(size = 12))
+
+
+
+# Number of pathogenic isolates with collection date metadata
+path_dated <- all_db %>% subset(group == "pathogenic") %>% subset(Collection.Date.x != "NA")
+length(path_dated$Collection.Date.x)
+unique(path_dated$Collection.Date.x) 
+
+path_dated_location <- path_dated %>% subset(country != "NA")
+length(path_dated_location$country)
+unique(path_dated_location$country)
 ```
