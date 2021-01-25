@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --partition=highmem_p
+#SBATCH --partition=highmem_30d_p
 #SBATCH --job-name=gubbins_pathogenic_sero
 #SBATCH --ntasks=1                    	
-#SBATCH --cpus-per-task=24             
-#SBATCH --time=150:00:00
+#SBATCH --cpus-per-task=36             
+#SBATCH --time=500:00:00
 #SBATCH --mem=400G
 #SBATCH --output=/scratch/rx32940/gubbins_pathogenic_sero.%j.out       
 #SBATCH --error=/scratch/rx32940/gubbins_pathogenic_sero.%j.out        
@@ -46,10 +46,10 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 # # recontruct the ML tree with core genome concatenation produced by PIRATE
 # # this will be used in python code for plot fastGear results
 # module load IQ-TREE/1.6.5-omp
-# cd $dir_path/core_iqtree/
+cd $dir_path/core_iqtree/
 # # GTR+F+R5 was determined in a previous iqtree run killed due to time limit
-# iqtree -nt AUTO -m GTR+F+R5 -pre $dir_path/core_iqtree/core_patho_sero_iqtree \
-# -s $dir_path/pirate/core_alignment.fasta 
+iqtree -nt AUTO -m GTR+F+R5 -pre $dir_path/core_iqtree/core_patho_sero_iqtree \
+-s $dir_path/pirate/core_alignment.fasta 
 
 ## Do Scoary GWAS analysis with presence/absence of the gene
 # cd $dir_path/pirate_sero/scoary
@@ -189,9 +189,9 @@ file_path="/scratch/rx32940/interrogans_genome/pirate/feature_sequences"
 
 # # gubbins to detect recombination
 # cd $dir_path/gubbins
-$software_path/bin/run_gubbins.py --threads 24 \
--v -p $dir_path/gubbins/pathogenic_sero \
-$dir_path/snippy/clean.full.noref.aln
+# $software_path/bin/run_gubbins.py --threads 24 \
+# -v -p $dir_path/gubbins/pathogenic_sero \
+# $dir_path/snippy/clean.full.noref.aln
 
 
 # get the snps from recombination free regions
