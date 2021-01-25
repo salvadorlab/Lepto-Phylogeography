@@ -235,15 +235,16 @@ all_asm_meta$country <- country
 ```{r}
 all_db <- read.csv(paste0(path,"NCBI_patric_all_wgs_metadata_2.csv"))
 
-unique(all_db$serogroups)
-unique(all_db$Collection.Date.x)
+# unique(all_db$serogroups)
+# unique(all_db$Collection.Date.x)
 
 all_db$serogroups[all_db$serogroups == "not_in_dict"] <- "NA"
 all_db$Collection.Date.x[all_db$Collection.Date.x == "" | all_db$Collection.Date.x == "missing"] <- "NA"
 
-all_db %>% subset(serogroups != "NA")
+lepto_dated <- all_db %>% subset(Collection.Date.x != "NA")
 
-all_db %>% subset(group == "unknown")
+# DO NOT OVERRIDE, DATE checked and format changed
+# write.csv(lepto_dated, paste0(path, "all_lepto_dated.csv"))
 
 ```
 
@@ -280,4 +281,20 @@ unique(path_dated$Collection.Date.x)
 path_dated_location <- path_dated %>% subset(country != "NA")
 length(path_dated_location$country)
 unique(path_dated_location$country)
+```
+
+## 5.2) plot years
+```{r}
+library(ggplot2)
+all_lepto_dated <- read.csv(paste0(path, "all_lepto_dated.csv"))
+
+length(all_lepto_dated$BioSample.Accession)
+
+max(all_lepto_dated %>% select(Year))
+# ggplot(all_lepto_dated, aes(x=Year)) +
+#   geom_bar() +
+#   scale_x_continuous(breaks = seq(1910,2020,by=2))+
+#   theme(axis.text.x = element_text(angle=90))
+
+
 ```
