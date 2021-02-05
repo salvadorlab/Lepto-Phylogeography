@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(dplyr)
 library(magrittr)
-path <- "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Lepto_information_V3/assemblies/"
+path <- "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Lepto_information_V3/all_species/assemblies/"
 
 ```
 
@@ -281,20 +281,90 @@ unique(path_dated$Collection.Date.x)
 path_dated_location <- path_dated %>% subset(country != "NA")
 length(path_dated_location$country)
 unique(path_dated_location$country)
+table(path_dated_location$country)
+
+```
+# plot countries onto the map
+
+- the codes below were adpated from this site:
+https://slcladal.github.io/maps.html
+
+```{r}
+library(ggplot2)
+library(sf)
+library(rworldmap)
+library(rnaturalearth) # data
+library(rnaturalearthdata) #data
+library(rgeos)
+
+num_per_country <- as.data.frame(table(path_dated_location$country))
+colnames(num_per_country) <- c("country", "number")
+plot(getMap()[which(getMap()$ADMIN=='Mayotte'),] )
+# num_per_country <- path_dated_location %>% select(c(country))
+
+world <- ne_countries(scale = "large", returnclass = "sf")
+join_country_map <- joinCountryData2Map(num_per_country, 
+                                  joinCode = "NAME",
+                                  nameJoinColumn = "country", verbose=T, mapResolution = "high")
+pdf(paste0(path, "WGS_global_distrib_map.pdf"))
+prevalentMap <- mapCountryData(join_country_map, 
+                            nameColumnToPlot="number",
+                            oceanCol = "azure2",
+                            catMethod = "pretty",
+                            missingCountryCol = gray(.8),
+                            addLegend = F,
+                            mapTitle = "",
+                            border = NA)
+# # add legend and display map
+do.call(addMapLegendBoxes, c(prevalentMap,
+                             x = 'bottomleft',
+                             title = "Num. Leptospira genomes",
+                             horiz = FALSE,
+                             bg = "white",
+                            cex=0.8))
+
+dev.off()
+```
+
+```{r}
+
+world <- ne_countries(scale = "large", returnclass = "sf")
+
+merged <- merge(world, num_per_country, by = "country")
+
+merged$number
+
+worldMap <- ggplot(data = world, fill="gold") +
+  geom_sf() +
+  labs( x = "Longitude", y = "Latitude") +
+  ggtitle("World map", subtitle = paste0("(", length(unique(world$admin)), " countries)")) 
+  
+worldMap
+  
+
 ```
 
 ## 5.2) plot years
 ```{r}
 library(ggplot2)
+
 all_lepto_dated <- read.csv(paste0(path, "all_lepto_dated.csv"))
 
 length(all_lepto_dated$BioSample.Accession)
 
-max(all_lepto_dated %>% select(Year))
-# ggplot(all_lepto_dated, aes(x=Year)) +
-#   geom_bar() +
-#   scale_x_continuous(breaks = seq(1910,2020,by=2))+
-#   theme(axis.text.x = element_text(angle=90))
+# analyze temporal signal by species 
+
+# interrogans
+
+interrogans_path <- "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Lepto_information_V3/interrogans/"
+interrogans_dated <- all_lepto_dated %>% subset(species == "interrogans") #%>% select(BioSample.Accession)
+# write.csv(lepto_dated, paste0(interrogans_path, "dated_interrogans_acc_list.txt"), quote = FALSE, sep = "\n", col.names = NA, row.names = FALSE)
+
+
+ggplot(interrogans_dated, aes(x=Year)) +
+  geom_bar() +
+  scale_x_continuous(breaks = seq(1910,2020,by=2))+
+  theme(axis.text.x = element_text(angle=90))
 
 
 ```
