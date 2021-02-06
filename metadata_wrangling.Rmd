@@ -248,6 +248,27 @@ lepto_dated <- all_db %>% subset(Collection.Date.x != "NA")
 
 ```
 
+### Species were mislabelled for some strains, will edited underneath
+```{r}
+
+all_lepto_dated <- read.csv(paste0(path, "all_lepto_dated.csv")) 
+
+# two ways to do this 
+all_lepto_dated <- within(all_lepto_dated,species[BioSample.Accession == "SAMN02436491"] <- "noguchii")
+
+all_lepto_dated <- within(all_lepto_dated, {
+    f <- BioSample.Accession == 'SAMN04488387' & species == 'interrogans'
+    BioSample.Accession[f] <- 'SAMN04488387'
+    species[f] <- 'kirschneri'
+    group[f] <- ifelse(species[f] %in% pathogenic, "pathogenic", 
+                      ifelse(species[f] %in% intermediate, "intermediate", 
+                             ifelse(species[f] %in% saprophytic, "saprophytic", "unknown")))
+})
+
+# write into csv, do not override
+# write.csv(all_lepto_dated, paste0(path, "all_lepto_dated.csv"))
+```
+
 ## 5.1) plot groups
 ```{r}
 
@@ -357,9 +378,9 @@ length(all_lepto_dated$BioSample.Accession)
 # interrogans
 
 interrogans_path <- "/Users/rachel/Dropbox/5.Rachel-projects/Phylogeography/Lepto_information_V3/interrogans/"
-interrogans_dated <- all_lepto_dated %>% subset(species == "interrogans") #%>% select(BioSample.Accession)
-# write.csv(lepto_dated, paste0(interrogans_path, "dated_interrogans_acc_list.txt"), quote = FALSE, sep = "\n", col.names = NA, row.names = FALSE)
-
+interrogans_dated <- all_lepto_dated %>% subset(species == "interrogans") %>% select(BioSample.Accession)
+# write.csv(interrogans_dated, paste0(interrogans_path, "dated_interrogans_acc_list.txt"), quote = FALSE, sep = "\n", col.names = NA, row.names = FALSE)
+# length(interrogans_dated$BioSample.Accession)
 
 ggplot(interrogans_dated, aes(x=Year)) +
   geom_bar() +
