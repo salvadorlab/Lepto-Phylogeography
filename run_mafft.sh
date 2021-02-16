@@ -12,5 +12,5 @@
 
 module load MAFFT/7.470-GCC-8.3.0-with-extensions
 
-data_path="/home/rx32940/github/washingtonCountiesCovid19/data/rawData/GeneticData"
-mafft --globalpair --maxiterate 1000 $data_path/gisaid_hcov-19_2021_02_15_17.fasta > $data_path/covid_random500_alignment02152021_careful.fasta 
+data_path="/home/rx32940/github/washingtonCountiesCovid19/data/processedData"
+mafft $data_path/rand_500_alignment.fasta > $data_path/rand_500_mafft_02152021.fasta 
