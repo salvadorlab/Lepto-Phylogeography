@@ -12,4 +12,6 @@
 
 module load Beast/1.10.4-GCC-8.3.0
 
+cd /scratch/rx32940/beast_covid_rand500/
+
 beast -threads 8 /scratch/rx32940/beast_covid_rand500/rand_500_mafft.xml
